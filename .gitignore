@@ -1,0 +1,19 @@
+**/node_modules/
+**/.DS_Store
+**/dist
+**/pnpm-debug.log
+lerna-debug.log
+*.tsbuildinfo
+.env
+.env.local
+.vscode
+.claude
+
+# LaTeX build output. Built PDFs are CI artifacts, never commits.
+**/out/
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.synctex.gz
+*.pdf

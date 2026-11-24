@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run policy:check
+      - run: pnpm build
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: packages/*/dist
+          retention-days: 1
+
+  # Render every example with the CLI, twice, and fail unless the bytes match.
+  examples:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # per-file commit dates drive SOURCE_DATE_EPOCH
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: packages
+
+      - run: node packages/latex-kit/dist/index.js doctor
+
+      - name: Render examples
+        run: |
+          for f in examples/*/*.tex; do
+            node packages/latex-kit/dist/index.js render "$f" --verify
+          done
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: examples
+          path: out/*.pdf
+          if-no-files-found: error
+
+  # Exercise the reusable action exactly as another repo would.
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: letter
+        uses: ./action
+        with:
+          file: examples/letter/letter.tex
+          verify: 'true'
+          artifact-name: action-letter
+
+      - run: echo "built ${{ steps.letter.outputs.pdf }} (${{ steps.letter.outputs.sha256 }})"

@@ -1,0 +1,32 @@
+# Supply-chain policy for this workspace. The pnpm settings it produces live in
+# pnpm-workspace.yaml under the `Managed by pnpm-policy` marker. Edit this file,
+# then run:
+#
+#   pnpm run policy
+#
+# `pnpm run policy:check` fails CI when the two drift apart.
+
+# Third-party releases wait two days before they can be installed. Compromised
+# releases are normally reported and yanked within hours.
+minimumReleaseAge: 2d
+
+# Transitive dependencies must come from the registry, not git or a URL.
+blockExoticSubdeps: true
+
+# Scopes we own outright, emitted as `@scope/*`.
+scopes:
+  - "@constructive-io"
+  - "@latex-kit"
+
+# Our own packages, from the published Constructive inventory (pinned as a
+# devDependency, so a change to what skips the wait arrives as a reviewable
+# version bump).
+inventory:
+  - "@constructive-io/pnpm-policy/inventory.json"
+
+# Exempt only the inventory names this workspace actually resolves.
+intersect: true
+
+# Dependencies permitted to run install scripts. None so far: nx and
+# @parcel/watcher (via lerna) install without theirs and everything works.
+allowBuilds: {}

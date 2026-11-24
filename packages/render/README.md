@@ -1,0 +1,87 @@
+# @latex-kit/render
+
+<p align="center" width="100%">
+  <img height="250" src="https://raw.githubusercontent.com/constructive-io/constructive/refs/heads/main/assets/outline-logo.svg" />
+</p>
+
+<p align="center" width="100%">
+  <a href="https://github.com/constructive-io/latex-kit/actions/workflows/ci.yml">
+    <img height="20" src="https://github.com/constructive-io/latex-kit/actions/workflows/ci.yml/badge.svg" />
+  </a>
+  <a href="https://github.com/constructive-io/latex-kit/blob/main/LICENSE">
+    <img height="20" src="https://img.shields.io/badge/license-MIT-blue.svg"/>
+  </a>
+  <a href="https://www.npmjs.com/package/@latex-kit/render">
+    <img height="20" src="https://img.shields.io/npm/v/@latex-kit/render.svg"/>
+  </a>
+</p>
+
+<p align="center">Render LaTeX to PDF with latexmk in a pinned Docker image, reproducibly.</p>
+
+Runs `latexmk` inside a Docker image pinned by digest, stamps the build
+with a fixed date, and turns the TeX log into `file:line` diagnostics. Same
+source + same image + same date = the same PDF bytes.
+
+## Installation
+
+```bash
+npm install @latex-kit/render
+```
+
+## Usage
+
+```ts
+import { doctor, render, RenderError } from '@latex-kit/render';
+
+try {
+  const result = await render({ file: 'examples/letter/letter.tex' });
+  result.pdf;          // absolute path to out/letter.pdf
+  result.sha256;       // hash of the PDF bytes
+  result.epochSource;  // 'option' | 'env' | 'git' | 'clock'
+  result.diagnostics;  // warnings from the log
+} catch (e) {
+  if (e instanceof RenderError) console.error(e.diagnostics);
+}
+
+await doctor(); // [{ name: 'docker', status: 'ok', detail: 'daemon running (arm64)' }, …]
+```
+
+### Options
+
+| Option | Default | |
+|---|---|---|
+| `file` | | The `.tex` file |
+| `root` | `process.cwd()` | Directory TeX can see. Inputs and outputs must be inside it |
+| `outDir` | `out` | Relative to `root` |
+| `engine` | `lualatex` | `lualatex`, `xelatex` or `pdflatex` |
+| `backend` | `docker` | `local` runs `latexmk` from `PATH` (not pinned) |
+| `image` | `DEFAULT_IMAGE` | `pyramation/latex`, pinned by digest |
+| `platform` | `linux/amd64` for the default image | Docker `--platform` |
+| `sourceDateEpoch` | see below | Build timestamp, seconds since 1970 |
+
+### Reproducible builds
+
+The build date (which also drives `\today`) comes from, in order: the
+`sourceDateEpoch` option, the `SOURCE_DATE_EPOCH` environment variable, or
+the last git commit that touched the file. Only if none exists does it fall
+back to the current time, and then the result says `reproducible: false`.
+
+In the default image (TeX Live 2019), **LuaLaTeX output is byte-identical**
+across builds. XeLaTeX works, but its PDF driver embeds varying bytes, so it
+is not reproducible there. A newer multi-arch image is planned.
+
+### Docker notes
+
+- The default image is amd64-only. On Apple silicon Docker emulates it;
+  the output is identical, just slower. `doctor()` reports this.
+- On Linux the container runs as your uid, so outputs aren't owned by root.
+
+## Credits
+
+**🛠 Built by the [Constructive](https://constructive.io) team — creators of modular Postgres tooling for secure, composable backends. If you like our work, contribute on [GitHub](https://github.com/constructive-io).**
+
+## Disclaimer
+
+AS DESCRIBED IN THE LICENSES, THE SOFTWARE IS PROVIDED "AS IS", AT YOUR OWN RISK, AND WITHOUT WARRANTIES OF ANY KIND.
+
+No developer or entity involved in creating this software will be liable for any claims or damages whatsoever associated with your use, inability to use, or your interaction with other users of the code, including any direct, indirect, incidental, special, exemplary, punitive or consequential damages, or loss of profits, cryptocurrencies, tokens, or anything else of value.

@@ -1,0 +1,37 @@
+% A fictional letter used to test latex-kit end to end.
+% Every name, address and amount here is invented.
+\documentclass[11pt]{article}
+\usepackage{fontspec}
+\usepackage[margin=1in]{geometry}
+\usepackage{parskip}
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Example Widgets, Inc.\\
+100 Sample Avenue\\
+Springfield, ST 00000\\[1em]
+\today
+\end{flushright}
+
+Jordan Rivera\\
+R\&D Department, Placeholder Labs\\
+200 Demo Street, Suite 3\\
+Anytown, ST 00000
+
+Dear Jordan,
+
+Thank you for your order of 1,200 widgets at \$4.50 each. Your total of
+\$5,400 (including 0\% tax) is due within 30 days. Special characters
+like \#, \_, \{ and \} print correctly, and so does Unicode: Zoë, Ünïcode,
+naïve café — with a real em dash.
+
+This letter exists to prove that the same source always produces the same
+PDF bytes.
+
+Sincerely,\\[3em]
+Avery Example\\
+Example Widgets, Inc.
+
+\end{document}

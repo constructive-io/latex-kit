@@ -1,0 +1,29 @@
+packages:
+  - 'packages/*'
+
+# Managed by pnpm-policy — run `pnpm-policy generate` after editing pnpm-policy.yaml.
+
+# A third-party release must be 2d old before it can be installed.
+# Most malicious releases are found and yanked well inside that window.
+minimumReleaseAge: 2880
+
+# Exempt from the wait: 7 scope glob(s), 7 first-party package(s).
+# First-party membership comes from the inventory.
+minimumReleaseAgeExclude:
+  - "@constructive-db/*"
+  - "@constructive-io/*"
+  - "@latex-kit/*"
+  - "@launchql/*"
+  - "@pgpm/*"
+  - "@pgpmjs/*"
+  - "@pgsql/*"
+  - find-and-require-package-json
+  - inquirerer
+  - makage
+  - nested-obj
+  - pnpm-policy
+  - yamlize
+  - yanse
+
+# Transitive dependencies must come from the registry, not from git or a URL.
+blockExoticSubdeps: true

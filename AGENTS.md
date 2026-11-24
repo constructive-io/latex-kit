@@ -1,0 +1,39 @@
+# AGENTS.md
+
+Guidance for AI agents working in `constructive-io/latex-kit`.
+
+## Rules
+
+- **This repo is public and open source.** Examples and fixtures use
+  invented names, addresses and amounts only. Never add real people,
+  companies, contracts or anything copied from a private document repo.
+- **No encryption here.** Encrypting and decrypting private inputs belongs
+  to `constructive-io/decryption` (`dcrypt`). latex-kit only reads plaintext
+  that is already on disk.
+- **Don't commit built PDFs.** They are CI artifacts.
+- The CLI binary is `latex-kit`. Never add a bin called `latex`: it would
+  shadow TeX's own command.
+- `latex-kit` is the CLI package (unscoped). Libraries live under the `@latex-kit` npm scope (`@latex-kit/escape`, `@latex-kit/render`, …), in `packages/<name>`.
+
+## Conventions
+
+- pnpm workspace, makage builds, publish from `dist/`, no `exports` map,
+  lerna independent versions, conventional commits (`constructive-pnpm`
+  skill in `constructive-io/constructive`).
+- CLIs use `inquirerer` and `yanse`, not commander/yargs/chalk.
+- Supply-chain policy lives in `pnpm-policy.yaml`. After changing it or
+  adding a first-party dependency, run `pnpm run policy`; CI runs
+  `pnpm run policy:check`.
+- Every package README starts with the Constructive outline-logo header and
+  ends with the standard Credits and Disclaimer.
+
+## Checks before committing
+
+```bash
+pnpm build && pnpm lint && pnpm typecheck && pnpm test
+node packages/latex-kit/dist/index.js render examples/letter/letter.tex --verify
+```
+
+Escaping changes must also be checked in a real PDF (render, then
+`pdftotext`): some tricks that look right in a unit test, like `-{}-`, still
+produce dashes under LuaLaTeX.

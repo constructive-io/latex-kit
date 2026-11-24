@@ -1,0 +1,118 @@
+name: latex-kit render
+description: Build a LaTeX document to PDF with latexmk in a pinned Docker image, reproducibly, and upload it as an artifact.
+author: Constructive
+
+branding:
+  icon: file-text
+  color: blue
+
+inputs:
+  file:
+    description: The .tex file to build, relative to root.
+    required: true
+  root:
+    description: Directory TeX can see. Inputs and outputs must be inside it.
+    default: .
+  out:
+    description: Output directory, relative to root.
+    default: out
+  engine:
+    description: lualatex, xelatex or pdflatex. Only lualatex is byte-reproducible in the default image.
+    default: lualatex
+  image:
+    description: Docker image, pinned by digest.
+    default: pyramation/latex@sha256:37c951932d73f61584054ab8c822a5b4af31aefb2cdf08a36f3ba26e5761f3c0
+  source-date-epoch:
+    description: Build timestamp in seconds since 1970. Default is the last commit that touched the file.
+    default: ''
+  verify:
+    description: Build a second time and fail if the PDF bytes differ.
+    default: 'false'
+  upload:
+    description: Upload the PDF as a workflow artifact.
+    default: 'true'
+  artifact-name:
+    description: Artifact name. Default is the file name without .tex.
+    default: ''
+
+outputs:
+  pdf:
+    description: Path of the built PDF, relative to the workspace.
+    value: ${{ steps.build.outputs.pdf }}
+  sha256:
+    description: SHA-256 of the PDF bytes.
+    value: ${{ steps.build.outputs.sha256 }}
+
+runs:
+  using: composite
+  steps:
+    - id: build
+      shell: bash
+      env:
+        LK_FILE: ${{ inputs.file }}
+        LK_ROOT: ${{ inputs.root }}
+        LK_OUT: ${{ inputs.out }}
+        LK_ENGINE: ${{ inputs.engine }}
+        LK_IMAGE: ${{ inputs.image }}
+        LK_EPOCH: ${{ inputs.source-date-epoch }}
+        LK_VERIFY: ${{ inputs.verify }}
+      run: |
+        set -euo pipefail
+        # Same steps as `latex-kit render`, without needing Node: latexmk in
+        # the pinned image, the build date from the file's last commit.
+        case "$LK_ENGINE" in
+          lualatex) flag=-lualatex ;;
+          xelatex)  flag=-xelatex ;;
+          pdflatex) flag=-pdf ;;
+          *) echo "::error::engine must be lualatex, xelatex or pdflatex"; exit 1 ;;
+        esac
+        root=$(cd "$LK_ROOT" && pwd)
+        case "$LK_FILE" in /*|*..*) echo "::error::file must be a relative path inside root"; exit 1 ;; esac
+        case "$LK_OUT" in /*|*..*) echo "::error::out must be a relative path inside root"; exit 1 ;; esac
+        test -f "$root/$LK_FILE" || { echo "::error::$LK_FILE not found in $LK_ROOT"; exit 1; }
+
+        epoch="$LK_EPOCH"
+        if [ -z "$epoch" ]; then
+          epoch=$(git -C "$root/$(dirname "$LK_FILE")" log -1 --format=%ct -- "$(basename "$LK_FILE")" 2>/dev/null || true)
+        fi
+        if [ -z "$epoch" ]; then
+          echo "::warning::no commit found for $LK_FILE (use actions/checkout with fetch-depth: 0 for per-file dates); using HEAD time"
+          epoch=$(git -C "$root" log -1 --format=%ct)
+        fi
+
+        build() {
+          docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e TEXMFVAR=/tmp/texmf-var \
+            -v "$root:/work" -w /work \
+            -e SOURCE_DATE_EPOCH="$epoch" -e FORCE_SOURCE_DATE=1 \
+            "$LK_IMAGE" latexmk "$flag" -interaction=nonstopmode -halt-on-error -file-line-error \
+            -outdir="$1" "$LK_FILE"
+        }
+
+        job=$(basename "$LK_FILE" .tex)
+        build "$LK_OUT"
+        pdf="$root/$LK_OUT/$job.pdf"
+        sha=$(sha256sum "$pdf" | cut -d' ' -f1)
+
+        if [ "$LK_VERIFY" = "true" ]; then
+          build "$LK_OUT.verify" >/dev/null
+          sha2=$(sha256sum "$root/$LK_OUT.verify/$job.pdf" | cut -d' ' -f1)
+          rm -rf "$root/$LK_OUT.verify"
+          if [ "$sha" != "$sha2" ]; then
+            echo "::error::$LK_FILE is not reproducible: $sha vs $sha2"; exit 1
+          fi
+          echo "byte-identical on a second build"
+        fi
+
+        rel=$(realpath --relative-to="$GITHUB_WORKSPACE" "$pdf")
+        echo "pdf=$rel" >> "$GITHUB_OUTPUT"
+        echo "sha256=$sha" >> "$GITHUB_OUTPUT"
+        echo "name=${job}" >> "$GITHUB_OUTPUT"
+        echo "### $rel" >> "$GITHUB_STEP_SUMMARY"
+        echo "sha256 \`$sha\`, built with $LK_ENGINE, dated $(date -u -d @"$epoch" +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_STEP_SUMMARY"
+
+    - if: inputs.upload == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name || steps.build.outputs.name }}
+        path: ${{ steps.build.outputs.pdf }}
+        if-no-files-found: error
