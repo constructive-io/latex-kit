@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/constructive-io/latex-kit/compare/@latex-kit/schema@0.2.0...@latex-kit/schema@0.3.0) (2026-11-25)
+
+### Features
+
+- latex-kit import (pandoc) with placeholder codemod and starter schema ([836fe97](https://github.com/constructive-io/latex-kit/commit/836fe9725c7f6c5f158a33cf97ad500888d49263))
+- latex-kit init and new; find bibliographies and inputs next to the source ([04d6448](https://github.com/constructive-io/latex-kit/commit/04d644805be3ee911e2838548a92ac8002fce1ac))
+
 # 0.2.0 (2026-11-25)
 
 ### Features

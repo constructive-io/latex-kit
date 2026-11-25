@@ -1,6 +1,6 @@
 {
   "name": "@latex-kit/template",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "The latex-kit template language: fill-in macros inside real .tex files, checked and escaped",
   "author": "Constructive <developers@constructive.io>",
   "main": "index.js",
