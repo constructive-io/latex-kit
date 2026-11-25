@@ -39,6 +39,16 @@ Guidance for AI agents working in `constructive-io/latex-kit`.
 - Packages that load project files (`schema`, `latex-kit`) run Jest with
   `--experimental-vm-modules`, because jiti imports TypeScript dynamically.
 
+## Releases
+
+Dan publishes (`pnpm lerna publish`); agents never do. Never push a tag that
+isn't lerna's `name@version`: lerna's change detection uses the nearest tag
+of any name, so a stray tag makes the next release skip changed packages
+(0.4.0 shipped a `latex-kit` built against stale `@latex-kit/template` this
+way). The GitHub Action's `v1` is a **branch**; move it with
+`git push origin <sha>:refs/heads/v1`. CI fails if a non-release tag is on
+main.
+
 ## Checks before committing
 
 ```bash

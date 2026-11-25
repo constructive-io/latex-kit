@@ -18,6 +18,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # lerna finds the last release with `git describe`, which takes the
+      # nearest tag of ANY name. A tag like `v1` on main makes the next
+      # release skip packages that changed (it happened at 0.4.0). The
+      # Action's `v1` is a branch for that reason.
+      - name: Only lerna release tags (name@version) on main
+        run: |
+          bad=$(git tag --merged HEAD | grep -v '@[0-9]' || true)
+          if [ -n "$bad" ]; then echo "::error::tags lerna would mistake for a release: $bad"; exit 1; fi
 
       - uses: pnpm/action-setup@v4
 
