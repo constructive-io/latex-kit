@@ -8,6 +8,7 @@
 export * from './build';
 export * from './check';
 export * from './config';
+export * from './diff';
 export * from './import';
 export * from './project';
 export * from '@latex-kit/schema';

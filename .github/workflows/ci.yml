@@ -84,6 +84,14 @@ jobs:
           node ../../packages/latex-kit/dist/cli.js build
           node ../../packages/latex-kit/dist/cli.js build --variant blank
 
+      - name: Redline a changed document against HEAD
+        working-directory: examples/workspace
+        run: |
+          sed -i 's/termMonths: 24/termMonths: 36/' documents/nda-placeholder-labs.yaml
+          node ../../packages/latex-kit/dist/cli.js diff documents/nda-placeholder-labs.yaml --against HEAD
+          git checkout -- documents
+          ls out/nda-placeholder-labs/diff/*.pdf
+
       - name: Import a Word document into an empty project and build it
         run: |
           cli="$PWD/packages/latex-kit/dist/cli.js"

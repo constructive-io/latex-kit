@@ -11,6 +11,10 @@ Project commands (run in a folder with templates/, data/, documents/)
   sty [dir]           Write latex-kit.sty so editors can preview templates
   import <file>       Turn a Word/Markdown/HTML document (or an older .tex)
                       into a template; {{x}} and @GROUP@FIELD@ become \\field
+  diff <document> --against <ref>
+                      Redline PDF of a document against an earlier commit
+  diff <old.tex> <new.tex>
+                      Redline PDF of any two .tex files
 
 Other commands
   render <file.tex>   Build a plain .tex file with latexmk in a pinned image

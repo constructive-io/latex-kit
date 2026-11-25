@@ -1,4 +1,4 @@
-import { buildCommand, DEFAULT_IMAGE, insideRoot, PathOutsideRootError } from '../src';
+import { buildCommand, DEFAULT_IMAGE, insideRoot, latexdiffScript, pandocArgs, PathOutsideRootError } from '../src';
 
 const base = {
   root: '/proj',
@@ -68,5 +68,22 @@ describe('insideRoot', () => {
   });
   it('allows the root itself as an output directory', () => {
     expect(insideRoot('output directory', '/proj', '.')).toBe('.');
+  });
+});
+
+describe('tool commands', () => {
+  it('quotes latexdiff paths for the shell', () => {
+    expect(latexdiffScript('out/a b/old.tex', "out/it's/new.tex", 'out/d.tex')).toBe(
+      "latexdiff --encoding=utf8 --type=UNDERLINE 'out/a b/old.tex' 'out/it'\\''s/new.tex' > 'out/d.tex'"
+    );
+  });
+  it('builds standalone pandoc LaTeX with media extraction', () => {
+    expect(pandocArgs({ input: 'in.docx', output: 'templates/x/template.tex', extractMedia: 'templates/x/media' })).toEqual([
+      '--standalone',
+      '--to=latex',
+      '--output=templates/x/template.tex',
+      '--extract-media=templates/x/media',
+      'in.docx',
+    ]);
   });
 });

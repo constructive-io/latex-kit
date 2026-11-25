@@ -28,11 +28,17 @@ export interface BuildOptions {
   verify?: boolean;
   /** Stop after writing the .tex (no TeX run). */
   texOnly?: boolean;
+  /** Use this ID when the record has none, instead of minting one (for redlines). */
+  docIdFallback?: string;
+  /** Write output here instead of out/<document>/. */
+  outDir?: string;
   onOutput?: (chunk: string) => void;
 }
 
 export interface BuildResult {
   name: string;
+  /** The template the document uses. */
+  template: string;
   variant: Variant;
   tex: string;
   pdf: string | null;
@@ -144,7 +150,7 @@ async function run(job: Job): Promise<BuildResult> {
   const finalEpoch = extra.length ? buildEpoch([...files, ...extra]) : { epoch, reproducible };
 
   // 2. write the .tex next to latex-kit.sty
-  const outDir = join(project.outDir, job.name);
+  const outDir = options.outDir ?? join(project.outDir, job.name);
   mkdirSync(outDir, { recursive: true });
   const job_ = variant === 'final' ? job.name : `${job.name}-${variant}`;
   const texPath = join(outDir, `${job_}.tex`);
@@ -155,6 +161,7 @@ async function run(job: Job): Promise<BuildResult> {
 
   const result: BuildResult = {
     name: job.name,
+    template: template.name,
     variant,
     tex: texPath,
     pdf: null,
@@ -254,7 +261,7 @@ export async function buildDocument(project: Project, file: string, options: Bui
     }
   }
 
-  const needsId = (variant === 'final' || variant === 'signed') && !doc.record.docId;
+  const needsId = (variant === 'final' || variant === 'signed') && !doc.record.docId && !options.docIdFallback;
   if (needsId && !['.json', '.yaml', '.yml'].includes(extname(file).toLowerCase())) {
     const suggestion = mintDocId({ prefix: template.meta.docIdPrefix ?? template.name, epoch: Math.floor(Date.now() / 1000) });
     diagnostics.push(diag('error', `a ${variant} build needs a document ID, and latex-kit does not edit code. Add: docId: '${suggestion}'`, at));
@@ -268,7 +275,7 @@ export async function buildDocument(project: Project, file: string, options: Bui
     variant,
     data,
     locale: doc.record.locale ?? template.meta.locale ?? project.config.locale,
-    docId: doc.record.docId,
+    docId: doc.record.docId ?? options.docIdFallback,
     inputs: [file, ...doc.refFiles],
     diagnostics,
     options,

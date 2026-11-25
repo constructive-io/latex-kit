@@ -9,6 +9,7 @@ import chalk from 'yanse';
 import { UsageError } from './args';
 import { buildBlank, buildDocument, BuildError, BuildOptions, BuildResult } from './build';
 import { checkProject, templateFields } from './check';
+import { diffDocument, diffFiles } from './diff';
 import { importDocument } from './import';
 import { Project } from './project';
 
@@ -168,5 +169,34 @@ export async function importCommand(argv: Partial<ParsedArgs>): Promise<number> 
   for (const s of r.skipped) console.log(chalk.yellow(`  line ${s.line}: left ${s.from} as is (not a valid field path)`));
   if (r.schema) console.log(chalk.dim(`  starter schema: ${rel(r.schema)} (every field is a string; tighten it)`));
   console.log(chalk.dim(`  next: latex-kit fields ${r.name}, then latex-kit build --variant blank --template ${r.name}`));
+  return 0;
+}
+
+export async function diffCommand(argv: Partial<ParsedArgs>): Promise<number> {
+  const args = (argv._ ?? []).map(String);
+  const variant = (argv.variant ?? 'final') as Variant;
+  if (!VARIANTS.includes(variant)) throw new UsageError(`--variant must be one of ${VARIANTS.join(', ')}`);
+  const project = await Project.open(argv.root);
+  const options = { variant, engine: argv.engine, backend: argv.local ? ('local' as const) : undefined, image: argv.image, platform: argv.platform };
+  const abs = (p: string) => join(process.cwd(), p);
+  let result;
+  try {
+    if (args.length === 2 && !argv.against) {
+      result = await diffFiles(project, abs(args[0]), abs(args[1]), options);
+    } else if (args.length === 1 && argv.against) {
+      result = await diffDocument(project, abs(args[0]), String(argv.against), options);
+    } else {
+      throw new UsageError('usage: latex-kit diff <old.tex> <new.tex>\n       latex-kit diff <document> --against <git-ref>');
+    }
+  } catch (e) {
+    if (e instanceof BuildError) {
+      printDiagnostics(e.diagnostics, Boolean(argv.json));
+      console.error(chalk.red(`✗ ${e.message}`));
+      return 1;
+    }
+    throw e;
+  }
+  if (argv.json) console.log(JSON.stringify({ pdf: rel(result.pdf), tex: rel(result.tex), old: rel(result.old), new: rel(result.new) }, null, 2));
+  else console.log(`${chalk.green('✓')} ${rel(result.pdf)}  ${chalk.dim('(insertions underlined in blue, deletions struck through in red)')}`);
   return 0;
 }
