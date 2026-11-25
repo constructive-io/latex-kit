@@ -79,6 +79,7 @@ invoice, an NDA and a bilingual Japanese/English letter is in
 | `latex-kit init [dir] [--paper]` | A working project (letter template, data, a record) or a paper with a CI workflow |
 | `latex-kit new template <name>` / `new document <name> --template <t>` | Skeletons; new records get every required field and editor autocomplete |
 | `latex-kit build [documents…]` | `--final`, `--variant draft\|blank\|signed`, `--template`, `--verify`, `--strict` |
+| `latex-kit watch [documents…]` | Rebuild drafts whenever a template, snippet, clause or record changes |
 | `latex-kit check` | Unknown fields with `file:line:col`, invalid data, broken references, reused IDs |
 | `latex-kit fields <template>` | Every field a template reads, with its filters |
 | `latex-kit typegen` | JSON Schema (editor autocomplete for records) and `.d.ts` per template |
@@ -86,7 +87,7 @@ invoice, an NDA and a bilingual Japanese/English letter is in
 | `latex-kit import <file>` | Word/Markdown/HTML (pandoc) or an older `.tex` → a template; `{{x}}` and `@GROUP@FIELD@` become `\field{…}`; writes a starter `schema.ts` |
 | `latex-kit diff <document> --against <ref>` | Redline PDF against an earlier commit (also `diff <old.tex> <new.tex>`) |
 | `latex-kit render <file.tex>` | Any plain `.tex` → PDF, reproducibly (papers, letters) |
-| `latex-kit doctor` | Docker, image and TeX checks |
+| `latex-kit doctor` / `clean` | Docker, image and TeX checks / delete `out/` |
 
 In GitHub Actions, for plain `.tex` (papers):
 

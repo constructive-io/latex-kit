@@ -1,9 +1,9 @@
 import { ENGINES } from '@latex-kit/render';
 import { documentJsonSchema, generateTypes, loadDocument } from '@latex-kit/schema';
 import { Diagnostic, formatDiagnostic, LATEX_KIT_STY, Variant, VARIANTS } from '@latex-kit/template';
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, rmSync, watch as fsWatch, writeFileSync } from 'fs';
 import type { ParsedArgs } from 'minimist';
-import { join, relative } from 'path';
+import { isAbsolute, join, relative } from 'path';
 import chalk from 'yanse';
 
 import { UsageError } from './args';
@@ -235,4 +235,66 @@ export async function newCommand(argv: Partial<ParsedArgs>): Promise<number> {
     return 0;
   }
   throw new UsageError('usage: latex-kit new template <name>\n       latex-kit new document <name> --template <template>');
+}
+
+export async function cleanCommand(argv: Partial<ParsedArgs>): Promise<number> {
+  const project = await Project.open(argv.root);
+  const rel = relative(project.root, project.outDir);
+  if (rel === '' || rel.startsWith('..') || isAbsolute(rel)) throw new UsageError(`refusing to delete ${project.outDir}: the out folder must be inside the project`);
+  if (!existsSync(project.outDir)) {
+    console.log(chalk.dim(`nothing to clean (${project.rel(project.outDir)}/ does not exist)`));
+    return 0;
+  }
+  rmSync(project.outDir, { recursive: true, force: true });
+  console.log(`${chalk.green('✓')} removed ${project.rel(project.outDir)}/`);
+  return 0;
+}
+
+/**
+ * Rebuild when templates, snippets, clauses, data or records change. Builds
+ * drafts unless --variant says otherwise; never mints IDs (use build --final).
+ */
+export async function watchCommand(argv: Partial<ParsedArgs>): Promise<number> {
+  const variant = (argv.variant ?? 'draft') as Variant;
+  if (variant === 'final' || variant === 'signed') throw new UsageError('watch builds drafts or blanks; run latex-kit build --final when you are done');
+  const project = await Project.open(argv.root);
+  const dirs = [project.config.templates, project.config.snippets, project.config.clauses, project.config.data, project.config.documents]
+    .map((d) => project.path(d))
+    .filter((d) => existsSync(d));
+  if (dirs.length === 0) throw new UsageError('nothing to watch: no templates/, data/ or documents/ here');
+
+  let running = false;
+  let again = false;
+  let timer: NodeJS.Timeout | null = null;
+  const run = async () => {
+    if (running) {
+      again = true;
+      return;
+    }
+    running = true;
+    console.log(chalk.dim(`\n— ${new Date().toLocaleTimeString()} —`));
+    try {
+      await buildCommand({ ...argv, variant });
+    } catch (e) {
+      console.error(chalk.red((e as Error).message));
+    }
+    running = false;
+    if (again) {
+      again = false;
+      void run();
+    }
+  };
+  const schedule = (file: string | null) => {
+    // generated files and editor swap files are not changes worth a build
+    if (file && /(\.schema\.json|types\.d\.ts|~|\.swp)$/.test(file)) return;
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => void run(), 250);
+  };
+
+  for (const d of dirs) fsWatch(d, { recursive: true }, (_event, file) => schedule(file ? String(file) : null));
+  console.log(chalk.dim(`watching ${dirs.map((d) => project.rel(d)).join(', ')} (Ctrl-C to stop)`));
+  await run();
+  return new Promise<number>(() => {
+    // runs until interrupted
+  });
 }

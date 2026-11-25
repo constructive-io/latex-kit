@@ -12,6 +12,8 @@ Start
 
 Project commands (run in a folder with templates/, data/, documents/)
   build [documents…]  Fill templates with records and build PDFs
+  watch [documents…]  Rebuild drafts whenever a template, clause or record changes
+  clean               Delete the out/ folder
   check               Check templates, schemas, records and IDs without TeX
   fields <template>   List every field a template reads
   typegen             Write JSON Schema and .d.ts for each template's data
