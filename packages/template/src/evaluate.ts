@@ -1,5 +1,6 @@
 import { escapeLatex, LatexEscapeError, RawLatex } from '@latex-kit/escape';
 
+import { clauseLabel, ClauseUse, LoadedClause } from './clause';
 import { CompiledTemplate, Node } from './compile';
 import { evaluateCondition, truthy } from './condition';
 import { diag, Diagnostic, Location } from './diagnostics';
@@ -23,6 +24,8 @@ export interface EvaluateOptions {
   allowMissing?: boolean;
   /** Resolve \snippet{name} from the file that uses it. */
   loadSnippet?: (name: string, from: string) => CompiledTemplate | null;
+  /** Resolve \clause{id} from the clause library. */
+  loadClause?: (id: string) => LoadedClause | null;
 }
 
 export interface FieldUse {
@@ -38,6 +41,8 @@ export interface EvaluateResult {
   diagnostics: Diagnostic[];
   /** Every field that was filled (or found missing), in document order. */
   fields: FieldUse[];
+  /** Library clauses placed in the document, in order, with versions. */
+  clauses: ClauseUse[];
 }
 
 interface Frame {
@@ -65,6 +70,8 @@ export function evaluateTemplate(template: CompiledTemplate, options: EvaluateOp
   const fields: FieldUse[] = [];
   const frames: Frame[] = [];
   const stack: string[] = [template.file];
+  const clauses: ClauseUse[] = [];
+  const refs: { id: string; loc: Location }[] = [];
 
   const lookup = (path: string): unknown => {
     const [head, ...rest] = splitPath(path);
@@ -218,13 +225,47 @@ export function evaluateTemplate(template: CompiledTemplate, options: EvaluateOp
         stack.pop();
         break;
       }
+      case 'clause': {
+        const clause = options.loadClause?.(node.id) ?? null;
+        if (!clause) {
+          diagnostics.push(diag('error', `clause not found: ${node.id}`, node.loc));
+          break;
+        }
+        if (stack.includes(clause.template.file)) {
+          diagnostics.push(diag('error', `clause ${node.id} includes itself`, node.loc));
+          break;
+        }
+        if (clauses.some((c) => c.id === node.id)) {
+          diagnostics.push(diag('error', `clause ${node.id} is placed twice`, node.loc));
+          break;
+        }
+        clauses.push({ id: node.id, version: clause.version, file: clause.template.file });
+        diagnostics.push(...clause.template.diagnostics);
+        out += `\\lkclause{${clause.title ? escapeLatex(clause.title) : ''}}{${clauseLabel(node.id)}}`;
+        stack.push(clause.template.file);
+        out += render(clause.template.nodes);
+        stack.pop();
+        break;
+      }
+      case 'clauseref':
+        refs.push({ id: node.id, loc: node.loc });
+        out += `\\ref{${clauseLabel(node.id)}}`;
+        break;
       }
     }
     return out;
   };
 
   const tex = render(template.nodes);
-  return { tex, diagnostics, fields };
+
+  // a reference to a clause this document does not contain would print "??"
+  for (const r of refs) {
+    if (!clauses.some((c) => c.id === r.id)) {
+      const msg = `\\clauseref{${r.id}}: clause ${r.id} is not in this document`;
+      diagnostics.push(diag(allowMissing ? 'warning' : 'error', msg, r.loc));
+    }
+  }
+  return { tex, diagnostics, fields, clauses };
 }
 
 export { truthy };

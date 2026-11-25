@@ -9,6 +9,8 @@ export interface LatexKitConfig {
   templates?: string;
   /** Shared pieces for \snippet{name}. Default `snippets`. */
   snippets?: string;
+  /** The clause library for \\clause{id}: `<clauses>/<id>.tex`. Default `clauses`. */
+  clauses?: string;
   /** Shared records that references point at: `<data>/<collection>/<id>.json`. Default `data`. */
   data?: string;
   /** Document records: `<documents>/<name>.json|yaml|ts`. Default `documents`. */
@@ -23,7 +25,7 @@ export interface LatexKitConfig {
   platform?: string | null;
 }
 
-export type ResolvedConfig = Required<Pick<LatexKitConfig, 'templates' | 'snippets' | 'data' | 'documents' | 'out' | 'locale'>> &
+export type ResolvedConfig = Required<Pick<LatexKitConfig, 'templates' | 'snippets' | 'clauses' | 'data' | 'documents' | 'out' | 'locale'>> &
   Pick<LatexKitConfig, 'engine' | 'backend' | 'image' | 'platform'> & { file: string | null };
 
 export function defineConfig(config: LatexKitConfig): LatexKitConfig {
@@ -32,7 +34,7 @@ export function defineConfig(config: LatexKitConfig): LatexKitConfig {
 
 export const CONFIG_FILES = ['latex-kit.config.ts', 'latex-kit.config.mts', 'latex-kit.config.js', 'latex-kit.config.mjs', 'latex-kit.config.cjs', 'latex-kit.config.json'];
 
-const DEFAULTS = { templates: 'templates', snippets: 'snippets', data: 'data', documents: 'documents', out: 'out', locale: 'en-US' };
+const DEFAULTS = { templates: 'templates', snippets: 'snippets', clauses: 'clauses', data: 'data', documents: 'documents', out: 'out', locale: 'en-US' };
 
 export async function loadConfig(root: string): Promise<ResolvedConfig> {
   for (const name of CONFIG_FILES) {

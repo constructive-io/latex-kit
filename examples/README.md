@@ -15,7 +15,7 @@ byte-identical.
 | Document | Template | Shows |
 |---|---|---|
 | `documents/invoice-0001.ts` | `invoice` | A TypeScript record that computes its totals; `\each` in a table; `money`, `percent`, `words`; a shared letterhead snippet |
-| `documents/nda-placeholder-labs.yaml` | `nda` | `\when`/`\otherwise`, lists, `\docid` in the footer, signature blocks that change for `signed` |
+| `documents/nda-placeholder-labs.yaml` | `nda` | Versioned clauses from `clauses/nda/` with `\clauseref` cross-references, `\when`/`\otherwise`, lists, `\docid` in the footer, signature blocks that change for `signed` |
 | `documents/letter-sample-kk.json` | `letter-ja` | Japanese and English in one letter (LuaTeX-ja, IPAex fonts), `ja-JP` dates and yen |
 
 Companies and people live once in `data/` and are pulled in with

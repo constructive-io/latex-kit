@@ -32,6 +32,10 @@ export const LATEX_KIT_STY = `% latex-kit.sty: support for latex-kit templates.
 \\setlength\\lkblankwidth{3.5cm}
 \\newcommand\\lkblank[1]{\\leavevmode\\underline{\\makebox[\\lkblankwidth][l]{\\color{lkmeta}\\tiny\\ttfamily\\detokenize{#1}}}}
 
+% A clause from the library: \\lkclause{title}{label}. Numbered like a
+% section; with no title, a bold number. Redefine it to change the style.
+\\providecommand\\lkclause[2]{\\ifx\\relax#1\\relax\\par\\refstepcounter{section}\\label{#2}\\noindent\\textbf{\\thesection.}~\\else\\section{#1}\\label{#2}\\fi}
+
 % A value the data does not have yet (draft builds only).
 \\newcommand\\lkmissing[1]{\\leavevmode{\\color{red}\\fbox{\\scriptsize\\ttfamily missing: \\detokenize{#1}}}}
 
@@ -55,7 +59,8 @@ export const LATEX_KIT_STY = `% latex-kit.sty: support for latex-kit templates.
   \\newcommand\\each[3]{{\\color{lkmeta}\\tiny[each \\detokenize{#2} in \\detokenize{#1}]}#3}
   \\newcommand\\sep[1]{#1}
   \\newcommand\\snippet[1]{\\InputIfFileExists{#1}{}{\\lkblank{snippet #1}}}
-  \\newcommand\\clauseref[1]{\\lkblank{clause #1}}
+  \\newcommand\\clause[1]{\\par\\lkblank{clause #1}\\par}
+  \\newcommand\\clauseref[1]{\\lkblank{ref #1}}
 \\fi
 
 \\endinput

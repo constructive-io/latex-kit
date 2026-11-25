@@ -1,5 +1,5 @@
 import { DATA_EXTENSIONS, JsonSchema, loadTemplateSchema, TemplateMeta, toJsonSchema, z } from '@latex-kit/schema';
-import { CompiledTemplate, compileTemplate } from '@latex-kit/template';
+import { CompiledTemplate, compileTemplate, isRelativeName, LoadedClause, parseClauseHeader } from '@latex-kit/template';
 import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
 import { basename, dirname, extname, isAbsolute, join, relative, resolve } from 'path';
 
@@ -22,6 +22,7 @@ const SCHEMA_FILES = ['schema.ts', 'schema.mts', 'schema.js', 'schema.mjs', 'sch
 export class Project {
   private templates = new Map<string, Promise<Template>>();
   private snippets = new Map<string, CompiledTemplate>();
+  private clauses = new Map<string, LoadedClause | null>();
 
   private constructor(
     readonly root: string,
@@ -133,6 +134,19 @@ export class Project {
       return compiled;
     }
     return null;
+  };
+
+  /** \\clause{id}: `clauses/<id>.tex` from the clause library. */
+  loadClause = (id: string): LoadedClause | null => {
+    if (this.clauses.has(id)) return this.clauses.get(id)!;
+    let loaded: LoadedClause | null = null;
+    const file = join(this.path(this.config.clauses), `${id}.tex`);
+    if (isRelativeName(id) && existsSync(file)) {
+      const text = readFileSync(file, 'utf8');
+      loaded = { id, template: compileTemplate(text, this.rel(file)), ...parseClauseHeader(text) };
+    }
+    this.clauses.set(id, loaded);
+    return loaded;
   };
 
   /** Absolute paths of every snippet loaded so far. */

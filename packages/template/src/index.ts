@@ -1,4 +1,5 @@
 export * from './analyze';
+export * from './clause';
 export * from './compile';
 export * from './condition';
 export * from './diagnostics';

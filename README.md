@@ -42,6 +42,7 @@ latex-kit.config.ts          optional; these are the defaults
 templates/nda/template.tex   a real .tex file with \field{…}, \when, \each
 templates/nda/schema.ts      zod schema for the data (+ meta: ID prefix, locale)
 snippets/letterhead.tex      shared pieces, included with \snippet{letterhead}
+clauses/nda/purpose.tex      versioned clauses: \clause{nda/purpose}, \clauseref{…}
 data/orgs/example.json       shared records, used via { "$ref": "orgs/example" }
 documents/nda-acme.yaml      one record per document: template, docId, data
 out/nda-acme/                generated .tex, PDF and a manifest of every input hash
@@ -106,9 +107,9 @@ In GitHub Actions, for plain `.tex` (papers):
 
 ## Roadmap
 
-- **Clauses and redlines.** A versioned clause library (`\clauseref`),
-  `latex-kit diff` (latexdiff against the last signed PDF) and
-  `latex-kit import` (pandoc).
+- **Redlines and import.** `latex-kit diff` (latexdiff against an earlier
+  commit) and `latex-kit import` (pandoc, plus a codemod for older token
+  templates).
 - **Boilerplates.** `latex-kit init` for projects, document types and papers.
 - **Multi-arch image.** `ghcr.io/constructive-io/latex-kit`, native on arm64
   and amd64, newer TeX Live, so XeLaTeX builds are reproducible too.

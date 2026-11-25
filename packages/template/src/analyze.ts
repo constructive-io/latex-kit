@@ -1,3 +1,4 @@
+import { LoadedClause } from './clause';
 import { CompiledTemplate, Node } from './compile';
 import { conditionPaths } from './condition';
 import { diag, Diagnostic, Location } from './diagnostics';
@@ -21,11 +22,14 @@ export interface AnalyzeOptions {
   /** JSON Schema of the record's data. Without it only syntax is checked. */
   schema?: JsonSchema;
   loadSnippet?: (name: string, from: string) => CompiledTemplate | null;
+  loadClause?: (id: string) => LoadedClause | null;
 }
 
 export interface AnalyzeResult {
   fields: FieldRef[];
   snippets: string[];
+  /** Library clauses the template can place, with versions. */
+  clauses: { id: string; version?: string; file: string }[];
   diagnostics: Diagnostic[];
 }
 
@@ -44,6 +48,8 @@ export function analyzeTemplate(template: CompiledTemplate, options: AnalyzeOpti
   const diagnostics: Diagnostic[] = [...template.diagnostics];
   const fields: FieldRef[] = [];
   const snippets: string[] = [];
+  const clauses: AnalyzeResult['clauses'] = [];
+  const refs: { id: string; loc: Location }[] = [];
   const stack: string[] = [template.file];
 
   const resolve = (path: string, scopes: Scope[], loc: Location): { absolute: string; schema: JsonSchema | undefined } => {
@@ -131,10 +137,38 @@ export function analyzeTemplate(template: CompiledTemplate, options: AnalyzeOpti
         stack.pop();
         break;
       }
+      case 'clause': {
+        const clause = options.loadClause?.(node.id) ?? null;
+        if (!clause) {
+          diagnostics.push(diag('error', `clause not found: ${node.id}`, node.loc));
+          break;
+        }
+        if (stack.includes(clause.template.file)) {
+          diagnostics.push(diag('error', `clause ${node.id} includes itself`, node.loc));
+          break;
+        }
+        if (!clauses.some((c) => c.id === node.id)) {
+          clauses.push({ id: node.id, version: clause.version, file: clause.template.file });
+          diagnostics.push(...clause.template.diagnostics);
+          if (!clause.title) diagnostics.push(diag('warning', `clause ${node.id} has no "% title:" line, so it prints as a bare number`, { file: clause.template.file, line: 1, column: 1 }));
+        }
+        stack.push(clause.template.file);
+        walk(clause.template.nodes, scopes);
+        stack.pop();
+        break;
+      }
+      case 'clauseref':
+        refs.push({ id: node.id, loc: node.loc });
+        break;
       }
     }
   };
 
   walk(template.nodes, []);
-  return { fields, snippets, diagnostics };
+  for (const r of refs) {
+    if (!clauses.some((c) => c.id === r.id)) {
+      diagnostics.push(diag('error', `\\clauseref{${r.id}}: the template never places \\clause{${r.id}}`, r.loc));
+    }
+  }
+  return { fields, snippets, clauses, diagnostics };
 }

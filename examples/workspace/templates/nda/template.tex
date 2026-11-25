@@ -24,25 +24,10 @@ address at \field{discloser.address.line1}, \field{discloser.address.city}}
 \textbf{\field{recipient.name}}, a \field{recipient.entityType|default:"party"}
 (``\when{mutual}{Party B}\otherwise{Recipient}'').
 
-\section*{1. Purpose}
-\when{mutual}{Each party}\otherwise{The Discloser} may share Confidential
-Information for this purpose: \field{purpose}.
-
-\section*{2. Obligations}
-\when{mutual}{Each party receiving Confidential Information}\otherwise{The
-Recipient} will keep it confidential and use it only for the purpose above,
-for \field{termMonths|words} (\field{termMonths}) months from the Effective
-Date.
-
-\section*{3. Exclusions}
-Confidential Information does not include information that is or becomes
-public through no fault of the receiving party\when{exclusions}{, or that is:
-\begin{enumerate}[label=(\alph*)]
-\each{exclusions}{x}{  \item \field{x}\when{$last}{.}\otherwise{;}
-}\end{enumerate}}\otherwise{.}
-
-\section*{4. Governing law}
-This Agreement is governed by the laws of \field{governingLaw}.
+\clause{nda/purpose}
+\clause{nda/obligations}
+\clause{nda/exclusions}
+\clause{nda/governing-law}
 
 \vspace{3em}
 \begin{tabular}{@{}p{0.45\textwidth}@{\hspace{0.1\textwidth}}p{0.45\textwidth}@{}}

@@ -8,7 +8,8 @@ import { isName, isPath } from './path';
 /**
  * The template language's macros and how many {…} arguments each takes.
  * Bare names keep templates readable; \snippet (not \partial, which is the
- * math ∂) and \clauseref (not \ref) avoid LaTeX's own commands.
+ * math ∂) and \clauseref (not \ref) avoid LaTeX's own commands. \clause
+ * inserts a numbered clause from the clause library; \clauseref prints its number.
  */
 export const MACROS = {
   field: 1,
@@ -19,6 +20,7 @@ export const MACROS = {
   sep: 1,
   snippet: 1,
   docid: 0,
+  clause: 1,
   clauseref: 1,
 } as const;
 
@@ -31,7 +33,9 @@ export type Node =
   | { kind: 'each'; path: string; name: string; body: Node[]; loc: Location }
   | { kind: 'sep'; body: Node[]; loc: Location }
   | { kind: 'snippet'; name: string; loc: Location }
-  | { kind: 'docid'; loc: Location };
+  | { kind: 'docid'; loc: Location }
+  | { kind: 'clause'; id: string; loc: Location }
+  | { kind: 'clauseref'; id: string; loc: Location };
 
 export interface CompiledTemplate {
   file: string;
@@ -46,6 +50,11 @@ const parser = getParser({
     Object.entries(MACROS).map(([name, n]) => [name, { signature: Array(n).fill('m').join(' ') }])
   ),
 });
+
+/** `parts/header`, `nda/confidentiality`: relative, no `..`, no empty segments. */
+export function isRelativeName(name: string): boolean {
+  return /^[A-Za-z0-9_./-]+$/.test(name) && !name.split('/').some((s) => s === '..' || s === '' || s === '.');
+}
 
 interface Occurrence {
   name: MacroName;
@@ -222,12 +231,15 @@ export function compileTemplate(text: string, file: string): CompiledTemplate {
           pos = macroEnd;
           break;
         }
-        case 'snippet': {
+        case 'snippet':
+        case 'clause': {
           const name = argText(0);
-          if (!/^[A-Za-z0-9_\-./]+$/.test(name) || name.split('/').some((s) => s === '..' || s === '')) {
-            diagnostics.push(diag('error', `\\snippet{${name}}: use a relative name like parts/header`, loc));
-          } else {
+          if (!isRelativeName(name)) {
+            diagnostics.push(diag('error', `\\${occ.name}{${name}}: use a relative name like ${occ.name === 'clause' ? 'nda/confidentiality' : 'parts/header'}`, loc));
+          } else if (occ.name === 'snippet') {
             nodes.push({ kind: 'snippet', name, loc });
+          } else {
+            nodes.push({ kind: 'clause', id: name, loc });
           }
           pos = macroEnd;
           break;
@@ -238,10 +250,13 @@ export function compileTemplate(text: string, file: string): CompiledTemplate {
           pos = text.startsWith('{}', macroEnd) ? macroEnd + 2 : macroEnd;
           break;
         }
-        case 'clauseref':
-          diagnostics.push(diag('error', '\\clauseref is reserved for the clause library, which is not available yet', loc));
+        case 'clauseref': {
+          const id = argText(0);
+          if (!isRelativeName(id)) diagnostics.push(diag('error', `\\clauseref{${id}}: use the clause's name, like nda/confidentiality`, loc));
+          else nodes.push({ kind: 'clauseref', id, loc });
           pos = macroEnd;
           break;
+        }
         }
       } catch (e) {
         if (!(e instanceof SyntaxError)) throw e;

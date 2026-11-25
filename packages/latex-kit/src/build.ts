@@ -133,12 +133,15 @@ async function run(job: Job): Promise<BuildResult> {
     template: template.name,
     allowMissing: variant === 'draft' ? !strict : undefined,
     loadSnippet,
+    loadClause: project.loadClause,
   });
   diagnostics.push(...evaluated.diagnostics);
   if (hasErrors(diagnostics)) throw new BuildError(`${job.name}: cannot build ${variant}`, diagnostics);
 
   // snippets count as inputs for the build date too
-  const finalEpoch = snippets.size ? buildEpoch([...files, ...snippets]) : { epoch, reproducible };
+  const clauseFiles = evaluated.clauses.map((c) => resolve(c.file));
+  const extra = [...snippets, ...clauseFiles];
+  const finalEpoch = extra.length ? buildEpoch([...files, ...extra]) : { epoch, reproducible };
 
   // 2. write the .tex next to latex-kit.sty
   const outDir = join(project.outDir, job.name);
@@ -206,7 +209,7 @@ async function run(job: Job): Promise<BuildResult> {
   }
 
   // 5. manifest: what went in, what came out
-  const inputFiles = [...new Set([...files, ...snippets])].filter(existsSync).sort();
+  const inputFiles = [...new Set([...files, ...extra])].filter(existsSync).sort();
   writeFileSync(
     join(outDir, `${job_}.manifest.json`),
     JSON.stringify(
@@ -222,6 +225,7 @@ async function run(job: Job): Promise<BuildResult> {
         inputs: inputFiles.map((f) => ({ file: relative(project.root, f), sha256: sha256(readFileSync(f)) })),
         tex: { file: relative(project.root, texPath), sha256: sha256(tex) },
         pdf: { file: relative(project.root, rendered.pdf), sha256: rendered.sha256 },
+        clauses: evaluated.clauses.map((c) => ({ id: c.id, version: c.version ?? null, file: relative(project.root, resolve(c.file)) })),
         fields: evaluated.fields.map((f) => ({ path: f.path, missing: f.missing })),
       },
       null,

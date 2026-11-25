@@ -9,6 +9,7 @@ import {
   JsonSchema,
   LATEX_KIT_STY,
   numberToWords,
+  parseClauseHeader,
   parseCondition,
   parseFieldSpec,
   wrapDocument,
@@ -202,18 +203,68 @@ describe('compile + evaluate', () => {
   });
 
   it('reports syntax errors with locations', () => {
-    const t = compileTemplate('ok\n\\field x\n\\field{a|nope}\n\\field{a b}\n\\each{xs}{1x}{}\n\\clauseref{c}', 't.tex');
+    const t = compileTemplate('ok\n\\field x\n\\field{a|nope}\n\\field{a b}\n\\each{xs}{1x}{}\n\\clauseref{../c}', 't.tex');
     expect(t.diagnostics.map(formatDiagnostic)).toEqual([
       't.tex:2:8: error: \\field needs 1 {…} argument',
       't.tex:3:1: error: \\field{a|nope}: unknown filter "nope" (known: upper, lower, title, trim, date, money, number, percent, words, join, default, lines, paragraphs)',
       't.tex:4:1: error: \\field{a b}: invalid field path "a b" (use names and dots, like party.name or items.0.price)',
       't.tex:5:1: error: \\each: invalid item name "1x" (use a simple name like item)',
-      't.tex:6:1: error: \\clauseref is reserved for the clause library, which is not available yet',
+      "t.tex:6:1: error: \\clauseref{../c}: use the clause's name, like nda/confidentiality",
     ]);
   });
 
   it('handles Unicode around macros', () => {
     expect(render('Zoë 東京 😀 \\field{a} ✓', { data: { a: 'é' } }).tex).toBe('Zoë 東京 😀 é ✓');
+  });
+});
+
+describe('clauses', () => {
+  const library: Record<string, string> = {
+    'nda/confidentiality': '% title: Confidentiality & Care\n% version: 3\nKeep it secret for \\field{months} months.\n',
+    'nda/term': '% version: 1\nSee \\clauseref{nda/confidentiality}.\n',
+    loop: '% title: Loop\n\\clause{loop}',
+  };
+  const loadClause = (id: string) =>
+    id in library ? { id, template: compileTemplate(library[id], `clauses/${id}.tex`), ...parseClauseHeader(library[id]) } : null;
+  const run = (src: string, variant: EvaluateOptions['variant'] = 'final') =>
+    evaluateTemplate(compileTemplate(src, 't.tex'), { variant, data: { months: 24 }, loadClause });
+
+  it('reads the header', () => {
+    expect(parseClauseHeader('\n% title: A\n%version:2\n% other\nbody % title: no')).toEqual({ title: 'A', version: '2' });
+  });
+
+  it('places numbered clauses and resolves references to labels', () => {
+    const r = run('\\clauseref{nda/confidentiality} \\clause{nda/confidentiality}\\clause{nda/term}');
+    expect(errors(r)).toEqual([]);
+    expect(r.tex).toContain('\\ref{clause:nda/confidentiality} \\lkclause{Confidentiality \\& Care}{clause:nda/confidentiality}');
+    expect(r.tex).toContain('Keep it secret for 24 months.');
+    expect(r.tex).toContain('\\lkclause{}{clause:nda/term}');
+    expect(r.clauses).toEqual([
+      { id: 'nda/confidentiality', version: '3', file: 'clauses/nda/confidentiality.tex' },
+      { id: 'nda/term', version: '1', file: 'clauses/nda/term.tex' },
+    ]);
+  });
+
+  it('fails a final build that refers to a clause it does not contain', () => {
+    expect(errors(run('\\clause{nda/term}')).map((d) => d.message)).toEqual([
+      '\\clauseref{nda/confidentiality}: clause nda/confidentiality is not in this document',
+    ]);
+    expect(errors(run('\\clause{nda/term}', 'draft'))).toEqual([]);
+  });
+
+  it('reports missing, repeated and self-including clauses', () => {
+    expect(errors(run('\\clause{nope}'))[0].message).toBe('clause not found: nope');
+    expect(errors(run('\\clause{nda/term}\\clause{nda/confidentiality}\\clause{nda/term}')).map((d) => d.message)).toContain('clause nda/term is placed twice');
+    expect(errors(run('\\clause{loop}'))[0].message).toBe('clause loop includes itself');
+  });
+
+  it('is checked statically, including fields inside clauses', () => {
+    const schema: JsonSchema = { type: 'object', properties: { months: { type: 'number' } } };
+    const ok = analyzeTemplate(compileTemplate('\\clause{nda/confidentiality}\\clause{nda/term}', 't.tex'), { schema, loadClause });
+    expect(ok.diagnostics.map((d) => d.message)).toEqual(['clause nda/term has no "% title:" line, so it prints as a bare number']);
+    expect(ok.clauses.map((c) => `${c.id}@${c.version}`)).toEqual(['nda/confidentiality@3', 'nda/term@1']);
+    const bad = analyzeTemplate(compileTemplate('\\clause{nda/term}', 't.tex'), { schema: { type: 'object', properties: {} }, loadClause });
+    expect(bad.diagnostics.map((d) => d.message)).toContain('\\clauseref{nda/confidentiality}: the template never places \\clause{nda/confidentiality}');
   });
 });
 

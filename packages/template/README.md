@@ -51,11 +51,28 @@ Document ID: \docid
 | `\sep{…}` | Inside `\each`: printed between items, not after the last |
 | `\snippet{name}` | Includes `name.tex` (next to the template, then `snippets/`) with the same data |
 | `\docid` | The document's ID, minted once and stored on the record |
+| `\clause{id}` | Places a numbered clause from the library (`clauses/<id>.tex`), filled with the same data |
+| `\clauseref{id}` | Prints that clause's number. A reference to a clause the document doesn't contain fails a final build |
 
 Special values: `$variant`, `$locale`, `$docid`, `$template`.
 
-`\snippet` and `\clauseref` (reserved for the coming clause library) are
-named so they never collide with LaTeX's `\partial` and `\ref`.
+`\snippet` and `\clauseref` are named so they never collide with LaTeX's
+`\partial` and `\ref`.
+
+### Clauses
+
+A clause is a template fragment with a short header:
+
+```latex
+% title: Confidentiality
+% version: 3
+The Recipient will keep it confidential for \field{termMonths|words} months,
+subject to Section~\clauseref{nda/exclusions}.
+```
+
+Each placed clause becomes `\lkclause{title}{label}` (a numbered section by
+default; redefine `\lkclause` to change the style). Every build's manifest
+lists the clause IDs and versions it used.
 
 ### Conditions
 
