@@ -79,6 +79,9 @@ export function buildCommand(o: CommandOptions): Command {
   const latexmk = [
     'latexmk',
     ENGINE_FLAG[o.engine],
+    // always rebuild: latexmk's up-to-date check ignores SOURCE_DATE_EPOCH,
+    // so a changed build date would otherwise return a stale PDF
+    '-g',
     '-interaction=nonstopmode',
     '-halt-on-error',
     '-file-line-error',

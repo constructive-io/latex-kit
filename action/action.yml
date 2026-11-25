@@ -84,7 +84,7 @@ runs:
           docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e TEXMFVAR=/tmp/texmf-var \
             -v "$root:/work" -w /work \
             -e SOURCE_DATE_EPOCH="$epoch" -e FORCE_SOURCE_DATE=1 \
-            "$LK_IMAGE" latexmk "$flag" -interaction=nonstopmode -halt-on-error -file-line-error \
+            "$LK_IMAGE" latexmk "$flag" -g -interaction=nonstopmode -halt-on-error -file-line-error \
             -outdir="$1" "$LK_FILE"
         }
 

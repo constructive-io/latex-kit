@@ -20,7 +20,7 @@ describe('buildCommand', () => {
       '-v', '/proj:/work', '-w', '/work',
       '-e', 'SOURCE_DATE_EPOCH=1700000000', '-e', 'FORCE_SOURCE_DATE=1',
       DEFAULT_IMAGE,
-      'latexmk', '-lualatex', '-interaction=nonstopmode', '-halt-on-error', '-file-line-error',
+      'latexmk', '-lualatex', '-g', '-interaction=nonstopmode', '-halt-on-error', '-file-line-error',
       '-outdir=out', 'examples/letter/letter.tex',
     ]);
   });
