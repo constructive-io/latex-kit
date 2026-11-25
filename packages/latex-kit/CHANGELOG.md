@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.4.0](https://github.com/constructive-io/latex-kit/compare/latex-kit@0.3.0...latex-kit@0.4.0) (2026-11-25)
+
+### Features
+
+- latex-kit diff for redline PDFs ([644c65a](https://github.com/constructive-io/latex-kit/commit/644c65aa5f27a9d69213af3c4cb50b6109389a5e))
+- latex-kit import (pandoc) with placeholder codemod and starter schema ([836fe97](https://github.com/constructive-io/latex-kit/commit/836fe9725c7f6c5f158a33cf97ad500888d49263))
+- latex-kit init and new; find bibliographies and inputs next to the source ([04d6448](https://github.com/constructive-io/latex-kit/commit/04d644805be3ee911e2838548a92ac8002fce1ac))
+- latex-kit watch and latex-kit clean ([07c0621](https://github.com/constructive-io/latex-kit/commit/07c0621630355238b85995628bae3f71e8d15877))
+- **render:** default to ghcr.io/constructive-io/latex-kit (TeX Live 2026, multi-arch) ([7452f26](https://github.com/constructive-io/latex-kit/commit/7452f26059005d12664fec10fc3065726b7621d9))
+- **render:** pdfps engine for PSTricks; verify rebuilds into the same path ([6e15f70](https://github.com/constructive-io/latex-kit/commit/6e15f70e85995689b202ac377487d15659b08616))
+- **template:** clause library with \clause and \clauseref ([64cd281](https://github.com/constructive-io/latex-kit/commit/64cd281e8ce43f1ee6a7254e60719c8209e2796c))
+
 # [0.3.0](https://github.com/constructive-io/latex-kit/compare/latex-kit@0.2.0...latex-kit@0.3.0) (2026-11-25)
 
 ### Features

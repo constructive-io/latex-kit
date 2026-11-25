@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0](https://github.com/constructive-io/latex-kit/compare/latex-kit-example-workspace@0.1.0...latex-kit-example-workspace@0.2.0) (2026-11-25)
+
+### Features
+
+- **template:** clause library with \clause and \clauseref ([64cd281](https://github.com/constructive-io/latex-kit/commit/64cd281e8ce43f1ee6a7254e60719c8209e2796c))
+
 # 0.1.0 (2026-11-25)
 
 ### Features
