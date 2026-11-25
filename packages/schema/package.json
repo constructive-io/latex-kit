@@ -1,0 +1,47 @@
+{
+  "name": "@latex-kit/schema",
+  "version": "0.1.0",
+  "description": "Typed data for latex-kit documents: zod schemas, shared types, references, document IDs",
+  "author": "Constructive <developers@constructive.io>",
+  "main": "index.js",
+  "module": "esm/index.js",
+  "types": "index.d.ts",
+  "homepage": "https://github.com/constructive-io/latex-kit",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "directory": "dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/constructive-io/latex-kit"
+  },
+  "bugs": {
+    "url": "https://github.com/constructive-io/latex-kit/issues"
+  },
+  "scripts": {
+    "copy": "makage assets",
+    "clean": "makage clean",
+    "prepublishOnly": "npm run build",
+    "build": "makage build",
+    "build:dev": "makage build --dev",
+    "lint": "eslint . --fix",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
+  },
+  "devDependencies": {
+    "makage": "^0.8.0"
+  },
+  "keywords": [
+    "latex",
+    "zod",
+    "json-schema",
+    "documents"
+  ],
+  "dependencies": {
+    "jiti": "^2.7.0",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.7",
+    "schema-typescript": "^0.14.4"
+  }
+}

@@ -58,6 +58,7 @@ missing value can never print as the word "undefined".
 | `^` `~` | `\textasciicircum{}` `\textasciitilde{}` |
 | `<` `>` `\|` | `\textless{}` `\textgreater{}` `\textbar{}` |
 | `[` `]` | `{[}` `{]}`, so they are never read as an optional argument |
+| no-break space U+00A0, narrow U+202F | `~`, `\,` (TeX's own spacing; many fonts lack U+202F) |
 | `--`, `---` | `-\kern0pt-`, `-\kern0pt-\kern0pt-`: literal hyphens, not dashes, in every engine |
 
 Unicode passes through unchanged. Output assumes LuaLaTeX or XeLaTeX, or

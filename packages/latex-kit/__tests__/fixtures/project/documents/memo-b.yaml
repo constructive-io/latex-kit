@@ -1,0 +1,5 @@
+template: memo
+docId: MEMO-1
+data:
+  to: { $ref: people/sam }
+  subject: Hiring

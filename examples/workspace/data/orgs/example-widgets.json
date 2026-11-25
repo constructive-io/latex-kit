@@ -1,0 +1,13 @@
+{
+  "name": "Example Widgets, Inc.",
+  "entityType": "Delaware corporation",
+  "jurisdiction": "Delaware",
+  "address": {
+    "line1": "100 Sample Avenue",
+    "city": "Springfield",
+    "region": "ST",
+    "postalCode": "00000",
+    "country": "United States"
+  },
+  "signer": { "$ref": "people/avery-example" }
+}

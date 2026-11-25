@@ -1,0 +1,17 @@
+# One-way NDA between two fictional companies.
+template: nda
+docId: NDA-20261125-3HV8RT2N
+data:
+  effectiveDate: "2026-11-25"
+  discloser:
+    $ref: orgs/example-widgets
+  recipient:
+    $ref: orgs/placeholder-labs
+  mutual: false
+  termMonths: 24
+  purpose: evaluating a possible widget supply partnership
+  governingLaw: the State of Delaware
+  exclusions:
+    - already known to the Recipient before disclosure
+    - independently developed without use of the Confidential Information
+    - received from a third party without a duty of confidentiality

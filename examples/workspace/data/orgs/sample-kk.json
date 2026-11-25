@@ -1,0 +1,12 @@
+{
+  "name": "株式会社サンプル",
+  "entityType": "Kabushiki Kaisha",
+  "jurisdiction": "Japan",
+  "address": {
+    "line1": "東京都千代田区架空町1-2-3",
+    "city": "東京",
+    "postalCode": "100-0000",
+    "country": "日本"
+  },
+  "signer": { "name": "山田 太郎", "title": "代表取締役" }
+}

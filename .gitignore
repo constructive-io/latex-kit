@@ -17,3 +17,6 @@ lerna-debug.log
 *.log
 *.synctex.gz
 *.pdf
+
+# scratch projects created by tests
+**/__tests__/.tmp-*

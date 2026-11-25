@@ -1,18 +1,12 @@
-#!/usr/bin/env node
-import { CLI } from 'inquirerer';
-
-import { commands } from './commands';
-
-const app = new CLI(commands, {
-  noTty: !process.stdin.isTTY,
-  minimistOpts: {
-    alias: { h: 'help', v: 'version', o: 'out', e: 'engine' },
-    boolean: ['help', 'version', 'local', 'verify', 'json'],
-    string: ['out', 'engine', 'image', 'root', 'platform', 'source-date-epoch'],
-  },
-});
-
-app.run().catch((error) => {
-  console.error(error instanceof Error ? error.message : error);
-  process.exit(1);
-});
+/**
+ * latex-kit: typed, reproducible LaTeX documents.
+ *
+ * The CLI is `latex-kit`. This module is what project files import:
+ * `defineConfig` for latex-kit.config.ts, and `z` plus the shared types and
+ * `ref()` for templates' schema.ts and TypeScript records.
+ */
+export * from './build';
+export * from './check';
+export * from './config';
+export * from './project';
+export * from '@latex-kit/schema';

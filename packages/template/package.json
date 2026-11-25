@@ -1,0 +1,45 @@
+{
+  "name": "@latex-kit/template",
+  "version": "0.1.0",
+  "description": "The latex-kit template language: fill-in macros inside real .tex files, checked and escaped",
+  "author": "Constructive <developers@constructive.io>",
+  "main": "index.js",
+  "module": "esm/index.js",
+  "types": "index.d.ts",
+  "homepage": "https://github.com/constructive-io/latex-kit",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "directory": "dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/constructive-io/latex-kit"
+  },
+  "bugs": {
+    "url": "https://github.com/constructive-io/latex-kit/issues"
+  },
+  "scripts": {
+    "copy": "makage assets",
+    "clean": "makage clean",
+    "prepublishOnly": "npm run build",
+    "build": "makage build",
+    "build:dev": "makage build --dev",
+    "lint": "eslint . --fix",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "devDependencies": {
+    "makage": "^0.8.0"
+  },
+  "keywords": [
+    "latex",
+    "template",
+    "unified-latex",
+    "documents"
+  ],
+  "dependencies": {
+    "@latex-kit/escape": "workspace:*",
+    "@unified-latex/unified-latex-util-parse": "^1.8.4"
+  }
+}

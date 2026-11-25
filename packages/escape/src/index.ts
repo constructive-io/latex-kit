@@ -52,12 +52,16 @@ const SPECIALS: Record<string, string> = {
   // an argument; grouping it makes it plain text everywhere
   '[': '{[}',
   ']': '{]}',
+  // Intl number and currency formats use these; many fonts lack U+202F, so
+  // use TeX's own non-breaking spaces instead of trusting the glyph
+  '\u00A0': '~',
+  '\u202F': '\\,',
 };
 
 // `-(?=-)` splits the -- and --- ligatures so "A--B" stays two hyphens. An
 // empty group (`-{}-`) is not enough under LuaLaTeX, where the font's TeX
 // ligatures still join the hyphens; a zero kern stops them in every engine.
-const SPECIAL_RE = /[\\{}$&#%_^~<>|[\]]|-(?=-)/g;
+const SPECIAL_RE = /[\\{}$&#%_^~<>|[\]\u00A0\u202F]|-(?=-)/g;
 const CONTROL_CHARS = '[\\u0000-\\u0008\\u000B\\u000C\\u000E-\\u001F\\u007F]';
 const CONTROL_ONE = new RegExp(CONTROL_CHARS);
 const CONTROL_ALL = new RegExp(CONTROL_CHARS, 'g');

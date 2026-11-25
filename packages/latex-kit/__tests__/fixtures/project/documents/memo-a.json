@@ -1,0 +1,4 @@
+{
+  "template": "memo",
+  "data": { "to": { "$ref": "people/sam" }, "subject": "R&D budget", "points": ["one", "two"] }
+}

@@ -1,0 +1,39 @@
+% Bilingual letter: Japanese first, English below. LuaLaTeX + LuaTeX-ja with
+% the IPAex and Latin Modern fonts that ship with TeX Live.
+\documentclass[11pt]{article}
+\usepackage{luatexja-fontspec}
+\setmainjfont[BoldFont=ipaexg.ttf]{ipaexm.ttf}
+\setsansjfont{ipaexg.ttf}
+\usepackage[margin=25mm]{geometry}
+\usepackage{latex-kit}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+\snippet{letterhead}
+
+\vspace{1em}
+\begin{flushright}\field{date|date:long}\\ \small 文書番号 \docid\end{flushright}
+
+\field{to.name}\\
+\field{to.address.line1}\\
+\when{to.signer}{\field{to.signer.title|default:""} \field{to.signer.name} 様}
+
+\vspace{1em}
+\begin{center}{\large\bfseries \field{subject.ja}}\\[0.3em]{\small \field{subject.en}}\end{center}
+
+\field{body.ja|paragraphs}
+
+\when{amount}{\begin{center}\textbf{金額：\field{amount|money}}\end{center}}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+{\small\itshape \field{body.en|paragraphs}}
+
+\vspace{2em}
+\begin{flushright}
+\field{from.name}\\
+\field{from.signer.title|default:""}　\field{from.signer.name}
+\end{flushright}
+\end{document}

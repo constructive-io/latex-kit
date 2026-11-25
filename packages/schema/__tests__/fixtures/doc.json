@@ -1,0 +1,9 @@
+{
+  "template": "nda",
+  "data": {
+    "effectiveDate": "2026-11-25",
+    "discloser": { "$ref": "orgs/widgets" },
+    "recipient": { "$ref": "orgs/labs" },
+    "termMonths": 24
+  }
+}

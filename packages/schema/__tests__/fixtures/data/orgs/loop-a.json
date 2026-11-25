@@ -1,0 +1,1 @@
+{ "name": "A", "partner": { "$ref": "orgs/loop-b" } }

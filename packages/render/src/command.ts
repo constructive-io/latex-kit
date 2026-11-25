@@ -35,6 +35,8 @@ export interface CommandOptions {
   sourceDateEpoch: number;
   /** uid:gid to run the container as, so outputs are owned by the caller. */
   user?: string | null;
+  /** Extra directories TeX searches for \\input, packages and images, relative to `root`. */
+  texInputs?: string[];
 }
 
 export interface Command {
@@ -75,6 +77,14 @@ export function buildCommand(o: CommandOptions): Command {
     // pdfTeX and LuaTeX also use SOURCE_DATE_EPOCH for \today and \time
     FORCE_SOURCE_DATE: '1',
   };
+  if (o.texInputs?.length) {
+    // trailing separator keeps TeX's own search path after ours
+    env.TEXINPUTS =
+      o.texInputs
+        .map((d) => insideRoot('output directory', o.root, d))
+        .map((rel) => (rel === '.' ? '.' : `./${rel}`))
+        .join(':') + ':';
+  }
 
   const latexmk = [
     'latexmk',

@@ -27,6 +27,11 @@ describe('escapeLatex', () => {
     expect(escapeLatex('well-known')).toBe('well-known');
   });
 
+  it('turns no-break spaces into TeX spacing', () => {
+    expect(escapeLatex('12,50\u00A0€')).toBe('12,50~€');
+    expect(escapeLatex('1\u202F234')).toBe('1\\,234');
+  });
+
   it('passes Unicode through unchanged', () => {
     expect(escapeLatex('Zoë Ünïcode — 東京 ✓')).toBe('Zoë Ünïcode — 東京 ✓');
   });

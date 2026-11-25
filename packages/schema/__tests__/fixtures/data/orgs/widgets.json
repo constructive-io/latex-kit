@@ -1,0 +1,5 @@
+{
+  "name": "Example Widgets, Inc.",
+  "entityType": "Delaware corporation",
+  "signer": { "$ref": "people/avery" }
+}

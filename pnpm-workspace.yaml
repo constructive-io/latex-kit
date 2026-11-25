@@ -1,5 +1,6 @@
 packages:
   - 'packages/*'
+  - 'examples/*'
 
 # Managed by pnpm-policy — run `pnpm-policy generate` after editing pnpm-policy.yaml.
 
@@ -7,7 +8,7 @@ packages:
 # Most malicious releases are found and yanked well inside that window.
 minimumReleaseAge: 2880
 
-# Exempt from the wait: 7 scope glob(s), 7 first-party package(s).
+# Exempt from the wait: 7 scope glob(s), 9 first-party package(s).
 # First-party membership comes from the inventory.
 minimumReleaseAgeExclude:
   - "@constructive-db/*"
@@ -19,9 +20,11 @@ minimumReleaseAgeExclude:
   - "@pgsql/*"
   - find-and-require-package-json
   - inquirerer
+  - komoji
   - makage
   - nested-obj
   - pnpm-policy
+  - schema-typescript
   - yamlize
   - yanse
 

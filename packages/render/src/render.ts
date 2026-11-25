@@ -32,6 +32,8 @@ export interface RenderOptions {
   platform?: string | null;
   /** Override the build timestamp (seconds since 1970). */
   sourceDateEpoch?: number;
+  /** Extra directories TeX searches (TEXINPUTS), relative to root. */
+  texInputs?: string[];
   /** Receives latexmk/docker output as it arrives. */
   onOutput?: (chunk: string) => void;
 }
@@ -109,6 +111,7 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
     platform,
     sourceDateEpoch: epoch.epoch,
     user: backend === 'docker' ? currentUser() : null,
+    texInputs: options.texInputs,
   });
 
   let result: { code: number | null; output: string };

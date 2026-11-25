@@ -39,7 +39,7 @@ jobs:
           path: packages/*/dist
           retention-days: 1
 
-  # Render every example with the CLI, twice, and fail unless the bytes match.
+  # Build every example with the CLI and fail unless final PDFs are byte-identical.
   examples:
     needs: build
     runs-on: ubuntu-latest
@@ -62,18 +62,35 @@ jobs:
           name: dist
           path: packages
 
-      - run: node packages/latex-kit/dist/index.js doctor
+      - run: node packages/latex-kit/dist/cli.js doctor
 
-      - name: Render examples
+      - name: Render the plain .tex example
+        run: node packages/latex-kit/dist/cli.js render examples/letter/letter.tex --verify
+
+      - name: Check the example project
+        working-directory: examples/workspace
+        run: node ../../packages/latex-kit/dist/cli.js check
+
+      - name: Generated schemas and types are up to date
+        working-directory: examples/workspace
         run: |
-          for f in examples/*/*.tex; do
-            node packages/latex-kit/dist/index.js render "$f" --verify
-          done
+          node ../../packages/latex-kit/dist/cli.js typegen
+          git diff --exit-code -- templates
+
+      - name: Build final (twice, byte-identical), draft and blank
+        working-directory: examples/workspace
+        run: |
+          node ../../packages/latex-kit/dist/cli.js build --final --verify
+          node ../../packages/latex-kit/dist/cli.js build
+          node ../../packages/latex-kit/dist/cli.js build --variant blank
 
       - uses: actions/upload-artifact@v4
         with:
           name: examples
-          path: out/*.pdf
+          path: |
+            out/*.pdf
+            examples/workspace/out/**/*.pdf
+            examples/workspace/out/**/*.manifest.json
           if-no-files-found: error
 
   # Exercise the reusable action exactly as another repo would.

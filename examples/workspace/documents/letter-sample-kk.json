@@ -1,0 +1,19 @@
+{
+  "$schema": "../templates/letter-ja/letter-ja.schema.json",
+  "template": "letter-ja",
+  "docId": "LTR-20261125-5BWN0C4E",
+  "data": {
+    "from": { "$ref": "orgs/example-widgets" },
+    "to": { "$ref": "orgs/sample-kk" },
+    "date": "2026-11-25",
+    "subject": {
+      "ja": "お見積りのご案内",
+      "en": "Quotation"
+    },
+    "body": {
+      "ja": "拝啓　時下ますますご清栄のこととお慶び申し上げます。\n\nご依頼いただきましたウィジェットの件につき、下記のとおりお見積りいたします。ご検討のほど、よろしくお願い申し上げます。",
+      "en": "Thank you for your inquiry about our widgets.\n\nOur quotation is below. We look forward to hearing from you."
+    },
+    "amount": { "amount": 120000, "currency": "JPY" }
+  }
+}

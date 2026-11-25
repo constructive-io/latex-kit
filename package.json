@@ -21,7 +21,7 @@
     "test": "pnpm -r run test",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "typecheck": "pnpm -r exec tsc --noEmit -p tsconfig.json",
+    "typecheck": "pnpm -r --filter './packages/*' exec tsc --noEmit -p tsconfig.json",
     "deps": "pnpm up -r -i -L",
     "policy": "pnpm-policy generate",
     "policy:check": "pnpm-policy check"

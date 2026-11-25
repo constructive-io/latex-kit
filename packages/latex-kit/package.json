@@ -26,8 +26,8 @@
     "build": "makage build",
     "build:dev": "makage build --dev",
     "lint": "eslint . --fix",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
   },
   "devDependencies": {
     "@types/minimist": "^1.2.5",
@@ -41,10 +41,12 @@
     "reproducible-builds"
   ],
   "bin": {
-    "latex-kit": "index.js"
+    "latex-kit": "cli.js"
   },
   "dependencies": {
     "@latex-kit/render": "workspace:*",
+    "@latex-kit/schema": "workspace:*",
+    "@latex-kit/template": "workspace:*",
     "inquirerer": "^4.9.5",
     "minimist": "^1.2.8",
     "yanse": "^0.2.3"

@@ -30,6 +30,12 @@ describe('buildCommand', () => {
     expect(c.args.join(' ')).toContain('--user 1001:121 -e HOME=/tmp -e TEXMFVAR=/tmp/texmf-var');
   });
 
+  it('adds search directories as TEXINPUTS, keeping the defaults', () => {
+    const c = buildCommand({ ...base, texInputs: ['templates/nda', 'out/doc', '.'] });
+    expect(c.args).toContain('TEXINPUTS=./templates/nda:./out/doc:.:');
+    expect(() => buildCommand({ ...base, texInputs: ['../elsewhere'] })).toThrow(PathOutsideRootError);
+  });
+
   it('omits --platform when null', () => {
     expect(buildCommand({ ...base, platform: null }).args).not.toContain('--platform');
   });

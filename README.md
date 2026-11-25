@@ -16,22 +16,72 @@
   </a>
 </p>
 
-<p align="center">Typed, reproducible LaTeX documents: safe templates, pinned builds, the same PDF bytes every time.</p>
+<p align="center">Typed, reproducible LaTeX documents: real <code>.tex</code> templates, checked data, pinned builds, the same PDF bytes every time.</p>
 
-`latex-kit` turns LaTeX into a build you can trust. Values are escaped so a
-stray `&` or `%` can't break or change a document, builds run in a Docker
-image pinned by digest, and the build date comes from git, so the same
-commit always produces the same PDF.
+`latex-kit` turns LaTeX into a build you can trust. Templates are real
+`.tex` files with a few fill-in macros. Data is typed and checked before TeX
+runs. Every value is escaped, so a stray `&` or `%` can't break or change a
+document. Builds run in a Docker image pinned by digest, and the build date
+comes from git, so the same commit always produces the same PDF bytes.
 
 ## Quick start
 
 ```bash
 npm install -g latex-kit
-latex-kit doctor
-latex-kit render letter.tex --verify   # → out/letter.pdf, built twice, bytes compared
+latex-kit doctor                 # is Docker ready?
+latex-kit check                  # templates, schemas, records: no TeX needed
+latex-kit build                  # drafts: watermark, missing values in red
+latex-kit build --final          # final PDFs; mints document IDs once
+latex-kit build --variant blank  # every template as an empty form
 ```
 
-In GitHub Actions:
+## A project
+
+```
+latex-kit.config.ts          optional; these are the defaults
+templates/nda/template.tex   a real .tex file with \field{…}, \when, \each
+templates/nda/schema.ts      zod schema for the data (+ meta: ID prefix, locale)
+snippets/letterhead.tex      shared pieces, included with \snippet{letterhead}
+data/orgs/example.json       shared records, used via { "$ref": "orgs/example" }
+documents/nda-acme.yaml      one record per document: template, docId, data
+out/nda-acme/                generated .tex, PDF and a manifest of every input hash
+```
+
+```latex
+This Agreement is made on \field{effectiveDate|date:long} between
+\field{discloser.name} and \field{recipient.name}.
+\when{mutual}{Each party}\otherwise{The Discloser} may share information for
+\field{termMonths|words} (\field{termMonths}) months.
+\each{exclusions}{x}{\item \field{x}}
+```
+
+```yaml
+template: nda
+docId: NDA-20261125-3HV8RT2N      # minted by the first final build
+data:
+  effectiveDate: "2026-11-25"
+  discloser: { $ref: orgs/example-widgets }
+  recipient: { $ref: orgs/placeholder-labs }
+  mutual: false
+  termMonths: 24
+```
+
+The full language (filters, conditions, variants) is in
+[`@latex-kit/template`](packages/template). A complete project with an
+invoice, an NDA and a bilingual Japanese/English letter is in
+[`examples/workspace`](examples/workspace).
+
+| Command | |
+|---|---|
+| `latex-kit build [documents…]` | `--final`, `--variant draft\|blank\|signed`, `--template`, `--verify`, `--strict` |
+| `latex-kit check` | Unknown fields with `file:line:col`, invalid data, broken references, reused IDs |
+| `latex-kit fields <template>` | Every field a template reads, with its filters |
+| `latex-kit typegen` | JSON Schema (editor autocomplete for records) and `.d.ts` per template |
+| `latex-kit sty [dir]` | `latex-kit.sty`, so editors compile templates as blank previews |
+| `latex-kit render <file.tex>` | Any plain `.tex` → PDF, reproducibly (papers, letters) |
+| `latex-kit doctor` | Docker, image and TeX checks |
+
+In GitHub Actions, for plain `.tex` (papers):
 
 ```yaml
 - uses: actions/checkout@v4
@@ -46,29 +96,22 @@ In GitHub Actions:
 
 | Package | |
 |---|---|
-| [`latex-kit`](packages/latex-kit) | The CLI: `render`, `doctor` |
-| [`@latex-kit/escape`](packages/escape) | Escape plain text for LaTeX; `tex` tagged template; no dependencies |
+| [`latex-kit`](packages/latex-kit) | The CLI, and `defineConfig` / `z` / shared types for project files |
+| [`@latex-kit/template`](packages/template) | The template language: compile, check, fill, variants, `latex-kit.sty` |
+| [`@latex-kit/schema`](packages/schema) | zod schemas, shared types, `$ref` records, document IDs, typegen |
 | [`@latex-kit/render`](packages/render) | latexmk in a pinned image, reproducible dates, log → diagnostics |
+| [`@latex-kit/escape`](packages/escape) | Escape plain text for LaTeX; `tex` tagged template; no dependencies |
 | [`action/`](action) | Reusable GitHub Action |
-| [`examples/`](examples) | Fictional documents CI renders and checks for byte-identical output |
+| [`examples/`](examples) | Fictional projects CI checks and builds byte-for-byte |
 
 ## Roadmap
 
-- **Template language.** Templates stay valid `.tex` files, with fill-in
-  macros (`\field{party.name|date:long}`, `\when`, `\each`, `\partial`,
-  `\clauseref`, `\docid`) parsed with
-  [unified-latex](https://github.com/siefkenj/unified-latex). Every value is
-  escaped, and `latex-kit check` reports unknown or missing fields with
-  `file:line:col` before anything renders.
-- **Typed data.** JSON, YAML or TypeScript records validated with zod, with
-  generated types and references between records. Document IDs are minted
-  once and stored on the record.
-- **Variants.** `draft`, `blank`, `final` and `signed` from one template.
-- **Clauses, redlines, import.** A versioned clause library, `latex-kit diff`
-  (latexdiff) and `latex-kit import` (pandoc).
+- **Clauses and redlines.** A versioned clause library (`\clauseref`),
+  `latex-kit diff` (latexdiff against the last signed PDF) and
+  `latex-kit import` (pandoc).
+- **Boilerplates.** `latex-kit init` for projects, document types and papers.
 - **Multi-arch image.** `ghcr.io/constructive-io/latex-kit`, native on arm64
-  and amd64, based on official TeX Live.
-- **Boilerplates.** `latex-kit init` for workspaces, document types and papers.
+  and amd64, newer TeX Live, so XeLaTeX builds are reproducible too.
 
 ## Development
 
@@ -78,7 +121,8 @@ cd latex-kit
 pnpm install
 pnpm build
 pnpm test
-node packages/latex-kit/dist/index.js render examples/letter/letter.tex --verify
+node packages/latex-kit/dist/cli.js render examples/letter/letter.tex --verify
+cd examples/workspace && node ../../packages/latex-kit/dist/cli.js build --final --verify
 ```
 
 Dependencies follow the workspace supply-chain policy in

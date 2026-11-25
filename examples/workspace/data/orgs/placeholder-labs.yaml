@@ -1,0 +1,12 @@
+# Fictional company. Note the & and % in its name: latex-kit escapes them.
+name: Placeholder Labs & Co. (100% fictional)
+entityType: California limited liability company
+jurisdiction: California
+address:
+  line1: 200 Demo Street, Suite 3
+  city: Anytown
+  region: ST
+  postalCode: "00000"
+  country: United States
+signer:
+  $ref: people/jordan-rivera

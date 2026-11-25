@@ -27,11 +27,24 @@ Guidance for AI agents working in `constructive-io/latex-kit`.
 - Every package README starts with the Constructive outline-logo header and
   ends with the standard Credits and Disclaimer.
 
+## The template language
+
+- Macros: `\field`, `\raw`, `\when`/`\otherwise`, `\each`/`\sep`, `\snippet`,
+  `\docid` (`\clauseref` reserved). Never reuse LaTeX's own command names
+  (`\partial`, `\ref`, …) for new macros.
+- The engine only replaces these macros; every other byte of a template is
+  kept. unified-latex is used to *find* them (skipping comments and
+  verbatim), never to re-print the document.
+- Values are always escaped through `@latex-kit/escape`, except `\raw`.
+- Packages that load project files (`schema`, `latex-kit`) run Jest with
+  `--experimental-vm-modules`, because jiti imports TypeScript dynamically.
+
 ## Checks before committing
 
 ```bash
 pnpm build && pnpm lint && pnpm typecheck && pnpm test
-node packages/latex-kit/dist/index.js render examples/letter/letter.tex --verify
+node packages/latex-kit/dist/cli.js render examples/letter/letter.tex --verify
+(cd examples/workspace && node ../../packages/latex-kit/dist/cli.js check && node ../../packages/latex-kit/dist/cli.js build --final --verify)
 ```
 
 Escaping changes must also be checked in a real PDF (render, then

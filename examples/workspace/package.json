@@ -1,0 +1,16 @@
+{
+  "name": "latex-kit-example-workspace",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A fictional latex-kit project: templates, shared data and document records",
+  "scripts": {
+    "check": "latex-kit check",
+    "build": "latex-kit build --final",
+    "build:draft": "latex-kit build",
+    "build:blank": "latex-kit build --variant blank",
+    "typegen": "latex-kit typegen"
+  },
+  "dependencies": {
+    "latex-kit": "workspace:*"
+  }
+}

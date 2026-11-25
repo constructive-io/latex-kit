@@ -1,0 +1,6 @@
+% Shared letterhead: reads `from` (an Organization) from the document's data.
+\begin{flushright}
+{\large\bfseries \field{from.name}}\\
+\field{from.address.line1}\\
+\field{from.address.city}\when{from.address.region}{, \field{from.address.region}} \field{from.address.postalCode|default:""}
+\end{flushright}
