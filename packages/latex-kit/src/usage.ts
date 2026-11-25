@@ -42,8 +42,8 @@ Options
   -o, --out <dir>              Output directory, relative to --root (default: out)
   -e, --engine <name>          lualatex (default), xelatex or pdflatex
       --root <dir>             Directory TeX can see (default: current directory)
-      --image <ref>            Docker image (default: pinned pyramation/latex digest)
-      --platform <os/arch>     Docker --platform (default: linux/amd64 for the default image)
+      --image <ref>            Docker image (default: pinned ghcr.io/constructive-io/latex-kit)
+      --platform <os/arch>     Docker --platform (default: native)
       --local                  Use latexmk on PATH instead of Docker (not pinned)
       --source-date-epoch <s>  Build timestamp in seconds since 1970
       --verify                 Build twice and fail if the PDFs differ
@@ -71,7 +71,7 @@ Options
       --strict           Fail on missing values in drafts too
   -e, --engine <name>    lualatex (default), xelatex or pdflatex
       --local            Use latexmk on PATH instead of Docker
-      --image <ref>      Docker image (default: pinned pyramation/latex)
+      --image <ref>      Docker image (default: pinned ghcr.io/constructive-io/latex-kit)
       --verify           Build twice and fail unless the PDFs are identical
       --tex-only         Write the .tex without running TeX
       --json             JSON results on stdout

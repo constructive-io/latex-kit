@@ -1,4 +1,4 @@
-import { buildCommand, DEFAULT_IMAGE, insideRoot, latexdiffScript, pandocArgs, PathOutsideRootError } from '../src';
+import { buildCommand, DEFAULT_IMAGE, DEFAULT_IMAGE_PLATFORM, insideRoot, latexdiffScript, LEGACY_IMAGE, pandocArgs, PathOutsideRootError } from '../src';
 
 const base = {
   root: '/proj',
@@ -93,5 +93,15 @@ describe('tool commands', () => {
       '--extract-media=templates/x/media',
       'in.docx',
     ]);
+  });
+});
+
+describe('images', () => {
+  it('defaults to the multi-arch GHCR image, native platform', () => {
+    expect(DEFAULT_IMAGE).toMatch(/^ghcr\.io\/constructive-io\/latex-kit@sha256:[0-9a-f]{64}$/);
+    expect(DEFAULT_IMAGE_PLATFORM).toBeNull();
+  });
+  it('keeps the previous image for old PDFs', () => {
+    expect(LEGACY_IMAGE).toMatch(/^pyramation\/latex@sha256:/);
   });
 });

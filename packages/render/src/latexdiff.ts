@@ -1,6 +1,6 @@
 import { resolve } from 'path';
 
-import { DEFAULT_IMAGE, DEFAULT_IMAGE_PLATFORM, insideRoot } from './command';
+import { DEFAULT_IMAGE, DEFAULT_IMAGE_PLATFORM, insideRoot, LEGACY_IMAGE, LEGACY_IMAGE_PLATFORM } from './command';
 import { currentUser, runProcess } from './render';
 
 export interface LatexdiffOptions {
@@ -44,7 +44,7 @@ export async function runLatexdiff(options: LatexdiffOptions): Promise<void> {
   let args = ['-c', script];
   if (options.backend !== 'local') {
     const image = options.image ?? DEFAULT_IMAGE;
-    const platform = options.platform !== undefined ? options.platform : image === DEFAULT_IMAGE ? DEFAULT_IMAGE_PLATFORM : null;
+    const platform = options.platform !== undefined ? options.platform : image === LEGACY_IMAGE ? LEGACY_IMAGE_PLATFORM : DEFAULT_IMAGE_PLATFORM;
     cmd = 'docker';
     args = ['run', '--rm'];
     if (platform) args.push('--platform', platform);

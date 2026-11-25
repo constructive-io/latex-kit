@@ -44,8 +44,8 @@ latex-kit render letter.tex --json                # machine-readable summary
 | `-o, --out <dir>` | `out` | Output directory, relative to `--root` |
 | `-e, --engine <name>` | `lualatex` | `lualatex`, `xelatex`, `pdflatex` |
 | `--root <dir>` | current directory | Directory TeX can see |
-| `--image <ref>` | pinned `pyramation/latex` | Docker image |
-| `--platform <os/arch>` | `linux/amd64` for the default image | Docker `--platform` |
+| `--image <ref>` | pinned `ghcr.io/constructive-io/latex-kit` (TeX Live 2026) | Docker image |
+| `--platform <os/arch>` | native | Docker `--platform` |
 | `--local` | | Use `latexmk` on `PATH` instead of Docker (not pinned) |
 | `--source-date-epoch <s>` | `SOURCE_DATE_EPOCH`, else the last git commit | Build timestamp |
 | `--verify` | | Build twice; exit 1 if the PDFs differ |

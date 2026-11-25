@@ -11,6 +11,8 @@ import {
   DEFAULT_IMAGE_PLATFORM,
   Engine,
   ENGINES,
+  LEGACY_IMAGE,
+  LEGACY_IMAGE_PLATFORM,
 } from './command';
 import { EpochSource, resolveSourceDateEpoch } from './epoch';
 import { Diagnostic, parseLog } from './log';
@@ -28,7 +30,7 @@ export interface RenderOptions {
   backend?: Backend;
   /** Docker image. Default: {@link DEFAULT_IMAGE}. */
   image?: string;
-  /** Docker `--platform`. Default: linux/amd64 for the default image, otherwise unset. */
+  /** Docker `--platform`. Default: unset (native), or linux/amd64 for LEGACY_IMAGE. */
   platform?: string | null;
   /** Override the build timestamp (seconds since 1970). */
   sourceDateEpoch?: number;
@@ -100,7 +102,7 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
   const backend = options.backend ?? 'docker';
   const image = options.image ?? DEFAULT_IMAGE;
   const platform =
-    options.platform !== undefined ? options.platform : image === DEFAULT_IMAGE ? DEFAULT_IMAGE_PLATFORM : null;
+    options.platform !== undefined ? options.platform : image === LEGACY_IMAGE ? LEGACY_IMAGE_PLATFORM : DEFAULT_IMAGE_PLATFORM;
   const epoch = resolveSourceDateEpoch(file, { explicit: options.sourceDateEpoch });
 
   const command = buildCommand({

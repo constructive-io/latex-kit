@@ -20,8 +20,8 @@ inputs:
     description: lualatex, xelatex or pdflatex. Only lualatex is byte-reproducible in the default image.
     default: lualatex
   image:
-    description: Docker image, pinned by digest.
-    default: pyramation/latex@sha256:37c951932d73f61584054ab8c822a5b4af31aefb2cdf08a36f3ba26e5761f3c0
+    description: Docker image, pinned by digest (default ghcr.io/constructive-io/latex-kit, TeX Live 2026).
+    default: ghcr.io/constructive-io/latex-kit@sha256:e4d5aebb60986780c437ace0c0840c73fa6b0b70c7a60ab3246aee83da483fac
   source-date-epoch:
     description: Build timestamp in seconds since 1970. Default is the last commit that touched the file.
     default: ''

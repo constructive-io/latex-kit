@@ -55,8 +55,8 @@ await doctor(); // [{ name: 'docker', status: 'ok', detail: 'daemon running (arm
 | `outDir` | `out` | Relative to `root` |
 | `engine` | `lualatex` | `lualatex`, `xelatex` or `pdflatex` |
 | `backend` | `docker` | `local` runs `latexmk` from `PATH` (not pinned) |
-| `image` | `DEFAULT_IMAGE` | `pyramation/latex`, pinned by digest |
-| `platform` | `linux/amd64` for the default image | Docker `--platform` |
+| `image` | `DEFAULT_IMAGE` | `ghcr.io/constructive-io/latex-kit` (TeX Live 2026), pinned by digest |
+| `platform` | native (the image is multi-arch) | Docker `--platform` |
 | `sourceDateEpoch` | see below | Build timestamp, seconds since 1970 |
 
 ### Reproducible builds
@@ -66,14 +66,15 @@ The build date (which also drives `\today`) comes from, in order: the
 the last git commit that touched the file. Only if none exists does it fall
 back to the current time, and then the result says `reproducible: false`.
 
-In the default image (TeX Live 2019), **LuaLaTeX output is byte-identical**
-across builds. XeLaTeX works, but its PDF driver embeds varying bytes, so it
-is not reproducible there. A newer multi-arch image is planned.
+**LuaLaTeX output is byte-identical** across builds. XeLaTeX works, but its
+PDF writer gives embedded fonts random subset names, so it is never
+byte-identical; that is why LuaLaTeX is the default.
 
 ### Docker notes
 
-- The default image is amd64-only. On Apple silicon Docker emulates it;
-  the output is identical, just slower. `doctor()` reports this.
+- The default image runs natively on amd64 and arm64 (Apple silicon). It is
+  about 2.8 GB; the first build pulls it. `LEGACY_IMAGE` is the previous
+  default (TeX Live 2019, amd64), for reproducing PDFs made with it.
 - On Linux the container runs as your uid, so outputs aren't owned by root.
 
 ## Credits

@@ -1,13 +1,18 @@
 import { isAbsolute, posix, relative, resolve, sep } from 'path';
 
 /**
- * The v1 image: open-source `pyramation/latex` (Alpine, TeX Live 2019, with
- * lualatex, xelatex, latexmk and latexdiff), pinned by digest so every build
- * uses the same bytes. It is amd64-only; on Apple silicon Docker emulates it.
+ * The default image: ghcr.io/constructive-io/latex-kit (official TeX Live 2026,
+ * full scheme, plus Noto CJK fonts), built from docker/ in this repo for amd64
+ * and arm64, pinned by digest so every build uses the same bytes.
  */
 export const DEFAULT_IMAGE =
-  'pyramation/latex@sha256:37c951932d73f61584054ab8c822a5b4af31aefb2cdf08a36f3ba26e5761f3c0';
-export const DEFAULT_IMAGE_PLATFORM = 'linux/amd64';
+  'ghcr.io/constructive-io/latex-kit@sha256:e4d5aebb60986780c437ace0c0840c73fa6b0b70c7a60ab3246aee83da483fac';
+/** Multi-arch: let Docker pick the native platform. */
+export const DEFAULT_IMAGE_PLATFORM: string | null = null;
+
+/** The previous default (TeX Live 2019, amd64 only), for reproducing older PDFs. */
+export const LEGACY_IMAGE = 'pyramation/latex@sha256:37c951932d73f61584054ab8c822a5b4af31aefb2cdf08a36f3ba26e5761f3c0';
+export const LEGACY_IMAGE_PLATFORM = 'linux/amd64';
 
 export type Engine = 'lualatex' | 'xelatex' | 'pdflatex';
 export type Backend = 'docker' | 'local';
