@@ -46,6 +46,7 @@ describe('buildCommand', () => {
   it('maps engines to latexmk flags', () => {
     expect(buildCommand({ ...base, engine: 'xelatex' }).args).toContain('-xelatex');
     expect(buildCommand({ ...base, engine: 'pdflatex' }).args).toContain('-pdf');
+    expect(buildCommand({ ...base, engine: 'pdfps' }).args).toContain('-pdfps');
   });
 
   it('runs latexmk directly for the local backend', () => {

@@ -11,7 +11,7 @@ import {
 } from '@latex-kit/template';
 import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { basename, extname, join, relative, resolve } from 'path';
 
 import { Project, Template } from './project';
@@ -203,10 +203,9 @@ async function run(job: Job): Promise<BuildResult> {
   result.sha256 = rendered.sha256;
 
   if (options.verify) {
-    const verifyDir = `${outDir}.verify`;
-    const again = await render({ ...renderOpts, outDir: relative(project.root, verifyDir) });
+    // same output path: some tools (Ghostscript) hash the path into the PDF ID
+    const again = await render({ ...renderOpts, outDir: relative(project.root, outDir) });
     result.verified = again.sha256 === rendered.sha256;
-    rmSync(verifyDir, { recursive: true, force: true });
   }
 
   // 4. keep the ID: only after a successful final build

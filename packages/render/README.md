@@ -53,7 +53,7 @@ await doctor(); // [{ name: 'docker', status: 'ok', detail: 'daemon running (arm
 | `file` | | The `.tex` file |
 | `root` | `process.cwd()` | Directory TeX can see. Inputs and outputs must be inside it |
 | `outDir` | `out` | Relative to `root` |
-| `engine` | `lualatex` | `lualatex`, `xelatex` or `pdflatex` |
+| `engine` | `lualatex` | `lualatex`, `xelatex`, `pdflatex` or `pdfps` (latex → dvips → ps2pdf, for PSTricks) |
 | `backend` | `docker` | `local` runs `latexmk` from `PATH` (not pinned) |
 | `image` | `DEFAULT_IMAGE` | `ghcr.io/constructive-io/latex-kit` (TeX Live 2026), pinned by digest |
 | `platform` | native (the image is multi-arch) | Docker `--platform` |

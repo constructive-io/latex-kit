@@ -1,8 +1,7 @@
 import { formatDiagnostic, render, RenderError, RenderResult } from '@latex-kit/render';
-import { rmSync } from 'fs';
 import type { Inquirerer } from 'inquirerer';
 import type { ParsedArgs } from 'minimist';
-import { dirname, relative } from 'path';
+import { relative } from 'path';
 import chalk from 'yanse';
 
 import { renderOptionsFromArgv, UsageError } from './args';
@@ -54,11 +53,10 @@ export async function renderCommand(argv: Partial<ParsedArgs>, prompter: Inquire
 
     let verified: boolean | undefined;
     if (argv.verify) {
-      const verifyDir = `${opts.outDir}.verify`;
+      // same output path: some tools (Ghostscript) hash the path into the PDF ID
       log(chalk.dim('rendering again to check the output is byte-identical…'));
-      const second = await render({ ...opts, file: opts.file!, outDir: verifyDir, sourceDateEpoch: first.sourceDateEpoch });
+      const second = await render({ ...opts, file: opts.file!, sourceDateEpoch: first.sourceDateEpoch });
       verified = second.sha256 === first.sha256;
-      rmSync(dirname(second.pdf), { recursive: true, force: true });
     }
 
     if (argv.json) {

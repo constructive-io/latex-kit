@@ -37,7 +37,7 @@ it('initializes a project that checks clean, and refuses to clobber one', async 
 it('initializes a paper', () => {
   const r = initProject(root, { paper: true, version: '1.0.0' });
   expect(r.written.map((f) => f.slice(root.length + 1)).sort()).toEqual(['.github/workflows/paper.yml', '.gitignore', 'README.md', 'paper/main.tex', 'paper/refs.bib']);
-  expect(readFileSync(join(root, '.github/workflows/paper.yml'), 'utf8')).toContain('uses: constructive-io/latex-kit/action@main');
+  expect(readFileSync(join(root, '.github/workflows/paper.yml'), 'utf8')).toContain('uses: constructive-io/latex-kit/action@v1');
 });
 
 it('adds a template and a document linked to its schema', async () => {

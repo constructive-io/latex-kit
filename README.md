@@ -94,9 +94,11 @@ In GitHub Actions, for plain `.tex` (papers):
 - uses: actions/checkout@v4
   with:
     fetch-depth: 0
-- uses: constructive-io/latex-kit/action@main
+- uses: constructive-io/latex-kit/action@v1
   with:
     file: paper/main.tex
+    engine: pdfps   # only for PSTricks papers; default lualatex
+    verify: 'true'  # build twice, fail unless byte-identical
 ```
 
 ## Packages

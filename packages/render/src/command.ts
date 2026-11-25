@@ -14,15 +14,19 @@ export const DEFAULT_IMAGE_PLATFORM: string | null = null;
 export const LEGACY_IMAGE = 'pyramation/latex@sha256:37c951932d73f61584054ab8c822a5b4af31aefb2cdf08a36f3ba26e5761f3c0';
 export const LEGACY_IMAGE_PLATFORM = 'linux/amd64';
 
-export type Engine = 'lualatex' | 'xelatex' | 'pdflatex';
+/**
+ * `pdfps` is latex → dvips → ps2pdf, for PSTricks documents (latexmk -pdfps).
+ */
+export type Engine = 'lualatex' | 'xelatex' | 'pdflatex' | 'pdfps';
 export type Backend = 'docker' | 'local';
 
-export const ENGINES: Engine[] = ['lualatex', 'xelatex', 'pdflatex'];
+export const ENGINES: Engine[] = ['lualatex', 'xelatex', 'pdflatex', 'pdfps'];
 
 const ENGINE_FLAG: Record<Engine, string> = {
   lualatex: '-lualatex',
   xelatex: '-xelatex',
   pdflatex: '-pdf',
+  pdfps: '-pdfps',
 };
 
 export interface CommandOptions {

@@ -17,7 +17,7 @@ inputs:
     description: Output directory, relative to root.
     default: out
   engine:
-    description: lualatex, xelatex or pdflatex. Only lualatex is byte-reproducible in the default image.
+    description: lualatex, xelatex, pdflatex, or pdfps (latex → dvips → ps2pdf, for PSTricks). xelatex is never byte-reproducible.
     default: lualatex
   image:
     description: Docker image, pinned by digest (default ghcr.io/constructive-io/latex-kit, TeX Live 2026).
@@ -64,7 +64,8 @@ runs:
           lualatex) flag=-lualatex ;;
           xelatex)  flag=-xelatex ;;
           pdflatex) flag=-pdf ;;
-          *) echo "::error::engine must be lualatex, xelatex or pdflatex"; exit 1 ;;
+          pdfps)    flag=-pdfps ;;
+          *) echo "::error::engine must be lualatex, xelatex, pdflatex or pdfps"; exit 1 ;;
         esac
         root=$(cd "$LK_ROOT" && pwd)
         case "$LK_FILE" in /*|*..*) echo "::error::file must be a relative path inside root"; exit 1 ;; esac
@@ -103,9 +104,9 @@ runs:
         sha=$(sha256sum "$pdf" | cut -d' ' -f1)
 
         if [ "$LK_VERIFY" = "true" ]; then
-          build "$LK_OUT.verify" >/dev/null
-          sha2=$(sha256sum "$root/$LK_OUT.verify/$job.pdf" | cut -d' ' -f1)
-          rm -rf "$root/$LK_OUT.verify"
+          # same output path: Ghostscript (pdfps) hashes the path into the PDF ID
+          build "$LK_OUT" >/dev/null
+          sha2=$(sha256sum "$pdf" | cut -d' ' -f1)
           if [ "$sha" != "$sha2" ]; then
             echo "::error::$LK_FILE is not reproducible: $sha vs $sha2"; exit 1
           fi

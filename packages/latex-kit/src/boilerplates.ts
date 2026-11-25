@@ -184,7 +184,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # the build date comes from the last commit
-      - uses: constructive-io/latex-kit/action@main
+      - uses: constructive-io/latex-kit/action@v1
         with:
           file: paper/main.tex
           verify: 'true'

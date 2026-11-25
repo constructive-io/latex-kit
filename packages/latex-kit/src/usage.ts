@@ -40,7 +40,7 @@ always produces the same PDF bytes.
 
 Options
   -o, --out <dir>              Output directory, relative to --root (default: out)
-  -e, --engine <name>          lualatex (default), xelatex or pdflatex
+  -e, --engine <name>          lualatex (default), xelatex, pdflatex or pdfps
       --root <dir>             Directory TeX can see (default: current directory)
       --image <ref>            Docker image (default: pinned ghcr.io/constructive-io/latex-kit)
       --platform <os/arch>     Docker --platform (default: native)
@@ -69,7 +69,7 @@ Variants
 Options
       --template <name>  Only documents that use this template
       --strict           Fail on missing values in drafts too
-  -e, --engine <name>    lualatex (default), xelatex or pdflatex
+  -e, --engine <name>    lualatex (default), xelatex, pdflatex or pdfps
       --local            Use latexmk on PATH instead of Docker
       --image <ref>      Docker image (default: pinned ghcr.io/constructive-io/latex-kit)
       --verify           Build twice and fail unless the PDFs are identical

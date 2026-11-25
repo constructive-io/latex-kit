@@ -42,7 +42,7 @@ latex-kit render letter.tex --json                # machine-readable summary
 | Flag | Default | |
 |---|---|---|
 | `-o, --out <dir>` | `out` | Output directory, relative to `--root` |
-| `-e, --engine <name>` | `lualatex` | `lualatex`, `xelatex`, `pdflatex` |
+| `-e, --engine <name>` | `lualatex` | `lualatex`, `xelatex`, `pdflatex`, `pdfps` (PSTricks) |
 | `--root <dir>` | current directory | Directory TeX can see |
 | `--image <ref>` | pinned `ghcr.io/constructive-io/latex-kit` (TeX Live 2026) | Docker image |
 | `--platform <os/arch>` | native | Docker `--platform` |
