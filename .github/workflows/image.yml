@@ -1,0 +1,61 @@
+name: Image
+
+# Builds docker/Dockerfile for amd64 and arm64 and publishes it as
+# ghcr.io/constructive-io/latex-kit. Tags: tl2026, sha-<commit>, latest.
+# latex-kit pins the image by digest, so a new push never changes builds
+# until the default digest in @latex-kit/render is updated on purpose.
+
+on:
+  push:
+    branches: [main]
+    paths: ['docker/**', '.github/workflows/image.yml']
+  workflow_dispatch: {}
+
+concurrency:
+  group: image-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-qemu-action@v3
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/constructive-io/latex-kit
+          tags: |
+            type=raw,value=tl2026
+            type=sha,format=short
+            type=raw,value=latest
+
+      - id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: docker
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Smoke test
+        run: |
+          image="ghcr.io/constructive-io/latex-kit@${{ steps.build.outputs.digest }}"
+          docker run --rm "$image" sh -c 'tex --version | head -1 && latexmk -v | head -2 && fc-list | grep -ci "noto.*cjk"'
+          echo "### ghcr.io/constructive-io/latex-kit" >> "$GITHUB_STEP_SUMMARY"
+          echo "digest \`${{ steps.build.outputs.digest }}\`" >> "$GITHUB_STEP_SUMMARY"

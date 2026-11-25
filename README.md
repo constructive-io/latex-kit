@@ -113,8 +113,11 @@ In GitHub Actions, for plain `.tex` (papers):
 
 ## Roadmap
 
-- **Multi-arch image.** `ghcr.io/constructive-io/latex-kit`, native on arm64
-  and amd64, newer TeX Live, so XeLaTeX builds are reproducible too.
+- **Multi-arch image.** `ghcr.io/constructive-io/latex-kit` (TeX Live 2026,
+  native on arm64 and amd64) is built from [`docker/`](docker); it becomes the
+  default once published. LuaLaTeX stays the default engine: XeLaTeX's PDF
+  writer gives embedded fonts random subset names, so its PDFs are never
+  byte-identical, on any TeX Live.
 
 ## Development
 
