@@ -102,6 +102,14 @@ jobs:
           node "$cli" build --variant blank
           test -s out/offer-letter/offer-letter-blank.pdf
 
+      - name: A new project and a new paper build out of the box
+        run: |
+          cli="$PWD/packages/latex-kit/dist/cli.js"
+          node "$cli" init scaffold
+          (cd scaffold && node "$cli" check && node "$cli" build --final --verify && node "$cli" build --variant blank)
+          node "$cli" init paper-scaffold --paper
+          (cd paper-scaffold && node "$cli" render paper/main.tex --verify)
+
       - uses: actions/upload-artifact@v4
         with:
           name: examples
@@ -110,6 +118,8 @@ jobs:
             examples/workspace/out/**/*.pdf
             examples/workspace/out/**/*.manifest.json
             imported/out/**/*.pdf
+            scaffold/out/**/*.pdf
+            paper-scaffold/out/*.pdf
           if-no-files-found: error
 
   # Exercise the reusable action exactly as another repo would.

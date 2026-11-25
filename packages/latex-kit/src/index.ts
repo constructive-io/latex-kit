@@ -11,4 +11,5 @@ export * from './config';
 export * from './diff';
 export * from './import';
 export * from './project';
+export * from './scaffold';
 export * from '@latex-kit/schema';

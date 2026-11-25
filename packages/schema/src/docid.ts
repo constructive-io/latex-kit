@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto';
 import { readFileSync, writeFileSync } from 'fs';
 import { extname } from 'path';
-import { parseDocument } from 'yaml';
+import { isMap, isScalar, parseDocument } from 'yaml';
 
 const CROCKFORD = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
 
@@ -50,7 +50,14 @@ export function writeDocId(file: string, docId: string): void {
   }
   if (ext === '.yaml' || ext === '.yml') {
     const doc = parseDocument(text);
-    doc.set('docId', docId);
+    if (doc.has('docId') || !isMap(doc.contents)) {
+      doc.set('docId', docId);
+    } else {
+      // right after `template:`, where people look for it
+      const items = doc.contents.items;
+      const at = items.findIndex((p) => isScalar(p.key) && p.key.value === 'template');
+      items.splice(at + 1, 0, doc.createPair('docId', docId));
+    }
     writeFileSync(file, doc.toString());
     return;
   }

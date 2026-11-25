@@ -19,6 +19,7 @@ describe('buildCommand', () => {
       'run', '--rm', '--platform', 'linux/amd64',
       '-v', '/proj:/work', '-w', '/work',
       '-e', 'SOURCE_DATE_EPOCH=1700000000', '-e', 'FORCE_SOURCE_DATE=1',
+      '-e', 'TEXINPUTS=/work/examples/letter:', '-e', 'BIBINPUTS=/work/examples/letter:',
       DEFAULT_IMAGE,
       'latexmk', '-lualatex', '-g', '-interaction=nonstopmode', '-halt-on-error', '-file-line-error',
       '-outdir=out', 'examples/letter/letter.tex',
@@ -31,8 +32,10 @@ describe('buildCommand', () => {
   });
 
   it('adds search directories as TEXINPUTS, keeping the defaults', () => {
-    const c = buildCommand({ ...base, texInputs: ['templates/nda', 'out/doc', '.'] });
-    expect(c.args).toContain('TEXINPUTS=./templates/nda:./out/doc:.:');
+    const c = buildCommand({ ...base, texInputs: ['templates/nda', 'out/doc', '.', 'examples/letter'] });
+    expect(c.args).toContain('TEXINPUTS=/work/examples/letter:/work/templates/nda:/work/out/doc:/work:');
+    expect(c.args).toContain('BIBINPUTS=/work/examples/letter:/work/templates/nda:/work/out/doc:/work:');
+    expect(buildCommand({ ...base, file: 'top.tex' }).env.TEXINPUTS).toBeUndefined();
     expect(() => buildCommand({ ...base, texInputs: ['../elsewhere'] })).toThrow(PathOutsideRootError);
   });
 
@@ -49,7 +52,12 @@ describe('buildCommand', () => {
     const c = buildCommand({ ...base, backend: 'local' });
     expect(c.cmd).toBe('latexmk');
     expect(c.cwd).toBe('/proj');
-    expect(c.env).toEqual({ SOURCE_DATE_EPOCH: '1700000000', FORCE_SOURCE_DATE: '1' });
+    expect(c.env).toEqual({
+      SOURCE_DATE_EPOCH: '1700000000',
+      FORCE_SOURCE_DATE: '1',
+      TEXINPUTS: '/proj/examples/letter:',
+      BIBINPUTS: '/proj/examples/letter:',
+    });
   });
 
   it('accepts absolute paths inside the root', () => {

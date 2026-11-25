@@ -77,13 +77,18 @@ export function buildCommand(o: CommandOptions): Command {
     // pdfTeX and LuaTeX also use SOURCE_DATE_EPOCH for \today and \time
     FORCE_SOURCE_DATE: '1',
   };
-  if (o.texInputs?.length) {
-    // trailing separator keeps TeX's own search path after ours
-    env.TEXINPUTS =
-      o.texInputs
-        .map((d) => insideRoot('output directory', o.root, d))
-        .map((rel) => (rel === '.' ? '.' : `./${rel}`))
-        .join(':') + ':';
+  // TeX resolves \\input, \\includegraphics and \\bibliography against the working
+  // directory (the root), so the source file's own folder goes first.
+  const sourceDir = posix.dirname(texPath);
+  const dirs = [...(sourceDir === '.' ? [] : [sourceDir]), ...(o.texInputs ?? []).map((d) => insideRoot('output directory', o.root, d))];
+  const unique = [...new Set(dirs)];
+  if (unique.length) {
+    // absolute: latexmk runs bibtex from inside the output folder. A trailing
+    // separator keeps TeX's own search path after ours.
+    const base = o.backend === 'local' ? o.root : '/work';
+    const search = unique.map((rel) => (rel === '.' ? base : posix.join(base.split(sep).join(posix.sep), rel))).join(':') + ':';
+    env.TEXINPUTS = search;
+    env.BIBINPUTS = search;
   }
 
   const latexmk = [

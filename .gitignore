@@ -23,3 +23,5 @@ lerna-debug.log
 
 # CI scratch project for the import test
 /imported/
+/scaffold/
+/paper-scaffold/

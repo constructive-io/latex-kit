@@ -3,6 +3,13 @@ const MAIN = `latex-kit — build typed, reproducible LaTeX documents
 Usage
   latex-kit <command> [options]
 
+Start
+  init [dir]          A new project: a letter template, data and a record
+  init [dir] --paper  A paper: main.tex, refs.bib and a GitHub Actions workflow
+  new template <name> A template folder with template.tex and schema.ts
+  new document <name> --template <t>
+                      A record with every required field, linked to its schema
+
 Project commands (run in a folder with templates/, data/, documents/)
   build [documents…]  Fill templates with records and build PDFs
   check               Check templates, schemas, records and IDs without TeX

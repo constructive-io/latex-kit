@@ -28,6 +28,8 @@ comes from git, so the same commit always produces the same PDF bytes.
 
 ```bash
 npm install -g latex-kit
+latex-kit init my-documents      # or: latex-kit init my-paper --paper
+cd my-documents
 latex-kit doctor                 # is Docker ready?
 latex-kit check                  # templates, schemas, records: no TeX needed
 latex-kit build                  # drafts: watermark, missing values in red
@@ -74,6 +76,8 @@ invoice, an NDA and a bilingual Japanese/English letter is in
 
 | Command | |
 |---|---|
+| `latex-kit init [dir] [--paper]` | A working project (letter template, data, a record) or a paper with a CI workflow |
+| `latex-kit new template <name>` / `new document <name> --template <t>` | Skeletons; new records get every required field and editor autocomplete |
 | `latex-kit build [documents…]` | `--final`, `--variant draft\|blank\|signed`, `--template`, `--verify`, `--strict` |
 | `latex-kit check` | Unknown fields with `file:line:col`, invalid data, broken references, reused IDs |
 | `latex-kit fields <template>` | Every field a template reads, with its filters |
@@ -109,7 +113,6 @@ In GitHub Actions, for plain `.tex` (papers):
 
 ## Roadmap
 
-- **Boilerplates.** `latex-kit init` for projects, document types and papers.
 - **Multi-arch image.** `ghcr.io/constructive-io/latex-kit`, native on arm64
   and amd64, newer TeX Live, so XeLaTeX builds are reproducible too.
 

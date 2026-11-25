@@ -80,8 +80,17 @@ runs:
           epoch=$(git -C "$root" log -1 --format=%ct)
         fi
 
+        # TeX resolves \input and \bibliography against /work; search the file's folder first
+        src_dir=$(dirname "$LK_FILE")
+        search_env=()
+        if [ "$src_dir" != "." ]; then
+          # absolute: latexmk runs bibtex from inside the output folder
+          search_env=(-e "TEXINPUTS=/work/$src_dir:" -e "BIBINPUTS=/work/$src_dir:")
+        fi
+
         build() {
           docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e TEXMFVAR=/tmp/texmf-var \
+            "${search_env[@]}" \
             -v "$root:/work" -w /work \
             -e SOURCE_DATE_EPOCH="$epoch" -e FORCE_SOURCE_DATE=1 \
             "$LK_IMAGE" latexmk "$flag" -g -interaction=nonstopmode -halt-on-error -file-line-error \

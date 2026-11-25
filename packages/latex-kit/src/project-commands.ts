@@ -9,9 +9,11 @@ import chalk from 'yanse';
 import { UsageError } from './args';
 import { buildBlank, buildDocument, BuildError, BuildOptions, BuildResult } from './build';
 import { checkProject, templateFields } from './check';
+import { version } from './commands';
 import { diffDocument, diffFiles } from './diff';
 import { importDocument } from './import';
 import { Project } from './project';
+import { initProject, newDocument, newTemplate } from './scaffold';
 
 function printDiagnostics(ds: Diagnostic[], json: boolean) {
   if (json) return;
@@ -199,4 +201,38 @@ export async function diffCommand(argv: Partial<ParsedArgs>): Promise<number> {
   if (argv.json) console.log(JSON.stringify({ pdf: rel(result.pdf), tex: rel(result.tex), old: rel(result.old), new: rel(result.new) }, null, 2));
   else console.log(`${chalk.green('✓')} ${rel(result.pdf)}  ${chalk.dim('(insertions underlined in blue, deletions struck through in red)')}`);
   return 0;
+}
+
+export async function initCommand(argv: Partial<ParsedArgs>): Promise<number> {
+  const dir = join(process.cwd(), argv._?.[0] ? String(argv._[0]) : '.');
+  const r = initProject(dir, { paper: Boolean(argv.paper), force: Boolean(argv.force), version: version() });
+  for (const f of r.written) console.log(`${chalk.green('+')} ${rel(f)}`);
+  for (const f of r.skipped) console.log(chalk.dim(`  kept ${rel(f)} (exists)`));
+  const cd = rel(dir) === '.' ? '' : `cd ${rel(dir)} && `;
+  console.log(
+    argv.paper
+      ? chalk.dim(`\nnext: ${cd}latex-kit render paper/main.tex --verify`)
+      : chalk.dim(`\nnext: ${cd}latex-kit check && latex-kit build`)
+  );
+  return 0;
+}
+
+export async function newCommand(argv: Partial<ParsedArgs>): Promise<number> {
+  const [kind, name] = (argv._ ?? []).map(String);
+  const project = await Project.open(argv.root);
+  if (kind === 'template' && name) {
+    const r = newTemplate(project, name, Boolean(argv.force));
+    for (const f of r.written) console.log(`${chalk.green('+')} ${rel(f)}`);
+    console.log(chalk.dim(`\nnext: latex-kit new document <name> --template ${name}`));
+    return 0;
+  }
+  if (kind === 'document' && name) {
+    if (!argv.template) throw new UsageError('usage: latex-kit new document <name> --template <template>');
+    const r = await newDocument(project, name, String(argv.template), Boolean(argv.force));
+    for (const f of r.written) console.log(`${chalk.green('+')} ${rel(f)}`);
+    if (r.schemaFile) console.log(chalk.dim(`  editors autocomplete it from ${rel(r.schemaFile)}`));
+    console.log(chalk.dim(`\nnext: fill in the data, then latex-kit build ${r.written[0] ? rel(r.written[0]) : ''}`));
+    return 0;
+  }
+  throw new UsageError('usage: latex-kit new template <name>\n       latex-kit new document <name> --template <template>');
 }

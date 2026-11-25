@@ -6,7 +6,7 @@ import chalk from 'yanse';
 
 import { UsageError } from './args';
 import { doctorCommand } from './doctor';
-import { buildCommand, checkCommand, diffCommand, fieldsCommand, importCommand, styCommand, typegenCommand } from './project-commands';
+import { buildCommand, checkCommand, diffCommand, fieldsCommand, importCommand, initCommand, newCommand, styCommand, typegenCommand } from './project-commands';
 import { renderCommand } from './render';
 import { help } from './usage';
 
@@ -22,6 +22,8 @@ export function version(): string {
 }
 
 const COMMANDS: Record<string, (argv: Partial<ParsedArgs>, prompter: Inquirerer) => Promise<number>> = {
+  init: initCommand,
+  new: newCommand,
   build: buildCommand,
   check: checkCommand,
   fields: fieldsCommand,

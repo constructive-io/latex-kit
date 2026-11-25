@@ -111,11 +111,9 @@ describe('document IDs', () => {
   it('writes the ID into YAML, keeping comments', () => {
     const dir = tmp();
     const f = join(dir, 'd.yaml');
-    writeFileSync(f, '# keep me\ntemplate: nda\ndata: {}\n');
+    writeFileSync(f, '# keep me\ntemplate: nda\ndata:\n  a: 1 # and me\n');
     writeDocId(f, 'NDA-2');
-    const out = readFileSync(f, 'utf8');
-    expect(out).toContain('# keep me');
-    expect(out).toContain('docId: NDA-2');
+    expect(readFileSync(f, 'utf8')).toBe('# keep me\ntemplate: nda\ndocId: NDA-2\ndata:\n  a: 1 # and me\n');
   });
   it('never rewrites code', () => {
     const dir = tmp();

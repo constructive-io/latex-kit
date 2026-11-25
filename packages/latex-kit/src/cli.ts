@@ -21,7 +21,7 @@ const app = new CLI(commands, {
   version: version(),
   minimistOpts: {
     alias: { h: 'help', v: 'version', o: 'out', e: 'engine' },
-    boolean: ['help', 'version', 'local', 'verify', 'json', 'final', 'strict', 'tex-only', 'force', 'schema'],
+    boolean: ['help', 'version', 'local', 'verify', 'json', 'final', 'strict', 'tex-only', 'force', 'schema', 'paper'],
     string: ['out', 'engine', 'image', 'root', 'platform', 'source-date-epoch', 'variant', 'template', 'name', 'against'],
     default: { strict: undefined, schema: true },
   },
