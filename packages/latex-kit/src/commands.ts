@@ -6,7 +6,7 @@ import chalk from 'yanse';
 
 import { UsageError } from './args';
 import { doctorCommand } from './doctor';
-import { buildCommand, checkCommand, fieldsCommand, styCommand, typegenCommand } from './project-commands';
+import { buildCommand, checkCommand, fieldsCommand, importCommand, styCommand, typegenCommand } from './project-commands';
 import { renderCommand } from './render';
 import { help } from './usage';
 
@@ -26,6 +26,7 @@ const COMMANDS: Record<string, (argv: Partial<ParsedArgs>, prompter: Inquirerer)
   check: checkCommand,
   fields: fieldsCommand,
   typegen: typegenCommand,
+  import: importCommand,
   sty: styCommand,
   render: renderCommand,
   doctor: doctorCommand,

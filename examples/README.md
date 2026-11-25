@@ -8,7 +8,8 @@ byte-identical.
 | Example | Shows |
 |---|---|
 | [`letter/letter.tex`](letter/letter.tex) | `latex-kit render`: a plain `.tex` file → PDF |
-| [`workspace/`](workspace) | A full project: templates, schemas, shared data, snippets, records |
+| [`workspace/`](workspace) | A full project: templates, schemas, shared data, snippets, clauses, records |
+| [`import/offer-letter.docx`](import) | `latex-kit import`: a Word document with `{{placeholders}}` becomes a template and a starter schema (made from `offer-letter.md` with pandoc) |
 
 ## The workspace
 

@@ -79,6 +79,7 @@ invoice, an NDA and a bilingual Japanese/English letter is in
 | `latex-kit fields <template>` | Every field a template reads, with its filters |
 | `latex-kit typegen` | JSON Schema (editor autocomplete for records) and `.d.ts` per template |
 | `latex-kit sty [dir]` | `latex-kit.sty`, so editors compile templates as blank previews |
+| `latex-kit import <file>` | Word/Markdown/HTML (pandoc) or an older `.tex` → a template; `{{x}}` and `@GROUP@FIELD@` become `\field{…}`; writes a starter `schema.ts` |
 | `latex-kit render <file.tex>` | Any plain `.tex` → PDF, reproducibly (papers, letters) |
 | `latex-kit doctor` | Docker, image and TeX checks |
 
@@ -107,9 +108,7 @@ In GitHub Actions, for plain `.tex` (papers):
 
 ## Roadmap
 
-- **Redlines and import.** `latex-kit diff` (latexdiff against an earlier
-  commit) and `latex-kit import` (pandoc, plus a codemod for older token
-  templates).
+- **Redlines.** `latex-kit diff` (latexdiff against an earlier commit).
 - **Boilerplates.** `latex-kit init` for projects, document types and papers.
 - **Multi-arch image.** `ghcr.io/constructive-io/latex-kit`, native on arm64
   and amd64, newer TeX Live, so XeLaTeX builds are reproducible too.

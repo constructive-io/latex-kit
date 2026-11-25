@@ -17,9 +17,21 @@ export class LoadError extends Error {
 }
 
 let jiti: ReturnType<typeof createJiti> | null = null;
+let aliases: Record<string, string> = {};
+
+/**
+ * Resolve these module names to fixed paths when loading project files, e.g.
+ * `{ 'latex-kit': '/…/latex-kit' }`. The CLI uses it so schema.ts and records
+ * can `import { z } from 'latex-kit'` even in a folder with no node_modules.
+ */
+export function setModuleAliases(map: Record<string, string>): void {
+  aliases = { ...map };
+  jiti = null;
+}
+
 function loader() {
   // fsCache off: never write a transpile cache into the user's project
-  jiti ??= createJiti(join(process.cwd(), 'latex-kit.js'), { fsCache: false, moduleCache: false, interopDefault: false });
+  jiti ??= createJiti(join(process.cwd(), 'latex-kit.js'), { fsCache: false, moduleCache: false, interopDefault: false, alias: aliases });
   return jiti;
 }
 

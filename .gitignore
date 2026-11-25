@@ -20,3 +20,6 @@ lerna-debug.log
 
 # scratch projects created by tests
 **/__tests__/.tmp-*
+
+# CI scratch project for the import test
+/imported/

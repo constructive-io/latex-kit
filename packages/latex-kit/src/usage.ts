@@ -9,6 +9,8 @@ Project commands (run in a folder with templates/, data/, documents/)
   fields <template>   List every field a template reads
   typegen             Write JSON Schema and .d.ts for each template's data
   sty [dir]           Write latex-kit.sty so editors can preview templates
+  import <file>       Turn a Word/Markdown/HTML document (or an older .tex)
+                      into a template; {{x}} and @GROUP@FIELD@ become \\field
 
 Other commands
   render <file.tex>   Build a plain .tex file with latexmk in a pinned image

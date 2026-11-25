@@ -9,6 +9,7 @@ import chalk from 'yanse';
 import { UsageError } from './args';
 import { buildBlank, buildDocument, BuildError, BuildOptions, BuildResult } from './build';
 import { checkProject, templateFields } from './check';
+import { importDocument } from './import';
 import { Project } from './project';
 
 function printDiagnostics(ds: Diagnostic[], json: boolean) {
@@ -148,5 +149,24 @@ export async function styCommand(argv: Partial<ParsedArgs>): Promise<number> {
   const file = join(dir, 'latex-kit.sty');
   writeFileSync(file, LATEX_KIT_STY);
   console.log(`${chalk.green('✓')} ${rel(file)}  (lets editors compile templates as blank previews)`);
+  return 0;
+}
+
+export async function importCommand(argv: Partial<ParsedArgs>): Promise<number> {
+  const file = argv._?.[0];
+  if (!file) throw new UsageError('usage: latex-kit import <file.docx|.md|.html|.tex> [--name <template>] [--force]');
+  const project = await Project.open(argv.root);
+  const r = await importDocument(project, String(file), {
+    name: argv.name,
+    force: Boolean(argv.force),
+    backend: argv.local ? 'local' : undefined,
+    schema: argv.schema !== false,
+  });
+  console.log(`${chalk.green('✓')} ${rel(r.template)}`);
+  if (r.media) console.log(chalk.dim(`  images in ${rel(r.media)}`));
+  console.log(chalk.dim(`  ${r.converted.length} placeholder${r.converted.length === 1 ? '' : 's'} became \\field{…}`));
+  for (const s of r.skipped) console.log(chalk.yellow(`  line ${s.line}: left ${s.from} as is (not a valid field path)`));
+  if (r.schema) console.log(chalk.dim(`  starter schema: ${rel(r.schema)} (every field is a string; tighten it)`));
+  console.log(chalk.dim(`  next: latex-kit fields ${r.name}, then latex-kit build --variant blank --template ${r.name}`));
   return 0;
 }

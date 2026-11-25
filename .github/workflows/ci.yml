@@ -84,6 +84,16 @@ jobs:
           node ../../packages/latex-kit/dist/cli.js build
           node ../../packages/latex-kit/dist/cli.js build --variant blank
 
+      - name: Import a Word document into an empty project and build it
+        run: |
+          cli="$PWD/packages/latex-kit/dist/cli.js"
+          docx="$PWD/examples/import/offer-letter.docx"
+          mkdir -p imported && cd imported
+          node "$cli" import "$docx"
+          node "$cli" check
+          node "$cli" build --variant blank
+          test -s out/offer-letter/offer-letter-blank.pdf
+
       - uses: actions/upload-artifact@v4
         with:
           name: examples
@@ -91,6 +101,7 @@ jobs:
             out/*.pdf
             examples/workspace/out/**/*.pdf
             examples/workspace/out/**/*.manifest.json
+            imported/out/**/*.pdf
           if-no-files-found: error
 
   # Exercise the reusable action exactly as another repo would.

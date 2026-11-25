@@ -1,5 +1,6 @@
 export * from './analyze';
 export * from './clause';
+export * from './codemod';
 export * from './compile';
 export * from './condition';
 export * from './diagnostics';

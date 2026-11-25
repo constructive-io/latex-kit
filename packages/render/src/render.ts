@@ -64,14 +64,16 @@ export class RenderError extends Error {
   }
 }
 
-function currentUser(): string | null {
+/** uid:gid for `docker run --user` on Linux, so outputs are not root-owned. */
+export function currentUser(): string | null {
   // Linux bind mounts keep the container's uid; run as the caller so the
   // outputs are not root-owned. Docker Desktop (macOS/Windows) maps this.
   if (process.platform !== 'linux' || typeof process.getuid !== 'function') return null;
   return `${process.getuid()}:${process.getgid!()}`;
 }
 
-function run(c: Command, onOutput?: (s: string) => void): Promise<{ code: number | null; output: string }> {
+/** Run a command, collecting stdout and stderr together. */
+export function runProcess(c: Pick<Command, 'cmd' | 'args' | 'cwd' | 'env'>, onOutput?: (s: string) => void): Promise<{ code: number | null; output: string }> {
   return new Promise((done, fail) => {
     const child = spawn(c.cmd, c.args, { cwd: c.cwd, env: { ...process.env, ...c.env } });
     let output = '';
@@ -116,7 +118,7 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
 
   let result: { code: number | null; output: string };
   try {
-    result = await run(command, options.onOutput);
+    result = await runProcess(command, options.onOutput);
   } catch (e) {
     const err = e as NodeJS.ErrnoException;
     if (err.code === 'ENOENT') {
