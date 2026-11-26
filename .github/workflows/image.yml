@@ -2,13 +2,14 @@ name: Image
 
 # Builds docker/Dockerfile for amd64 and arm64 and publishes it as
 # ghcr.io/constructive-io/latex-kit. Tags: tl2026, sha-<commit>, latest.
+# The slim image (docker/slim) has its own workflow, image-slim.yml.
 # latex-kit pins the image by digest, so a new push never changes builds
 # until the default digest in @latex-kit/render is updated on purpose.
 
 on:
   push:
     branches: [main]
-    paths: ['docker/**', '.github/workflows/image.yml']
+    paths: ['docker/Dockerfile']
   workflow_dispatch: {}
 
 concurrency:
