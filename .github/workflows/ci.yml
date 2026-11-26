@@ -78,6 +78,9 @@ jobs:
       - name: Render the plain .tex example
         run: node packages/latex-kit/dist/cli.js render examples/letter/letter.tex --verify
 
+      - name: PSTricks and TikZ arrows (latex → dvips → ps2pdf, picked by engine auto)
+        run: node packages/latex-kit/dist/cli.js render examples/graphics/arrows.tex --verify
+
       - name: Check the example project
         working-directory: examples/workspace
         run: node ../../packages/latex-kit/dist/cli.js check

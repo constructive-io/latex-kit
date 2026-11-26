@@ -1,9 +1,11 @@
 # latex-kit's slim image: the full image, pinned below, minus the TeX Live
-# collections few documents need (fontsextra, ConTeXt, PSTricks, music,
-# games, …). It is a copy of the full image's own files with some removed,
-# so a document that builds on both gives the same PDF bytes on both.
+# collections few documents need (fontsextra, ConTeXt, music, games, …).
+# TikZ, PSTricks, the publisher styles (IEEEtran) and everything our
+# whitepapers use stay. It is a copy of
+# the full image's own files with some removed, so a document that builds
+# on both gives the same PDF bytes on both.
 #
-# Use the full image for PSTricks (the pdfps engine) and for the extra fonts.
+# Use the full image for the extra fonts (collection-fontsextra).
 # To update: change the digest to the new full image and rebuild.
 FROM constructiveio/latex-kit@sha256:e4d5aebb60986780c437ace0c0840c73fa6b0b70c7a60ab3246aee83da483fac AS trimmed
 
@@ -11,11 +13,14 @@ FROM constructiveio/latex-kit@sha256:e4d5aebb60986780c437ace0c0840c73fa6b0b70c7a
 # are (rebuilding them would make different files, and could change PDFs).
 # Schemes are only lists of collections; drop the lists (not their contents)
 # so the collections below can go.
+# yb-book (a book class) is the one publisher package that needs the extra
+# fonts; it goes so collection-fontsextra can.
 RUN tlmgr remove --no-depends $(tlmgr info --list --only-installed --data name | grep '^scheme-') \
+ && tlmgr remove --force --no-depends --no-execute-actions yb-book \
  && tlmgr remove --no-execute-actions \
-      collection-fontsextra collection-context collection-pstricks \
+      collection-fontsextra collection-context \
       collection-games collection-music collection-humanities \
-      collection-publishers collection-mathscience collection-texworks \
+      collection-mathscience collection-texworks \
       collection-langarabic collection-langgreek collection-langcyrillic \
       collection-langother collection-langczechslovak collection-langpolish \
  && rm -f /usr/local/texlive/*/texmf-var/web2c/tlmgr*.log
@@ -32,5 +37,5 @@ WORKDIR /work
 CMD ["bash"]
 
 LABEL org.opencontainers.image.source="https://github.com/constructive-io/latex-kit" \
-      org.opencontainers.image.description="latex-kit's TeX Live image without the rarely used collections (no PSTricks, no fontsextra)" \
+      org.opencontainers.image.description="latex-kit's TeX Live image without the rarely used collections (no fontsextra, no ConTeXt)" \
       org.opencontainers.image.licenses="MIT"

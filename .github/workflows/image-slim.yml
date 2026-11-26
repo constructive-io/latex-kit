@@ -2,8 +2,9 @@ name: Slim image
 
 # Builds docker/slim (the full image minus rarely used TeX Live collections)
 # for amd64 and arm64 as constructiveio/latex-kit:slim on Docker Hub, tags the
-# full image it is cut from as :full, and fails unless every example builds
-# to the same PDF bytes on both.
+# full image it is cut from as :full, and fails unless every example (and a
+# whitepaper-style paper with TikZ and PSTricks) builds to the same PDF bytes
+# on both.
 
 on:
   push:
@@ -88,7 +89,11 @@ jobs:
               && node "$cli" build --final $1 && node "$cli" build $1 && node "$cli" build --variant blank $1 \
               && jq -r '"\(.pdf.file) \(.pdf.sha256)"' out/*/*.manifest.json)
             node "$cli" render examples/letter/letter.tex --json $1 | jq -r '"letter \(.sha256)"'
+            node "$cli" render examples/graphics/arrows.tex --source-date-epoch 1764000000 --json $1 | jq -r '"arrows \(.engine) \(.sha256)"'
+            # a paper in the whitepaper style: TikZ, PSTricks, listings, bibtex
+            (cd paper-check && node "$cli" render paper/main.tex --source-date-epoch 1764000000 --json $1 | jq -r '"paper \(.engine) \(.sha256)"')
           }
+          node "$cli" init paper-check --paper
           hashes "" > full.txt
           hashes "--image $slim" > slim.txt
           cat slim.txt

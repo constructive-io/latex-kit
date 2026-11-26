@@ -8,7 +8,7 @@ Apple silicon.
 | Tag | |
 |---|---|
 | `tl2026`, `full`, `latest` | Everything in TeX Live, including PSTricks and the extra fonts |
-| `slim`, `tl2026-slim` | The full image minus fontsextra, ConTeXt, PSTricks, music, games and a few language collections ([`slim/`](slim)); same files otherwise, so the same PDF bytes |
+| `slim`, `tl2026-slim` | The full image minus fontsextra, ConTeXt, music, games and a few language collections ([`slim/`](slim)); TikZ, PSTricks and the publisher styles (IEEEtran) stay. Same files otherwise, so the same PDF bytes |
 
 Published to Docker Hub only, by
 [`image.yml`](../.github/workflows/image.yml) (when `docker/Dockerfile`
