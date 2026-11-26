@@ -53,6 +53,8 @@ Document ID: \docid
 | `\docid` | The document's ID, minted once and stored on the record |
 | `\clause{id}` | Places a numbered clause from the library (`clauses/<id>.tex`), filled with the same data |
 | `\clauseref{id}` | Prints that clause's number. A reference to a clause the document doesn't contain fails a final build |
+| `\signature{party}` | A signature block for a party or signer (see below) |
+| `\component{name}{path}` | Calls a TypeScript component with the value at `path` (empty: the whole record) |
 
 Special values: `$variant`, `$locale`, `$docid`, `$template`.
 
@@ -72,7 +74,33 @@ subject to Section~\clauseref{nda/exclusions}.
 
 Each placed clause becomes `\lkclause{title}{label}` (a numbered section by
 default; redefine `\lkclause` to change the style). Every build's manifest
-lists the clause IDs and versions it used.
+lists the clause IDs and versions it used. A clause can also be TypeScript
+(`defineClause` in [`@latex-kit/components`](../components)): a template
+text `body`, or a `render(data, ctx)` function.
+
+### Signatures
+
+`\signature{discloser}` prints `\lksignature{org}{name}{title}{signature}{date}`.
+A party with a `signer` (or `kind: "organization"`) is an organization: its
+name in bold, then the signer. Anything else with a `name` signs for itself.
+
+| Variant | Signature line | Date line |
+|---|---|---|
+| `draft`, `final` | empty | empty |
+| `blank` | empty; organization, name and title are labelled blanks | empty |
+| `signed` | the signer's image (`signatureImage` option), else `/s/ Name` | the date from `signed: { discloser: { date } }` |
+
+Two blocks fit side by side: `\signature{a}\hfill\signature{b}`. Change the
+look with `\lksignaturewidth`, `\lksignatureheight`, or by redefining
+`\lksignature`.
+
+### Components
+
+`\component{name}{path}` calls a function from the `components` option with
+the value at `path` and a context (variant, locale, `format()`,
+`signature()`, `missing()`). It returns `tex`-tagged LaTeX, inserted as is,
+or a string, which is escaped. Errors are reported at the macro. The
+built-in components and helpers are in [`@latex-kit/components`](../components).
 
 ### Conditions
 
@@ -109,7 +137,7 @@ Dates, numbers and money follow the record's locale (`ja-JP`, `de-DE`, …).
 | `draft` | filled; a missing value prints a red `missing: path` box | DRAFT watermark, date and git commit |
 | `blank` | every field is a labelled line | none |
 | `final` | filled; a missing value is an error | none |
-| `signed` | like `final`; test `$variant == "signed"` for signature text | none |
+| `signed` | like `final`; `\signature` blocks are signed | none |
 
 ## Usage
 

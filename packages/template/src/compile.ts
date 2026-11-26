@@ -10,6 +10,8 @@ import { isName, isPath } from './path';
  * Bare names keep templates readable; \snippet (not \partial, which is the
  * math ∂) and \clauseref (not \ref) avoid LaTeX's own commands. \clause
  * inserts a numbered clause from the clause library; \clauseref prints its number.
+ * \signature prints a party's signature block; \component calls a TypeScript
+ * component with a value.
  */
 export const MACROS = {
   field: 1,
@@ -22,6 +24,8 @@ export const MACROS = {
   docid: 0,
   clause: 1,
   clauseref: 1,
+  signature: 1,
+  component: 2,
 } as const;
 
 export type MacroName = keyof typeof MACROS;
@@ -35,7 +39,9 @@ export type Node =
   | { kind: 'snippet'; name: string; loc: Location }
   | { kind: 'docid'; loc: Location }
   | { kind: 'clause'; id: string; loc: Location }
-  | { kind: 'clauseref'; id: string; loc: Location };
+  | { kind: 'clauseref'; id: string; loc: Location }
+  | { kind: 'signature'; path: string; loc: Location }
+  | { kind: 'component'; name: string; path: string; loc: Location };
 
 export interface CompiledTemplate {
   file: string;
@@ -248,6 +254,22 @@ export function compileTemplate(text: string, file: string): CompiledTemplate {
           nodes.push({ kind: 'docid', loc });
           // allow \docid{} as in plain LaTeX usage
           pos = text.startsWith('{}', macroEnd) ? macroEnd + 2 : macroEnd;
+          break;
+        }
+        case 'signature': {
+          const path = argText(0);
+          if (!isPath(path)) diagnostics.push(diag('error', `\\signature{${path}}: expected the path of a party, like discloser`, loc));
+          else nodes.push({ kind: 'signature', path, loc });
+          pos = macroEnd;
+          break;
+        }
+        case 'component': {
+          const name = argText(0);
+          const path = argText(1);
+          if (!isRelativeName(name)) diagnostics.push(diag('error', `\\component{${name}}: use a name like line-items or tables/fees`, loc));
+          else if (path !== '' && !isPath(path)) diagnostics.push(diag('error', `\\component{${name}}{${path}}: invalid path (leave it empty for the whole record)`, loc));
+          else nodes.push({ kind: 'component', name, path, loc });
+          pos = macroEnd;
           break;
         }
         case 'clauseref': {

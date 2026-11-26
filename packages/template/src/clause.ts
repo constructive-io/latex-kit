@@ -1,4 +1,5 @@
 import { CompiledTemplate } from './compile';
+import type { Component } from './component';
 
 export interface ClauseMeta {
   title?: string;
@@ -8,7 +9,10 @@ export interface ClauseMeta {
 /** A clause from the library, compiled, with its header. */
 export interface LoadedClause extends ClauseMeta {
   id: string;
+  /** The clause text (empty for a clause written as a TypeScript function). */
   template: CompiledTemplate;
+  /** A TypeScript clause's body, called with the record's data. */
+  render?: Component;
 }
 
 export interface ClauseUse {

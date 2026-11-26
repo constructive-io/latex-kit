@@ -11,8 +11,8 @@ export interface TemplateMeta {
   docIdPrefix?: string;
   /** Default locale for records that do not set one. */
   locale?: string;
-  /** TeX engine for this template. Default: lualatex. */
-  engine?: 'lualatex' | 'xelatex' | 'pdflatex';
+  /** TeX engine for this template. Default: `auto` (chosen from the packages the template loads). */
+  engine?: 'auto' | 'lualatex' | 'xelatex' | 'pdflatex' | 'pdfps';
   title?: string;
 }
 

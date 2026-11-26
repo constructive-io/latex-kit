@@ -2,10 +2,12 @@ import { escapeLatex, LatexEscapeError, RawLatex } from '@latex-kit/escape';
 
 import { clauseLabel, ClauseUse, LoadedClause } from './clause';
 import { CompiledTemplate, Node } from './compile';
+import { Component, ComponentContext, isRawLatex } from './component';
 import { evaluateCondition, truthy } from './condition';
 import { diag, Diagnostic, Location } from './diagnostics';
-import { applyFilters, FilterError, isMissing } from './filters';
+import { applyFilters, FilterError, isMissing, parseFieldSpec } from './filters';
 import { splitPath } from './path';
+import { signatureBlock, SignatureError, SignerInfo } from './signature';
 
 export type Variant = 'draft' | 'blank' | 'final' | 'signed';
 export const VARIANTS: Variant[] = ['draft', 'blank', 'final', 'signed'];
@@ -26,6 +28,15 @@ export interface EvaluateOptions {
   loadSnippet?: (name: string, from: string) => CompiledTemplate | null;
   /** Resolve \clause{id} from the clause library. */
   loadClause?: (id: string) => LoadedClause | null;
+  /** Components for \component{name}{path}, by name. */
+  components?: Record<string, Component>;
+  /**
+   * Signed builds: a local signature image for a signer, as a path TeX can
+   * read, or null to print `/s/ Name`.
+   */
+  signatureImage?: (signer: SignerInfo) => string | null;
+  /** The record's `signed` map: signing date (and image) per party path. */
+  signed?: Record<string, { date?: string; signature?: string }>;
 }
 
 export interface FieldUse {
@@ -43,6 +54,8 @@ export interface EvaluateResult {
   fields: FieldUse[];
   /** Library clauses placed in the document, in order, with versions. */
   clauses: ClauseUse[];
+  /** Components the document called, by name. */
+  components: string[];
 }
 
 interface Frame {
@@ -58,9 +71,7 @@ function own(obj: unknown, key: string): unknown {
   return Object.prototype.hasOwnProperty.call(obj, key) ? (obj as Record<string, unknown>)[key] : undefined;
 }
 
-function isRaw(v: unknown): v is RawLatex {
-  return v instanceof RawLatex || (!!v && typeof v === 'object' && (v as { constructor?: { name?: string } }).constructor?.name === 'RawLatex' && typeof (v as RawLatex).value === 'string');
-}
+const isRaw = isRawLatex;
 
 export function evaluateTemplate(template: CompiledTemplate, options: EvaluateOptions): EvaluateResult {
   const variant = options.variant;
@@ -72,6 +83,8 @@ export function evaluateTemplate(template: CompiledTemplate, options: EvaluateOp
   const stack: string[] = [template.file];
   const clauses: ClauseUse[] = [];
   const refs: { id: string; loc: Location }[] = [];
+  const usedComponents = new Set<string>();
+  const signedPaths = new Set<string>();
 
   const lookup = (path: string): unknown => {
     const [head, ...rest] = splitPath(path);
@@ -142,6 +155,47 @@ export function evaluateTemplate(template: CompiledTemplate, options: EvaluateOp
     const kind = typeof value === 'boolean' ? 'true/false (use \\when to test it)' : Array.isArray(value) ? 'a list (use \\each or |join)' : 'an object (pick a field inside it)';
     diagnostics.push(diag('error', `${what} is ${kind}`, loc));
     return '';
+  };
+
+  const signature = (value: unknown, path: string, loc: Location): string => {
+    try {
+      signedPaths.add(path);
+      const signing = options.signed && Object.prototype.hasOwnProperty.call(options.signed, path) ? options.signed[path] : undefined;
+      return signatureBlock(value, { variant, locale, path, signing, missing: (what) => missing(what, loc), signatureImage: options.signatureImage });
+    } catch (e) {
+      if (!(e instanceof SignatureError || e instanceof LatexEscapeError)) throw e;
+      diagnostics.push(diag('error', `\\signature{${path}}: ${e.message}`, loc));
+      return '';
+    }
+  };
+
+  /** Call a component (or a TypeScript clause) and turn its result into LaTeX. */
+  const callComponent = (fn: Component, value: unknown, path: string, what: string, loc: Location): string => {
+    const ctx: ComponentContext = {
+      variant,
+      locale,
+      docId: options.docId,
+      template: options.template,
+      data: options.data,
+      path,
+      format: (v, filters) => {
+        const spec = parseFieldSpec(`value|${filters}`);
+        return String(applyFilters(v, spec.filters, { locale }).value ?? '');
+      },
+      signature: (party, p = path) => new RawLatex(signature(party, p, loc)),
+      missing: (w) => new RawLatex(missing(w, loc)),
+    };
+    try {
+      const r = fn(value, ctx);
+      if (r === null || r === undefined) return '';
+      if (isRaw(r)) return r.value;
+      if (typeof r === 'string' || typeof r === 'number') return escapeLatex(String(r));
+      diagnostics.push(diag('error', `${what} returned ${typeof r}; return tex\`…\` or a string`, loc));
+      return '';
+    } catch (e) {
+      diagnostics.push(diag('error', `${what}: ${(e as Error).message}`, loc));
+      return '';
+    }
   };
 
   const render = (nodes: Node[]): string => {
@@ -244,6 +298,7 @@ export function evaluateTemplate(template: CompiledTemplate, options: EvaluateOp
         out += `\\lkclause{${clause.title ? escapeLatex(clause.title) : ''}}{${clauseLabel(node.id)}}`;
         stack.push(clause.template.file);
         out += render(clause.template.nodes);
+        if (clause.render) out += callComponent(clause.render, options.data, '', `clause ${node.id}`, node.loc);
         stack.pop();
         break;
       }
@@ -251,6 +306,25 @@ export function evaluateTemplate(template: CompiledTemplate, options: EvaluateOp
         refs.push({ id: node.id, loc: node.loc });
         out += `\\ref{${clauseLabel(node.id)}}`;
         break;
+      case 'signature': {
+        const value = variant === 'blank' ? undefined : lookup(node.path);
+        fields.push({ path: node.path, ...node.loc, missing: variant !== 'blank' && isMissing(value) });
+        out += signature(value, node.path, node.loc);
+        break;
+      }
+      case 'component': {
+        const fn = options.components?.[node.name];
+        if (!fn) {
+          const known = Object.keys(options.components ?? {}).sort();
+          diagnostics.push(diag('error', `unknown component ${node.name}${known.length ? ` (known: ${known.join(', ')})` : ''}`, node.loc));
+          break;
+        }
+        usedComponents.add(node.name);
+        const value = variant === 'blank' ? undefined : node.path ? lookup(node.path) : options.data;
+        if (node.path) fields.push({ path: node.path, ...node.loc, missing: variant !== 'blank' && isMissing(value) });
+        out += callComponent(fn, value, node.path, `\\component{${node.name}}`, node.loc);
+        break;
+      }
       }
     }
     return out;
@@ -265,7 +339,12 @@ export function evaluateTemplate(template: CompiledTemplate, options: EvaluateOp
       diagnostics.push(diag(allowMissing ? 'warning' : 'error', msg, r.loc));
     }
   }
-  return { tex, diagnostics, fields, clauses };
+  for (const key of Object.keys(options.signed ?? {})) {
+    if (!signedPaths.has(key)) {
+      diagnostics.push(diag('warning', `signed.${key}: the document has no \\signature{${key}}`, { file: template.file, line: 1, column: 1 }));
+    }
+  }
+  return { tex, diagnostics, fields, clauses, components: [...usedComponents].sort() };
 }
 
 export { truthy };

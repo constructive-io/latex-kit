@@ -48,7 +48,9 @@ export default z.object({
 ```
 
 Shared types: `ISODate`, `Money`, `Address`, `Signer`, `Person`,
-`Organization`, `Party`, `Localized` (`{ en: "…", ja: "…" }`).
+`Organization`, `Party`, `Localized` (`{ en: "…", ja: "…" }`). A signer,
+person or party may name its signature image file (`signature`), for signed
+builds.
 
 ## Records and references
 
@@ -74,6 +76,25 @@ TypeScript) is replaced by `data/orgs/example-widgets.json|yaml|ts`, so a
 company or person is written once and used everywhere. References resolve
 recursively; cycles and paths outside `data/` are errors.
 
+A record may also say how each party signed it, for `--variant signed`.
+Keys are the paths `\signature` uses:
+
+```yaml
+signed:
+  discloser: { date: "2026-11-25" }
+  recipient: { date: "2026-11-26", signature: jordan-2026.png }
+```
+
+In TypeScript, `defineDocument` types a record against a template's
+generated type; any object in it may be a `ref()`:
+
+```ts
+import { defineDocument, ref } from 'latex-kit';
+import type { InvoiceData } from '../templates/invoice/types';
+
+export default defineDocument<InvoiceData>({ template: 'invoice', data: { from: ref('orgs/acme'), … } });
+```
+
 ## Document IDs
 
 `mintDocId({ prefix, epoch })` makes `NDA-20261125-8K2M4Q7Z` (40 random
@@ -89,6 +110,7 @@ edited: you are told the line to add). Re-renders reuse it, and
 | `loadFile(file)` | JSON, YAML, or a TS/JS module's default export |
 | `resolveRefs(value, { dataDir })` | Replace every `$ref`; returns the files read |
 | `loadDocument(file, { dataDir })` | Read and check a record, resolve its references |
+| `defineDocument<Data>(record)` | Type a TypeScript record |
 | `loadTemplateSchema(file)` | `{ schema, meta }` from a `schema.ts` |
 | `validate(schema, value)` | `{ ok, value }` or `{ ok: false, issues: [{ path, message }] }` |
 | `toJsonSchema(schema)` | JSON Schema of the data as written in records |

@@ -18,11 +18,21 @@ export const Address = z.object({
   country: z.string().optional(),
 });
 
+/** For `\\signature` in signed builds. (Signing dates go in the record's `signed`.) */
+const signing = {
+  /**
+   * File name of this person's signature image in the signatures folder
+   * (`--signatures`, never in the repo). Default: the name, slugged.
+   */
+  signature: z.string().optional(),
+};
+
 /** Someone who signs: a name and, usually, a title. */
 export const Signer = z.object({
   name: z.string(),
   title: z.string().optional(),
   email: z.string().optional(),
+  ...signing,
 });
 
 export const Person = z.object({
@@ -30,6 +40,7 @@ export const Person = z.object({
   title: z.string().optional(),
   email: z.string().optional(),
   address: Address.optional(),
+  ...signing,
 });
 
 export const Organization = z.object({
@@ -51,6 +62,7 @@ export const Party = z.object({
   email: z.string().optional(),
   address: Address.optional(),
   signer: Signer.optional(),
+  ...signing,
 });
 
 /** Text in several languages, keyed by language tag: `{ en: "…", ja: "…" }`. */

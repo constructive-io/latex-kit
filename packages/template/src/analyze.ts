@@ -6,8 +6,8 @@ import { ANY, itemSchema, JsonSchema, schemaAt } from './jsonschema';
 import { GLOBAL_SPECIALS, LOOP_SPECIALS, splitPath } from './path';
 
 export interface FieldRef {
-  /** How the template reads it: `field`, `raw`, `when`, `each`. */
-  kind: 'field' | 'raw' | 'when' | 'each';
+  /** How the template reads it. */
+  kind: 'field' | 'raw' | 'when' | 'each' | 'signature' | 'component';
   /** The path as written, e.g. `item.price`. */
   path: string;
   /** The path from the data root, e.g. `items[].price`. */
@@ -23,6 +23,8 @@ export interface AnalyzeOptions {
   schema?: JsonSchema;
   loadSnippet?: (name: string, from: string) => CompiledTemplate | null;
   loadClause?: (id: string) => LoadedClause | null;
+  /** Names \component can use. Without it component names are not checked. */
+  components?: string[];
 }
 
 export interface AnalyzeResult {
@@ -30,6 +32,8 @@ export interface AnalyzeResult {
   snippets: string[];
   /** Library clauses the template can place, with versions. */
   clauses: { id: string; version?: string; file: string }[];
+  /** Components the template calls. */
+  components: string[];
   diagnostics: Diagnostic[];
 }
 
@@ -49,6 +53,7 @@ export function analyzeTemplate(template: CompiledTemplate, options: AnalyzeOpti
   const fields: FieldRef[] = [];
   const snippets: string[] = [];
   const clauses: AnalyzeResult['clauses'] = [];
+  const components: string[] = [];
   const refs: { id: string; loc: Location }[] = [];
   const stack: string[] = [template.file];
 
@@ -160,6 +165,25 @@ export function analyzeTemplate(template: CompiledTemplate, options: AnalyzeOpti
       case 'clauseref':
         refs.push({ id: node.id, loc: node.loc });
         break;
+      case 'signature': {
+        const { absolute, schema } = resolve(node.path, scopes, node.loc);
+        fields.push({ kind: 'signature', path: node.path, absolute, filters: [], ...node.loc });
+        if (root && schema !== undefined && schemaAt(schema, ['name'], root) === undefined) {
+          diagnostics.push(diag('error', `\\signature{${node.path}}: ${absolute} has no name in the schema, so it is not a party or signer`, node.loc));
+        }
+        break;
+      }
+      case 'component': {
+        if (!components.includes(node.name)) components.push(node.name);
+        if (options.components && !options.components.includes(node.name)) {
+          diagnostics.push(diag('error', `unknown component ${node.name} (known: ${[...options.components].sort().join(', ') || 'none'})`, node.loc));
+        }
+        if (node.path) {
+          const { absolute } = resolve(node.path, scopes, node.loc);
+          fields.push({ kind: 'component', path: node.path, absolute, filters: [node.name], ...node.loc });
+        }
+        break;
+      }
       }
     }
   };
@@ -170,5 +194,5 @@ export function analyzeTemplate(template: CompiledTemplate, options: AnalyzeOpti
       diagnostics.push(diag('error', `\\clauseref{${r.id}}: the template never places \\clause{${r.id}}`, r.loc));
     }
   }
-  return { fields, snippets, clauses, diagnostics };
+  return { fields, snippets, clauses, components, diagnostics };
 }
