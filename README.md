@@ -180,7 +180,7 @@ In GitHub Actions, for plain `.tex` (papers):
 - **Postgres records** (pgpm) generated from the same schemas; files stay
   the default.
 
-The default image, `ghcr.io/constructive-io/latex-kit` (TeX Live 2026, native
+The default image, [`constructiveio/latex-kit`](https://hub.docker.com/r/constructiveio/latex-kit) on Docker Hub (TeX Live 2026, native
 on arm64 and amd64), is built from [`docker/`](docker). XeLaTeX is fully
 supported but never byte-identical: its PDF writer gives embedded fonts
 random subset names, on any TeX Live.

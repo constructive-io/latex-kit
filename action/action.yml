@@ -20,8 +20,8 @@ inputs:
     description: lualatex, xelatex, pdflatex, pdfps (latex → dvips → ps2pdf, for PSTricks), or auto (a "% !TEX program =" line, else PSTricks → pdfps, xeCJK/ctex → xelatex, CJK/CJKutf8 → pdflatex, else lualatex). xelatex is never byte-reproducible.
     default: lualatex
   image:
-    description: Docker image, pinned by digest (default ghcr.io/constructive-io/latex-kit, TeX Live 2026).
-    default: ghcr.io/constructive-io/latex-kit@sha256:e4d5aebb60986780c437ace0c0840c73fa6b0b70c7a60ab3246aee83da483fac
+    description: Docker image, pinned by digest (default constructiveio/latex-kit on Docker Hub, TeX Live 2026).
+    default: constructiveio/latex-kit@sha256:e4d5aebb60986780c437ace0c0840c73fa6b0b70c7a60ab3246aee83da483fac
   source-date-epoch:
     description: Build timestamp in seconds since 1970. Default is the last commit that touched the file.
     default: ''

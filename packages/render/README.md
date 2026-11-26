@@ -55,7 +55,7 @@ await doctor(); // [{ name: 'docker', status: 'ok', detail: 'daemon running (arm
 | `outDir` | `out` | Relative to `root` |
 | `engine` | `auto` | `auto`, `lualatex`, `xelatex`, `pdflatex` or `pdfps` (latex → dvips → ps2pdf, for PSTricks). `auto` uses `detectEngine` on the file |
 | `backend` | `docker` | `local` runs `latexmk` from `PATH` (not pinned) |
-| `image` | `DEFAULT_IMAGE` | `ghcr.io/constructive-io/latex-kit` (TeX Live 2026), pinned by digest |
+| `image` | `DEFAULT_IMAGE` | `constructiveio/latex-kit` on Docker Hub (TeX Live 2026), pinned by digest |
 | `platform` | native (the image is multi-arch) | Docker `--platform` |
 | `sourceDateEpoch` | see below | Build timestamp, seconds since 1970 |
 
