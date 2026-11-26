@@ -14,6 +14,7 @@ import {
   LEGACY_IMAGE,
   LEGACY_IMAGE_PLATFORM,
 } from './command';
+import { detectEngine, EngineChoice } from './engine';
 import { EpochSource, resolveSourceDateEpoch } from './epoch';
 import { Diagnostic, parseLog } from './log';
 
@@ -24,8 +25,11 @@ export interface RenderOptions {
   root?: string;
   /** Output directory relative to root. Default: `out`. */
   outDir?: string;
-  /** Default: `lualatex` (the only engine that is byte-reproducible in the v1 image). */
-  engine?: Engine;
+  /**
+   * Default: `auto`, which reads the file: PSTricks → pdfps, xeCJK → xelatex,
+   * else lualatex (the only engine that is byte-reproducible in the image).
+   */
+  engine?: EngineChoice;
   /** Default: `docker`. */
   backend?: Backend;
   /** Docker image. Default: {@link DEFAULT_IMAGE}. */
@@ -45,6 +49,8 @@ export interface RenderResult {
   log: string;
   sha256: string;
   engine: Engine;
+  /** Why this engine: "chosen", or what `auto` saw ("loads xeCJK"). */
+  engineReason: string;
   backend: Backend;
   image: string | null;
   sourceDateEpoch: number;
@@ -97,8 +103,11 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
   if (extname(file) !== '.tex') throw new Error(`expected a .tex file, got ${options.file}`);
   if (!existsSync(file)) throw new Error(`file not found: ${options.file}`);
 
-  const engine = options.engine ?? 'lualatex';
-  if (!ENGINES.includes(engine)) throw new Error(`unknown engine ${engine}; use ${ENGINES.join(', ')}`);
+  const choice = options.engine ?? 'auto';
+  if (choice !== 'auto' && !ENGINES.includes(choice)) throw new Error(`unknown engine ${choice}; use auto, ${ENGINES.join(', ')}`);
+  const detected = choice === 'auto' ? detectEngine(readFileSync(file, 'utf8')) : null;
+  const engine: Engine = detected ? detected.engine : (choice as Engine);
+  const engineReason = detected ? `auto: ${detected.reason}` : 'chosen';
   const backend = options.backend ?? 'docker';
   const image = options.image ?? DEFAULT_IMAGE;
   const platform =
@@ -141,6 +150,7 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
   const log = join(outAbs, `${job}.log`);
   const pdf = join(outAbs, `${job}.pdf`);
   const diagnostics = existsSync(log) ? parseLog(readFileSync(log, 'utf8')) : [];
+  for (const w of detected?.warnings ?? []) diagnostics.unshift({ severity: 'warning', message: w, file: options.file });
 
   if (result.code !== 0 || !existsSync(pdf)) {
     const first = diagnostics.find((d) => d.severity === 'error');
@@ -157,6 +167,7 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
     log,
     sha256: createHash('sha256').update(readFileSync(pdf)).digest('hex'),
     engine,
+    engineReason,
     backend,
     image: backend === 'docker' ? image : null,
     sourceDateEpoch: epoch.epoch,

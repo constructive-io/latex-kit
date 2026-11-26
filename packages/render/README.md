@@ -53,11 +53,19 @@ await doctor(); // [{ name: 'docker', status: 'ok', detail: 'daemon running (arm
 | `file` | | The `.tex` file |
 | `root` | `process.cwd()` | Directory TeX can see. Inputs and outputs must be inside it |
 | `outDir` | `out` | Relative to `root` |
-| `engine` | `lualatex` | `lualatex`, `xelatex`, `pdflatex` or `pdfps` (latex → dvips → ps2pdf, for PSTricks) |
+| `engine` | `auto` | `auto`, `lualatex`, `xelatex`, `pdflatex` or `pdfps` (latex → dvips → ps2pdf, for PSTricks). `auto` uses `detectEngine` on the file |
 | `backend` | `docker` | `local` runs `latexmk` from `PATH` (not pinned) |
 | `image` | `DEFAULT_IMAGE` | `ghcr.io/constructive-io/latex-kit` (TeX Live 2026), pinned by digest |
 | `platform` | native (the image is multi-arch) | Docker `--platform` |
 | `sourceDateEpoch` | see below | Build timestamp, seconds since 1970 |
+
+### Choosing the engine
+
+`detectEngine(source)` returns `{ engine, reason, warnings }`: a
+`% !TEX program =` line wins; PSTricks (`pstricks`, `pst-*`) → `pdfps`;
+`xeCJK`, `xltxtra`, `ctex` → `xelatex`; LuaTeX-ja → `lualatex`; `CJK`,
+`CJKutf8` → `pdflatex`; otherwise `lualatex`. It warns when the text has
+Chinese, Japanese or Korean characters but no CJK package loads.
 
 ### Reproducible builds
 
