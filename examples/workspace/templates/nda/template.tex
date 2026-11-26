@@ -27,14 +27,11 @@ address at \field{discloser.address.line1}, \field{discloser.address.city}}
 \clause{nda/purpose}
 \clause{nda/obligations}
 \clause{nda/exclusions}
+\clause{nda/assignment}
 \clause{nda/governing-law}
 
 \vspace{3em}
-\begin{tabular}{@{}p{0.45\textwidth}@{\hspace{0.1\textwidth}}p{0.45\textwidth}@{}}
-\textbf{\field{discloser.name}} & \textbf{\field{recipient.name}} \\[3em]
-\when{$variant == "signed"}{/s/ \field{discloser.signer.name}}\otherwise{\rule{\linewidth}{0.4pt}} &
-\when{$variant == "signed"}{/s/ \field{recipient.signer.name}}\otherwise{\rule{\linewidth}{0.4pt}} \\
-\field{discloser.signer.name}, \field{discloser.signer.title|default:""} &
-\field{recipient.signer.name}, \field{recipient.signer.title|default:""} \\
-\end{tabular}
+\noindent\signature{discloser}\hfill\signature{recipient}
+
+\component{exhibits}{exhibits}
 \end{document}

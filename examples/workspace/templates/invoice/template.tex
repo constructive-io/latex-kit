@@ -26,17 +26,8 @@ Due:    & \field{due|date:long} \\
 \field{to.address.city}, \field{to.address.region|default:""} \field{to.address.postalCode|default:""}
 
 \vspace{1.5em}
-\begin{tabularx}{\textwidth}{@{}Xrrr@{}}
-\toprule
-Description & Qty & Unit price & Amount \\
-\midrule
-\each{items}{item}{\field{item.description} & \field{item.quantity|number} & \field{item.unitPrice|money:USD} & \field{item.amount|money:USD} \\
-}\midrule
- & & Subtotal & \field{subtotal|money:USD} \\
-\when{taxRate > 0}{ & & Tax (\field{taxRate|percent}) & \field{tax|money:USD} \\
-} & & \textbf{Total} & \textbf{\field{total|money:USD}} \\
-\bottomrule
-\end{tabularx}
+% components/line-items.ts builds the table, totals included
+\component{line-items}{}
 
 \when{notes}{\vspace{2em}\textit{\field{notes|paragraphs}}}
 

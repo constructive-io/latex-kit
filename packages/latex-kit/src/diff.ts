@@ -1,4 +1,4 @@
-import { Engine, render, runLatexdiff } from '@latex-kit/render';
+import { EngineChoice, render, runLatexdiff } from '@latex-kit/render';
 import { LATEX_KIT_STY, Variant } from '@latex-kit/template';
 import { execFileSync } from 'child_process';
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs';
@@ -10,7 +10,7 @@ import { Project } from './project';
 
 export interface DiffOptions {
   variant?: Variant;
-  engine?: Engine;
+  engine?: EngineChoice;
   backend?: 'docker' | 'local';
   image?: string;
   platform?: string | null;
@@ -35,14 +35,14 @@ async function redline(project: Project, oldTex: string, newTex: string, dir: st
   writeFileSync(join(dir, 'latex-kit.sty'), LATEX_KIT_STY);
   const tex = join(dir, `${name}.tex`);
   const rel = (p: string) => relative(project.root, p);
-  await runLatexdiff({ root: project.root, old: rel(oldTex), new: rel(newTex), output: rel(tex), backend: options.backend, image: options.image, platform: options.platform });
+  await runLatexdiff({ root: project.root, old: rel(oldTex), new: rel(newTex), output: rel(tex), backend: options.backend, image: project.image(options.image), platform: options.platform });
   const r = await render({
     file: tex,
     root: project.root,
     outDir: rel(dir),
-    engine: options.engine ?? project.config.engine ?? 'lualatex',
+    engine: options.engine ?? project.config.engine ?? 'auto',
     backend: options.backend ?? project.config.backend,
-    image: options.image ?? project.config.image,
+    image: project.image(options.image),
     platform: options.platform !== undefined ? options.platform : project.config.platform,
     texInputs: [rel(dir), ...texInputs.map(rel)],
   });

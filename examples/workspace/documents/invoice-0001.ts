@@ -1,6 +1,8 @@
 // A TypeScript record: the totals are computed here, so the template only
 // formats them. latex-kit never edits code, so the docId is written by hand.
-import { ref } from 'latex-kit';
+import { defineDocument, ref } from 'latex-kit';
+
+import type { InvoiceData } from '../templates/invoice/types';
 
 const items = [
   { description: 'Widgets, standard (box of 100)', quantity: 12, unitPrice: 450 },
@@ -12,7 +14,7 @@ const subtotal = items.reduce((sum, i) => sum + i.amount, 0);
 const taxRate = 0.08;
 const tax = Math.round(subtotal * taxRate * 100) / 100;
 
-export default {
+export default defineDocument<InvoiceData>({
   template: 'invoice',
   docId: 'INV-20261125-7QX2M9KD',
   data: {
@@ -27,4 +29,4 @@ export default {
     total: subtotal + tax,
     notes: 'Thank you for your business.\nWire transfers only; card payments add a 3% fee.',
   },
-};
+});

@@ -12,6 +12,7 @@ import { checkProject, templateFields } from './check';
 import { version } from './commands';
 import { diffDocument, diffFiles } from './diff';
 import { importDocument } from './import';
+import { currentPins, LOCK_FILE, writeLock } from './lock';
 import { Project } from './project';
 import { initProject, newDocument, newTemplate } from './scaffold';
 
@@ -22,10 +23,30 @@ function printDiagnostics(ds: Diagnostic[], json: boolean) {
 
 const rel = (p: string | null) => (p ? relative(process.cwd(), p) : null);
 
+/** `--only nda-*,invoice-0001`: comma-separated names, * matches anything. */
+export function onlyMatcher(only: unknown): ((name: string) => boolean) | null {
+  if (only === undefined || only === null || only === '' || only === true) return null;
+  const patterns = (Array.isArray(only) ? only : [only]).flatMap((o) => String(o).split(',')).map((p) => p.trim()).filter(Boolean);
+  if (patterns.length === 0) return null;
+  const res = patterns.map((p) => new RegExp(`^${p.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*')}$`));
+  return (name) => res.some((r) => r.test(name));
+}
+
+function checkLocale(locale: unknown): string | undefined {
+  if (locale === undefined) return undefined;
+  try {
+    return Intl.getCanonicalLocales(String(locale))[0];
+  } catch {
+    throw new UsageError(`--locale ${locale} is not a language tag (like en-US or ja-JP)`);
+  }
+}
+
 export async function buildCommand(argv: Partial<ParsedArgs>): Promise<number> {
   const variant = (argv.variant ?? (argv.final ? 'final' : 'draft')) as Variant;
   if (!VARIANTS.includes(variant)) throw new UsageError(`--variant must be one of ${VARIANTS.join(', ')}`);
-  if (argv.engine && !ENGINES.includes(argv.engine)) throw new UsageError(`--engine must be one of ${ENGINES.join(', ')}`);
+  if (argv.engine && argv.engine !== 'auto' && !ENGINES.includes(argv.engine)) throw new UsageError(`--engine must be auto or one of ${ENGINES.join(', ')}`);
+  if (argv.signatures !== undefined && variant !== 'signed') throw new UsageError('--signatures only applies to --variant signed');
+  const only = onlyMatcher(argv.only);
   const project = await Project.open(argv.root);
   const options: BuildOptions = {
     variant,
@@ -36,6 +57,9 @@ export async function buildCommand(argv: Partial<ParsedArgs>): Promise<number> {
     platform: argv.platform,
     verify: Boolean(argv.verify),
     texOnly: Boolean(argv['tex-only']),
+    locale: checkLocale(argv.locale),
+    force: Boolean(argv.force),
+    signatures: argv.signatures,
   };
   const json = Boolean(argv.json);
   const log = (s: string) => !json && console.error(s);
@@ -45,7 +69,7 @@ export async function buildCommand(argv: Partial<ParsedArgs>): Promise<number> {
   const files = (argv._ ?? []).map(String);
 
   if (variant === 'blank' && files.length === 0) {
-    const names = argv.template ? [String(argv.template)] : project.templateNames();
+    const names = (argv.template ? [String(argv.template)] : project.templateNames()).filter((n) => !only || only(n));
     for (const n of names) targets.push({ label: `template ${n}`, run: () => buildBlank(project, n, options) });
   } else {
     let docs = files.length ? files.map((f) => join(process.cwd(), f)) : project.documentFiles();
@@ -56,12 +80,18 @@ export async function buildCommand(argv: Partial<ParsedArgs>): Promise<number> {
       for (const f of docs) if ((await loadDocument(f, { dataDir: project.dataDir })).record.template === wanted) keep.push(f);
       docs = keep;
     }
+    if (only) docs = docs.filter((f) => only(project.documentName(f)));
     for (const f of docs) targets.push({ label: rel(f)!, run: () => buildDocument(project, f, options) });
   }
   if (targets.length === 0) {
+    if (only) {
+      log(chalk.red(`--only ${argv.only} matched nothing`));
+      return 1;
+    }
     log(chalk.yellow(`nothing to build (no documents in ${project.rel(project.documentsDir)}/)`));
     return 0;
   }
+  for (const d of project.codeDiagnostics) printDiagnostics([d], json);
 
   const results: unknown[] = [];
   let failed = 0;
@@ -74,7 +104,8 @@ export async function buildCommand(argv: Partial<ParsedArgs>): Promise<number> {
       if (bad) failed++;
       results.push({ ...r, tex: rel(r.tex), pdf: rel(r.pdf), diagnostics: r.diagnostics.length });
       if (!json) {
-        console.log(`${bad ? chalk.red('✗') : chalk.green('✓')} ${rel(r.pdf ?? r.tex)}${r.docId ? chalk.dim(`  ${r.docId}`) : ''}`);
+        const notes = [r.docId, r.cached ? 'unchanged' : null, r.engine && r.engineReason !== 'chosen' && r.engine !== 'lualatex' ? `${r.engine}, ${r.engineReason?.replace(/^auto: /, '')}` : null].filter(Boolean).join('  ');
+        console.log(`${bad ? chalk.red('✗') : chalk.green('✓')} ${rel(r.pdf ?? r.tex)}${notes ? chalk.dim(`  ${notes}`) : ''}`);
         if (r.minted) console.log(chalk.dim(`  minted ${r.docId} and saved it in ${t.label}`));
         if (r.verified !== undefined) console.log(r.verified ? chalk.dim('  byte-identical on a second build') : chalk.red('  second build differs'));
         if (!r.reproducible) console.log(chalk.yellow('  not reproducible: some inputs are not committed, so the build date is "now"'));
@@ -123,7 +154,7 @@ export async function fieldsCommand(argv: Partial<ParsedArgs>): Promise<number> 
   const width = Math.max(...fields.map((f) => f.absolute.length), 4);
   for (const f of fields) {
     const filters = f.filters.length ? chalk.cyan(` | ${f.filters.join(' | ')}`) : '';
-    console.log(`${f.absolute.padEnd(width)}  ${chalk.dim(f.kind.padEnd(5))}  ${chalk.dim(`${f.file}:${f.line}`)}${filters}`);
+    console.log(`${f.absolute.padEnd(width)}  ${chalk.dim(f.kind.padEnd(9))}  ${chalk.dim(`${f.file}:${f.line}`)}${filters}`);
   }
   return diagnostics.some((d) => d.severity === 'error') ? 1 : 0;
 }
@@ -203,9 +234,35 @@ export async function diffCommand(argv: Partial<ParsedArgs>): Promise<number> {
   return 0;
 }
 
+/** Pin the TeX and pandoc images in latex-kit.lock (commit it). */
+export async function lockCommand(argv: Partial<ParsedArgs>): Promise<number> {
+  const project = await Project.open(argv.root);
+  const pins = currentPins();
+  const file = join(project.root, LOCK_FILE);
+  if (argv.check) {
+    if (!project.lock) {
+      console.log(chalk.yellow(`no ${LOCK_FILE}: builds use this latex-kit's default image`));
+      return 1;
+    }
+    const stale = project.lock.image !== pins.image || project.lock.pandocImage !== pins.pandocImage;
+    console.log(stale ? chalk.yellow(`${rel(file)} pins older images than this latex-kit's defaults; run latex-kit lock to move them (PDF bytes will change)`) : `${chalk.green('✓')} ${rel(file)} matches this latex-kit`);
+    return stale ? 1 : 0;
+  }
+  const { lock, previous } = writeLock(project.root);
+  console.log(`${chalk.green('✓')} ${rel(file)}`);
+  if (previous && previous.image !== lock.image) console.log(chalk.dim(`  image ${previous.image}\n     → ${lock.image}\n  rebuilt PDFs will differ from earlier ones`));
+  else if (!previous) console.log(chalk.dim(`  image ${lock.image}`));
+  else console.log(chalk.dim('  already up to date'));
+  return 0;
+}
+
 export async function initCommand(argv: Partial<ParsedArgs>): Promise<number> {
   const dir = join(process.cwd(), argv._?.[0] ? String(argv._[0]) : '.');
   const r = initProject(dir, { paper: Boolean(argv.paper), force: Boolean(argv.force), version: version() });
+  if (!argv.paper && !existsSync(join(dir, LOCK_FILE))) {
+    writeLock(dir);
+    r.written.push(join(dir, LOCK_FILE));
+  }
   for (const f of r.written) console.log(`${chalk.green('+')} ${rel(f)}`);
   for (const f of r.skipped) console.log(chalk.dim(`  kept ${rel(f)} (exists)`));
   const cd = rel(dir) === '.' ? '' : `cd ${rel(dir)} && `;

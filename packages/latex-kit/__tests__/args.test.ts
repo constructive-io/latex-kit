@@ -1,10 +1,10 @@
 import { renderOptionsFromArgv, UsageError } from '../src/args';
 
 describe('renderOptionsFromArgv', () => {
-  it('defaults to lualatex in docker, out/', () => {
+  it('defaults to an auto engine in docker, out/', () => {
     expect(renderOptionsFromArgv({ _: ['letter.tex'] })).toMatchObject({
       file: 'letter.tex',
-      engine: 'lualatex',
+      engine: 'auto',
       backend: 'docker',
       outDir: 'out',
     });

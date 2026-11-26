@@ -16,6 +16,7 @@ export interface InvoiceData {
       name: string;
       title?: string;
       email?: string;
+      signature?: string;
     };
   };
   to: {
@@ -34,6 +35,7 @@ export interface InvoiceData {
       name: string;
       title?: string;
       email?: string;
+      signature?: string;
     };
   };
   issued: string;

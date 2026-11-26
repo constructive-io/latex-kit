@@ -106,7 +106,7 @@ export async function importDocument(project: Project, file: string, options: Im
     }
     const mediaDir = join(dir, 'media');
     try {
-      await runPandoc({ root: project.root, input: source, output: target, extractMedia: mediaDir, backend: options.backend });
+      await runPandoc({ root: project.root, input: source, output: target, extractMedia: mediaDir, backend: options.backend, image: project.lock?.pandocImage });
     } finally {
       if (staged) rmSync(staged, { force: true });
     }

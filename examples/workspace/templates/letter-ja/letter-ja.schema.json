@@ -70,6 +70,9 @@
                 },
                 "email": {
                   "type": "string"
+                },
+                "signature": {
+                  "type": "string"
                 }
               },
               "required": [
@@ -130,6 +133,9 @@
                   "type": "string"
                 },
                 "email": {
+                  "type": "string"
+                },
+                "signature": {
                   "type": "string"
                 }
               },

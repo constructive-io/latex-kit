@@ -30,8 +30,16 @@ Guidance for AI agents working in `constructive-io/latex-kit`.
 ## The template language
 
 - Macros: `\field`, `\raw`, `\when`/`\otherwise`, `\each`/`\sep`, `\snippet`,
-  `\docid` (`\clauseref` reserved). Never reuse LaTeX's own command names
-  (`\partial`, `\ref`, …) for new macros.
+  `\docid`, `\clause`/`\clauseref`, `\signature`, `\component`. Never reuse
+  LaTeX's own command names (`\partial`, `\ref`, …) for new macros.
+- Components (`@latex-kit/components`) return `tex`-tagged LaTeX; strings are
+  escaped. The component types live in `@latex-kit/template` so the engine
+  does not depend on the components package.
+- Signature images are never committed, and never written anywhere but
+  `out/<doc>/lk-signatures/` for the length of one build.
+- `packages/latex-kit/src/index.ts` re-exports `@latex-kit/components` by
+  name: two `export *` of CommonJS packages clash when jiti loads the source
+  (tests alias `latex-kit` to it).
 - The engine only replaces these macros; every other byte of a template is
   kept. unified-latex is used to *find* them (skipping comments and
   verbatim), never to re-print the document.

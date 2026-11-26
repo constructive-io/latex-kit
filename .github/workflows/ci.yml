@@ -91,9 +91,42 @@ jobs:
       - name: Build final (twice, byte-identical), draft and blank
         working-directory: examples/workspace
         run: |
+          node ../../packages/latex-kit/dist/cli.js lock --check
           node ../../packages/latex-kit/dist/cli.js build --final --verify
           node ../../packages/latex-kit/dist/cli.js build
           node ../../packages/latex-kit/dist/cli.js build --variant blank
+
+      - name: An unchanged build reuses its PDF
+        working-directory: examples/workspace
+        run: |
+          node ../../packages/latex-kit/dist/cli.js build --final | tee build.log
+          test "$(grep -c unchanged build.log)" -eq 3
+
+      - name: Signed (fictional signature images made here, outside the repo) and another locale
+        working-directory: examples/workspace
+        run: |
+          sigs="$RUNNER_TEMP/signatures"
+          mkdir -p "$sigs"
+          python3 - "$sigs" <<'PY'
+          import math, struct, sys, zlib
+          for i, name in enumerate(['avery-example', 'jordan-rivera']):
+              w, h = 360, 90
+              px = [[255] * w for _ in range(h)]
+              for t in range(3000):
+                  x = 10 + t * (w - 20) / 3000
+                  y = h / 2 + 22 * math.sin(t / (97 + i * 7)) * math.cos(t / (38 + i)) + 8 * math.sin(t / 15)
+                  for dx in (-1, 0, 1):
+                      for dy in (-1, 0, 1):
+                          if 0 <= int(x) + dx < w and 0 <= int(y) + dy < h: px[int(y) + dy][int(x) + dx] = 20
+              raw = b''.join(b'\x00' + bytes(r) for r in px)
+              chunk = lambda t, d: struct.pack('>I', len(d)) + t + d + struct.pack('>I', zlib.crc32(t + d) & 0xffffffff)
+              open(f'{sys.argv[1]}/{name}.png', 'wb').write(b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 0, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b''))
+          PY
+          node ../../packages/latex-kit/dist/cli.js build --variant signed --only 'nda-*' --signatures "$sigs" --verify
+          test ! -e out/nda-placeholder-labs/lk-signatures
+          jq -e '.signatureImages == ["avery-example.png", "jordan-rivera.png"]' out/nda-placeholder-labs/nda-placeholder-labs-signed.manifest.json
+          node ../../packages/latex-kit/dist/cli.js build --only letter-sample-kk --locale en-US
+          test -s out/letter-sample-kk-en-US/letter-sample-kk-en-US-draft.pdf
 
       - name: Redline a changed document against HEAD
         working-directory: examples/workspace
@@ -117,7 +150,7 @@ jobs:
         run: |
           cli="$PWD/packages/latex-kit/dist/cli.js"
           node "$cli" init scaffold
-          (cd scaffold && node "$cli" check && node "$cli" build --final --verify && node "$cli" build --variant blank)
+          (cd scaffold && node "$cli" check && node "$cli" lock --check && node "$cli" build --final --verify && node "$cli" build --variant blank)
           node "$cli" init paper-scaffold --paper
           (cd paper-scaffold && node "$cli" render paper/main.tex --verify)
 
@@ -149,3 +182,14 @@ jobs:
           artifact-name: action-letter
 
       - run: echo "built ${{ steps.letter.outputs.pdf }} (${{ steps.letter.outputs.sha256 }})"
+
+      - id: auto
+        uses: ./action
+        with:
+          file: examples/letter/letter.tex
+          engine: auto
+          verify: 'true'
+          artifact-name: action-letter-auto
+
+      - name: auto picked lualatex, so the bytes match
+        run: test "${{ steps.auto.outputs.sha256 }}" = "${{ steps.letter.outputs.sha256 }}"

@@ -41,10 +41,13 @@ latex-kit build --variant blank  # every template as an empty form
 
 ```
 latex-kit.config.ts          optional; these are the defaults
+latex-kit.lock               the exact TeX and pandoc images (commit it)
 templates/nda/template.tex   a real .tex file with \field{…}, \when, \each
 templates/nda/schema.ts      zod schema for the data (+ meta: ID prefix, locale)
 snippets/letterhead.tex      shared pieces, included with \snippet{letterhead}
 clauses/nda/purpose.tex      versioned clauses: \clause{nda/purpose}, \clauseref{…}
+clauses/nda/term.ts          a clause in TypeScript (defineClause)
+components/line-items.ts     TypeScript for tables and other computed parts
 data/orgs/example.json       shared records, used via { "$ref": "orgs/example" }
 documents/nda-acme.yaml      one record per document: template, docId, data
 out/nda-acme/                generated .tex, PDF and a manifest of every input hash
@@ -56,6 +59,9 @@ This Agreement is made on \field{effectiveDate|date:long} between
 \when{mutual}{Each party}\otherwise{The Discloser} may share information for
 \field{termMonths|words} (\field{termMonths}) months.
 \each{exclusions}{x}{\item \field{x}}
+
+\signature{discloser}\hfill\signature{recipient}
+\component{exhibits}{exhibits}
 ```
 
 ```yaml
@@ -74,11 +80,62 @@ The full language (filters, conditions, variants) is in
 invoice, an NDA and a bilingual Japanese/English letter is in
 [`examples/workspace`](examples/workspace).
 
+### Signatures
+
+`\signature{party}` prints a signature block: the organization in bold (when
+the party has a `signer`), a line, the signer's name and title, and a date
+line. Blank builds label every line. `--variant signed` signs it: each
+signer's image from a folder outside the repository, else `/s/ Name`, with
+the date from the record:
+
+```yaml
+signed:
+  discloser: { date: "2026-11-25" }
+  recipient: { date: "2026-11-26" }
+```
+
+```bash
+latex-kit build --variant signed --signatures ~/signatures   # avery-example.png, …
+```
+
+Images are copied next to the `.tex` for the build and deleted after it. The
+manifest lists which signers had one, never the images.
+
+### Components and TypeScript
+
+Long prose stays in `.tex`. For computed parts, a template calls a
+TypeScript component: `\component{line-items}{}` runs
+`components/line-items.ts` with the record's data (or the value at a path).
+Built in: `signatures`, `exhibits`, `bilingual`, `address`. Helpers such as
+`table()`, `money()` and `tex` are exported from `latex-kit`; see
+[`@latex-kit/components`](packages/components). Clauses can be TypeScript
+too (`defineClause`), and records typed with the generated types:
+
+```ts
+import { defineDocument, ref } from 'latex-kit';
+import type { InvoiceData } from '../templates/invoice/types';
+
+export default defineDocument<InvoiceData>({ template: 'invoice', data: { from: ref('orgs/acme'), … } });
+```
+
+### Engines, pins and the cache
+
+The engine is chosen per document unless you set one: a `% !TEX program =`
+line wins; PSTricks packages use `pdfps` (latex → dvips → ps2pdf); `xeCJK`
+or `ctex` use XeLaTeX; `CJK`/`CJKutf8` use pdfLaTeX; everything else uses
+LuaLaTeX, the only engine whose PDFs are byte-reproducible in the image.
+Chinese, Japanese or Korean text without a CJK package gets a warning.
+
+`latex-kit.lock` pins the TeX Live and pandoc images by digest, so a newer
+latex-kit never changes your PDFs until you run `latex-kit lock`. A build
+whose `.tex`, template folder, engine, image and build date all match the
+last one reuses its PDF (`--force` rebuilds).
+
 | Command | |
 |---|---|
 | `latex-kit init [dir] [--paper]` | A working project (letter template, data, a record) or a paper with a CI workflow |
 | `latex-kit new template <name>` / `new document <name> --template <t>` | Skeletons; new records get every required field and editor autocomplete |
-| `latex-kit build [documents…]` | `--final`, `--variant draft\|blank\|signed`, `--template`, `--verify`, `--strict` |
+| `latex-kit build [documents…]` | `--final`, `--variant draft\|blank\|signed`, `--only 'nda-*'`, `--locale ja-JP`, `--template`, `--verify`, `--strict`, `--force`, `--signatures <dir>` |
 | `latex-kit watch [documents…]` | Rebuild drafts whenever a template, snippet, clause or record changes |
 | `latex-kit check` | Unknown fields with `file:line:col`, invalid data, broken references, reused IDs |
 | `latex-kit fields <template>` | Every field a template reads, with its filters |
@@ -87,6 +144,7 @@ invoice, an NDA and a bilingual Japanese/English letter is in
 | `latex-kit import <file>` | Word/Markdown/HTML (pandoc) or an older `.tex` → a template; `{{x}}` and `@GROUP@FIELD@` become `\field{…}`; writes a starter `schema.ts` |
 | `latex-kit diff <document> --against <ref>` | Redline PDF against an earlier commit (also `diff <old.tex> <new.tex>`) |
 | `latex-kit render <file.tex>` | Any plain `.tex` → PDF, reproducibly (papers, letters) |
+| `latex-kit lock [--check]` | Pin (or check) the images in `latex-kit.lock` |
 | `latex-kit doctor` / `clean` | Docker, image and TeX checks / delete `out/` |
 
 In GitHub Actions, for plain `.tex` (papers):
@@ -98,7 +156,7 @@ In GitHub Actions, for plain `.tex` (papers):
 - uses: constructive-io/latex-kit/action@v1
   with:
     file: paper/main.tex
-    engine: pdfps   # only for PSTricks papers; default lualatex
+    engine: auto    # or lualatex (default), xelatex, pdflatex, pdfps
     verify: 'true'  # build twice, fail unless byte-identical
 ```
 
@@ -108,19 +166,24 @@ In GitHub Actions, for plain `.tex` (papers):
 |---|---|
 | [`latex-kit`](packages/latex-kit) | The CLI, and `defineConfig` / `z` / shared types for project files |
 | [`@latex-kit/template`](packages/template) | The template language: compile, check, fill, variants, `latex-kit.sty` |
+| [`@latex-kit/components`](packages/components) | Components: `table`, signature blocks, exhibits, bilingual names; `defineComponent`, `defineClause` |
 | [`@latex-kit/schema`](packages/schema) | zod schemas, shared types, `$ref` records, document IDs, typegen |
-| [`@latex-kit/render`](packages/render) | latexmk in a pinned image, reproducible dates, log → diagnostics |
+| [`@latex-kit/render`](packages/render) | latexmk in a pinned image, engine detection, reproducible dates, log → diagnostics |
 | [`@latex-kit/escape`](packages/escape) | Escape plain text for LaTeX; `tex` tagged template; no dependencies |
 | [`action/`](action) | Reusable GitHub Action |
 | [`examples/`](examples) | Fictional projects CI checks and builds byte-for-byte |
 
 ## Roadmap
 
-- **Multi-arch image.** `ghcr.io/constructive-io/latex-kit` (TeX Live 2026,
-  native on arm64 and amd64) is built from [`docker/`](docker); it becomes the
-  default once published. LuaLaTeX stays the default engine: XeLaTeX's PDF
-  writer gives embedded fonts random subset names, so its PDFs are never
-  byte-identical, on any TeX Live.
+- **HTML preview** of templates in the browser (a vendored LaTeX2JS slice).
+- **Tectonic** as an optional no-Docker backend, and a slim image tag.
+- **Postgres records** (pgpm) generated from the same schemas; files stay
+  the default.
+
+The default image, `ghcr.io/constructive-io/latex-kit` (TeX Live 2026, native
+on arm64 and amd64), is built from [`docker/`](docker). XeLaTeX is fully
+supported but never byte-identical: its PDF writer gives embedded fonts
+random subset names, on any TeX Live.
 
 ## Development
 

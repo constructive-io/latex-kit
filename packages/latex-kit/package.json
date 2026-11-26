@@ -49,6 +49,7 @@
     "@latex-kit/template": "workspace:*",
     "inquirerer": "^4.9.5",
     "minimist": "^1.2.8",
-    "yanse": "^0.2.3"
+    "yanse": "^0.2.3",
+    "@latex-kit/components": "workspace:*"
   }
 }

@@ -29,6 +29,25 @@ npm install -g latex-kit
 
 ## Usage
 
+A project (templates, data, records) is described in the
+[repository README](https://github.com/constructive-io/latex-kit#a-project):
+
+```bash
+latex-kit init my-documents && cd my-documents
+latex-kit check                                   # no TeX needed
+latex-kit build                                   # drafts
+latex-kit build --final --only 'nda-*'            # final PDFs for some documents
+latex-kit build --variant signed --signatures ~/signatures
+latex-kit build --locale ja-JP                    # another language, next to the usual PDFs
+latex-kit lock                                    # pin the images in latex-kit.lock
+```
+
+`latex-kit help build` lists every flag. Project files import helpers from
+this package: `defineConfig`, `defineDocument`, `defineComponent`,
+`defineClause`, `table`, `tex`, `ref`, `z` and the shared types.
+
+Plain `.tex` files:
+
 ```bash
 latex-kit doctor                                  # is Docker ready?
 latex-kit render examples/letter/letter.tex       # → out/letter.pdf
@@ -42,7 +61,7 @@ latex-kit render letter.tex --json                # machine-readable summary
 | Flag | Default | |
 |---|---|---|
 | `-o, --out <dir>` | `out` | Output directory, relative to `--root` |
-| `-e, --engine <name>` | `lualatex` | `lualatex`, `xelatex`, `pdflatex`, `pdfps` (PSTricks) |
+| `-e, --engine <name>` | `auto` | `auto` (from the packages the file loads), `lualatex`, `xelatex`, `pdflatex`, `pdfps` (PSTricks) |
 | `--root <dir>` | current directory | Directory TeX can see |
 | `--image <ref>` | pinned `ghcr.io/constructive-io/latex-kit` (TeX Live 2026) | Docker image |
 | `--platform <os/arch>` | native | Docker `--platform` |

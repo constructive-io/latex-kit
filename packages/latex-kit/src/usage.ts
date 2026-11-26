@@ -18,6 +18,7 @@ Project commands (run in a folder with templates/, data/, documents/)
   fields <template>   List every field a template reads
   typegen             Write JSON Schema and .d.ts for each template's data
   sty [dir]           Write latex-kit.sty so editors can preview templates
+  lock [--check]      Pin the TeX and pandoc images in latex-kit.lock
   import <file>       Turn a Word/Markdown/HTML document (or an older .tex)
                       into a template; {{x}} and @GROUP@FIELD@ become \\field
   diff <document> --against <ref>
@@ -42,7 +43,7 @@ always produces the same PDF bytes.
 
 Options
   -o, --out <dir>              Output directory, relative to --root (default: out)
-  -e, --engine <name>          lualatex (default), xelatex, pdflatex or pdfps
+  -e, --engine <name>          auto (default), lualatex, xelatex, pdflatex or pdfps
       --root <dir>             Directory TeX can see (default: current directory)
       --image <ref>            Docker image (default: pinned ghcr.io/constructive-io/latex-kit)
       --platform <os/arch>     Docker --platform (default: native)
@@ -51,7 +52,10 @@ Options
       --verify                 Build twice and fail if the PDFs differ
       --json                   Print a JSON summary on stdout
 
-Only lualatex is byte-reproducible in the default image.
+auto reads the file: a "% !TEX program =" line wins; PSTricks packages
+pick pdfps, xeCJK or ctex pick xelatex, CJK/CJKutf8 pick pdflatex, and
+everything else uses lualatex, the only engine that is byte-reproducible in
+the default image.
 `;
 
 const BUILD = `latex-kit build [documents…] [options]
@@ -64,20 +68,34 @@ Variants
                      as red markers (they fail instead when CI=true or --strict)
   --variant final    No marks. Missing values fail. Mints a document ID on the
   --final            first build and saves it in the record (JSON/YAML)
-  --variant signed   Like final; templates can test \\when{$variant == "signed"}
+  --variant signed   Like final, and \\signature blocks are signed: each signer's
+                     image from --signatures (a folder outside the repo,
+                     <name>.png|pdf|jpg or the signer's "signature" file),
+                     else "/s/ Name"; dates come from the record:
+                     signed: { discloser: { date: 2026-11-25 } }
   --variant blank    Every field is a labelled line. With no documents, builds
                      each template (or --template <name>) as an empty form
 
 Options
       --template <name>  Only documents that use this template
+      --only <names>     Only these documents (or templates, for blanks);
+                         comma-separated, * matches anything: --only 'nda-*'
+      --locale <tag>     Build in another locale (dates, numbers, bilingual
+                         order); writes <document>-<tag>.pdf
+      --signatures <dir> Signature images for --variant signed
       --strict           Fail on missing values in drafts too
-  -e, --engine <name>    lualatex (default), xelatex, pdflatex or pdfps
+      --force            Rebuild even if the PDF is up to date
+  -e, --engine <name>    auto (default), lualatex, xelatex, pdflatex or pdfps
       --local            Use latexmk on PATH instead of Docker
-      --image <ref>      Docker image (default: pinned ghcr.io/constructive-io/latex-kit)
+      --image <ref>      Docker image (default: latex-kit.lock, else the pinned
+                         ghcr.io/constructive-io/latex-kit)
       --verify           Build twice and fail unless the PDFs are identical
       --tex-only         Write the .tex without running TeX
       --json             JSON results on stdout
       --root <dir>       Project folder (default: current directory)
+
+A build is skipped ("unchanged") when the last PDF came from exactly the
+same .tex, template folder, engine, image and build date.
 `;
 
 const DOCTOR = `latex-kit doctor [--image <ref>] [--json]

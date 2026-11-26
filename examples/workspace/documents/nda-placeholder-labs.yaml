@@ -1,6 +1,10 @@
 # One-way NDA between two fictional companies.
 template: nda
 docId: NDA-20261125-3HV8RT2N
+# Used by --variant signed. Images come from --signatures, never this repo.
+signed:
+  discloser: { date: "2026-11-25" }
+  recipient: { date: "2026-11-26" }
 data:
   effectiveDate: "2026-11-25"
   discloser:
@@ -15,3 +19,11 @@ data:
     - already known to the Recipient before disclosure
     - independently developed without use of the Confidential Information
     - received from a third party without a duty of confidentiality
+  exhibits:
+    - title: Description of the widget program
+      body: |
+        The widget supply partnership covers standard widgets, custom
+        calibration, and on-site support during the evaluation period.
+
+        Pricing, volumes and delivery schedules shared under this Agreement
+        are Confidential Information.

@@ -1,4 +1,4 @@
-import { Backend, Engine, ENGINES, RenderOptions } from '@latex-kit/render';
+import { Backend, EngineChoice, ENGINES, RenderOptions } from '@latex-kit/render';
 import type { ParsedArgs } from 'minimist';
 
 export class UsageError extends Error {
@@ -7,9 +7,9 @@ export class UsageError extends Error {
 
 /** Turn `latex-kit render` flags into render options. Pure, for testing. */
 export function renderOptionsFromArgv(argv: Partial<ParsedArgs>): Omit<RenderOptions, 'file'> & { file?: string } {
-  const engine = (argv.engine ?? 'lualatex') as Engine;
-  if (!ENGINES.includes(engine)) {
-    throw new UsageError(`--engine must be one of ${ENGINES.join(', ')}`);
+  const engine = (argv.engine ?? 'auto') as EngineChoice;
+  if (engine !== 'auto' && !ENGINES.includes(engine)) {
+    throw new UsageError(`--engine must be auto or one of ${ENGINES.join(', ')}`);
   }
   let sourceDateEpoch: number | undefined;
   if (argv['source-date-epoch'] !== undefined) {

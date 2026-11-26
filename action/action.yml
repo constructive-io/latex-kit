@@ -17,7 +17,7 @@ inputs:
     description: Output directory, relative to root.
     default: out
   engine:
-    description: lualatex, xelatex, pdflatex, or pdfps (latex → dvips → ps2pdf, for PSTricks). xelatex is never byte-reproducible.
+    description: lualatex, xelatex, pdflatex, pdfps (latex → dvips → ps2pdf, for PSTricks), or auto (a "% !TEX program =" line, else PSTricks → pdfps, xeCJK/ctex → xelatex, CJK/CJKutf8 → pdflatex, else lualatex). xelatex is never byte-reproducible.
     default: lualatex
   image:
     description: Docker image, pinned by digest (default ghcr.io/constructive-io/latex-kit, TeX Live 2026).
@@ -60,17 +60,37 @@ runs:
         set -euo pipefail
         # Same steps as `latex-kit render`, without needing Node: latexmk in
         # the pinned image, the build date from the file's last commit.
-        case "$LK_ENGINE" in
-          lualatex) flag=-lualatex ;;
-          xelatex)  flag=-xelatex ;;
-          pdflatex) flag=-pdf ;;
-          pdfps)    flag=-pdfps ;;
-          *) echo "::error::engine must be lualatex, xelatex, pdflatex or pdfps"; exit 1 ;;
-        esac
         root=$(cd "$LK_ROOT" && pwd)
         case "$LK_FILE" in /*|*..*) echo "::error::file must be a relative path inside root"; exit 1 ;; esac
         case "$LK_OUT" in /*|*..*) echo "::error::out must be a relative path inside root"; exit 1 ;; esac
         test -f "$root/$LK_FILE" || { echo "::error::$LK_FILE not found in $LK_ROOT"; exit 1; }
+        engine="$LK_ENGINE"
+        if [ "$engine" = auto ]; then
+          # the same rules as `latex-kit render --engine auto`, on the main file
+          src=$(sed 's/\(^\|[^\\]\)%.*$/\1/' "$root/$LK_FILE" 2>/dev/null || true)
+          magic=$(head -n 30 "$root/$LK_FILE" 2>/dev/null | sed -n 's/^[[:space:]]*%[[:space:]]*![[:space:]]*T[eE]X[[:space:]]\{1,\}\(TS-\)\{0,1\}program[[:space:]]*=[[:space:]]*\([A-Za-z]*\).*/\2/p' | head -n 1 | tr '[:upper:]' '[:lower:]')
+          pkgs=$(printf '%s' "$src" | grep -o '\\\(usepackage\|RequirePackage\)[[:space:]]*\(\[[^]]*\]\)\{0,1\}[[:space:]]*{[^}]*}' | sed 's/.*{\([^}]*\)}/\1/' | tr ',' '\n' | tr -d ' \t' || true)
+          cls=$(printf '%s' "$src" | grep -o '\\documentclass[[:space:]]*\(\[[^]]*\]\)\{0,1\}[[:space:]]*{[^}]*}' | head -n 1 | sed 's/.*{\([^}]*\)}/\1/' | tr -d ' ' || true)
+          has() { printf '%s\n' "$pkgs" | grep -qx "$1"; }
+          case "$magic" in
+            lualatex|xelatex|pdflatex) engine=$magic ;;
+            latex) engine=pdfps ;;
+            *)
+              if printf '%s\n' "$pkgs" | grep -qE '^(pstricks|pst-.*)$'; then engine=pdfps
+              elif has xeCJK || has xltxtra || has xunicode || has ctex || case "$cls" in ctex*) true ;; *) false ;; esac; then engine=xelatex
+              elif has CJK || has CJKutf8; then engine=pdflatex
+              else engine=lualatex
+              fi ;;
+          esac
+          echo "engine: auto → $engine"
+        fi
+        case "$engine" in
+          lualatex) flag=-lualatex ;;
+          xelatex)  flag=-xelatex ;;
+          pdflatex) flag=-pdf ;;
+          pdfps)    flag=-pdfps ;;
+          *) echo "::error::engine must be auto, lualatex, xelatex, pdflatex or pdfps"; exit 1 ;;
+        esac
 
         epoch="$LK_EPOCH"
         if [ -z "$epoch" ]; then

@@ -20,7 +20,9 @@ export interface NdaData {
       name: string;
       title?: string;
       email?: string;
+      signature?: string;
     };
+    signature?: string;
   };
   recipient: {
     kind?: "person" | "organization";
@@ -41,11 +43,17 @@ export interface NdaData {
       name: string;
       title?: string;
       email?: string;
+      signature?: string;
     };
+    signature?: string;
   };
   mutual?: boolean;
   termMonths: number;
   purpose: string;
   governingLaw: string;
   exclusions?: string[];
+  exhibits?: {
+    title: string;
+    body: string;
+  }[];
 }

@@ -11,6 +11,7 @@ function summary(r: RenderResult) {
     pdf: relative(process.cwd(), r.pdf),
     sha256: r.sha256,
     engine: r.engine,
+    engineReason: r.engineReason,
     backend: r.backend,
     image: r.image,
     sourceDateEpoch: r.sourceDateEpoch,
@@ -44,8 +45,9 @@ export async function renderCommand(argv: Partial<ParsedArgs>, prompter: Inquire
   };
 
   try {
-    log(chalk.dim(`rendering ${opts.file} with ${opts.engine} (${opts.backend})…`));
+    log(chalk.dim(`rendering ${opts.file} (${opts.backend})…`));
     const first = await render({ ...opts, file: opts.file! });
+    log(chalk.dim(`  engine ${first.engine}${first.engineReason === 'chosen' ? '' : ` (${first.engineReason})`}`));
     for (const d of first.diagnostics) log(chalk.yellow(formatDiagnostic(d)));
     if (!first.reproducible) {
       log(chalk.yellow('warning: no SOURCE_DATE_EPOCH and the file is not committed; the build date is "now", so builds will differ'));
@@ -55,7 +57,7 @@ export async function renderCommand(argv: Partial<ParsedArgs>, prompter: Inquire
     if (argv.verify) {
       // same output path: some tools (Ghostscript) hash the path into the PDF ID
       log(chalk.dim('rendering again to check the output is byte-identical…'));
-      const second = await render({ ...opts, file: opts.file!, sourceDateEpoch: first.sourceDateEpoch });
+      const second = await render({ ...opts, file: opts.file!, engine: first.engine, sourceDateEpoch: first.sourceDateEpoch });
       verified = second.sha256 === first.sha256;
     }
 

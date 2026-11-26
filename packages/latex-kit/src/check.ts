@@ -14,8 +14,9 @@ export interface CheckResult {
  * against each schema, every document's data, references, and duplicate IDs.
  */
 export async function checkProject(project: Project): Promise<CheckResult> {
-  const diagnostics: Diagnostic[] = [];
+  const diagnostics: Diagnostic[] = [...project.codeDiagnostics];
   const templates = project.templateNames();
+  const components = project.componentNames();
 
   for (const name of templates) {
     try {
@@ -23,7 +24,7 @@ export async function checkProject(project: Project): Promise<CheckResult> {
       if (!t.jsonSchema) {
         diagnostics.push(diag('warning', `template ${name} has no schema.ts, so field names are not checked`, { file: t.compiled.file, line: 1, column: 1 }));
       }
-      diagnostics.push(...analyzeTemplate(t.compiled, { schema: t.jsonSchema ?? undefined, loadSnippet: project.loadSnippet, loadClause: project.loadClause }).diagnostics);
+      diagnostics.push(...analyzeTemplate(t.compiled, { schema: t.jsonSchema ?? undefined, loadSnippet: project.loadSnippet, loadClause: project.loadClause, components }).diagnostics);
     } catch (e) {
       diagnostics.push(diag('error', (e as Error).message, { file: project.rel(project.path(project.config.templates, name)), line: 1, column: 1 }));
     }
@@ -56,6 +57,6 @@ export async function checkProject(project: Project): Promise<CheckResult> {
 /** Every field a template reads, including through snippets. */
 export async function templateFields(project: Project, name: string): Promise<{ fields: FieldRef[]; diagnostics: Diagnostic[] }> {
   const t = await project.template(name);
-  const r = analyzeTemplate(t.compiled, { schema: t.jsonSchema ?? undefined, loadSnippet: project.loadSnippet, loadClause: project.loadClause });
+  const r = analyzeTemplate(t.compiled, { schema: t.jsonSchema ?? undefined, loadSnippet: project.loadSnippet, loadClause: project.loadClause, components: project.componentNames() });
   return { fields: r.fields, diagnostics: r.diagnostics };
 }

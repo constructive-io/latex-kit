@@ -4,8 +4,11 @@ import { defineConfig } from 'latex-kit';
 export default defineConfig({
   templates: 'templates',
   snippets: 'snippets',
+  clauses: 'clauses',
+  components: 'components',
   data: 'data',
   documents: 'documents',
   out: 'out',
   locale: 'en-US',
+  engine: 'auto',
 });
