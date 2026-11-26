@@ -1,12 +1,25 @@
 # latex-kit image
 
-`ghcr.io/constructive-io/latex-kit`: the official TeX Live image (full
-scheme, TeX Live 2026) for amd64 and arm64, plus Noto CJK fonts and
-Ghostscript. It runs natively on Apple silicon.
+[`constructiveio/latex-kit`](https://hub.docker.com/r/constructiveio/latex-kit)
+on Docker Hub: the official TeX Live image (full scheme, TeX Live 2026) for
+amd64 and arm64, plus Noto CJK fonts and Ghostscript. It runs natively on
+Apple silicon.
 
-Built and published by [`.github/workflows/image.yml`](../.github/workflows/image.yml)
-when this folder changes. latex-kit pins images by digest, so a new image
-never changes anyone's PDFs until the default digest is updated on purpose.
+| Tag | |
+|---|---|
+| `tl2026`, `full`, `latest` | Everything in TeX Live, including PSTricks and the extra fonts |
+| `slim`, `tl2026-slim` | The full image minus fontsextra, ConTeXt, PSTricks, music, games and a few language collections ([`slim/`](slim)); same files otherwise, so the same PDF bytes |
+
+Published to Docker Hub only, by
+[`image.yml`](../.github/workflows/image.yml) (when `docker/Dockerfile`
+changes) and [`image-slim.yml`](../.github/workflows/image-slim.yml) (when
+`docker/slim/` changes). Both log in with the `DOCKERHUB_USERNAME` and
+`DOCKERHUB_TOKEN` repository secrets.
+[`image-copy.yml`](../.github/workflows/image-copy.yml) copies an existing
+image to Docker Hub without rebuilding it, so its digest stays the same.
+
+latex-kit pins images by digest, so a new image never changes anyone's PDFs
+until the default digest is updated on purpose.
 
 ```bash
 docker build -t latex-kit-local docker

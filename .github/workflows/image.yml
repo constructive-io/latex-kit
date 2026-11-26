@@ -1,7 +1,7 @@
 name: Image
 
-# Builds docker/Dockerfile for amd64 and arm64 and publishes it as
-# ghcr.io/constructive-io/latex-kit. Tags: tl2026, sha-<commit>, latest.
+# Builds docker/Dockerfile for amd64 and arm64 and publishes it to Docker Hub
+# as constructiveio/latex-kit. Tags: tl2026, sha-<commit>, latest.
 # The slim image (docker/slim) has its own workflow, image-slim.yml.
 # latex-kit pins the image by digest, so a new push never changes builds
 # until the default digest in @latex-kit/render is updated on purpose.
@@ -18,7 +18,6 @@ concurrency:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   image:
@@ -32,14 +31,13 @@ jobs:
 
       - uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/constructive-io/latex-kit
+          images: constructiveio/latex-kit
           tags: |
             type=raw,value=tl2026
             type=sha,format=short
@@ -56,7 +54,7 @@ jobs:
 
       - name: Smoke test
         run: |
-          image="ghcr.io/constructive-io/latex-kit@${{ steps.build.outputs.digest }}"
+          image="constructiveio/latex-kit@${{ steps.build.outputs.digest }}"
           docker run --rm "$image" sh -c 'tex --version | head -1 && latexmk -v | head -2 && fc-list | grep -ci "noto.*cjk"'
-          echo "### ghcr.io/constructive-io/latex-kit" >> "$GITHUB_STEP_SUMMARY"
+          echo "### constructiveio/latex-kit" >> "$GITHUB_STEP_SUMMARY"
           echo "digest \`${{ steps.build.outputs.digest }}\`" >> "$GITHUB_STEP_SUMMARY"

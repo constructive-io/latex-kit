@@ -1,14 +1,14 @@
 name: Slim image
 
 # Builds docker/slim (the full image minus rarely used TeX Live collections)
-# for amd64 and arm64 as ghcr.io/constructive-io/latex-kit:slim, tags the
+# for amd64 and arm64 as constructiveio/latex-kit:slim on Docker Hub, tags the
 # full image it is cut from as :full, and fails unless every example builds
 # to the same PDF bytes on both.
 
 on:
   push:
     branches: [main]
-    paths: ['docker/slim/**', '.github/workflows/image-slim.yml']
+    paths: ['docker/slim/**']
   workflow_dispatch: {}
 
 concurrency:
@@ -17,7 +17,6 @@ concurrency:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   slim:
@@ -33,14 +32,13 @@ jobs:
 
       - uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/constructive-io/latex-kit
+          images: constructiveio/latex-kit
           tags: |
             type=raw,value=slim
             type=raw,value=tl2026-slim
@@ -57,9 +55,10 @@ jobs:
 
       - name: Tag the full image slim is cut from as :full
         run: |
-          full=$(sed -n 's/^FROM \(ghcr.io\/constructive-io\/latex-kit@sha256:[0-9a-f]*\).*/\1/p' docker/slim/Dockerfile)
-          docker buildx imagetools create -t ghcr.io/constructive-io/latex-kit:full -t ghcr.io/constructive-io/latex-kit:tl2026-full "$full"
-          echo "### ghcr.io/constructive-io/latex-kit:slim" >> "$GITHUB_STEP_SUMMARY"
+          full=$(sed -n 's/^FROM \(constructiveio\/latex-kit@sha256:[0-9a-f]*\).*/\1/p' docker/slim/Dockerfile)
+          test -n "$full"
+          docker buildx imagetools create -t constructiveio/latex-kit:full -t constructiveio/latex-kit:tl2026-full "$full"
+          echo "### constructiveio/latex-kit:slim" >> "$GITHUB_STEP_SUMMARY"
           echo "digest \`${{ steps.build.outputs.digest }}\`, cut from \`$full\`" >> "$GITHUB_STEP_SUMMARY"
 
   same-bytes:
@@ -83,7 +82,7 @@ jobs:
       - name: Every example gives the same PDF on full and slim
         run: |
           cli="$PWD/packages/latex-kit/dist/cli.js"
-          slim="ghcr.io/constructive-io/latex-kit@${{ needs.slim.outputs.digest }}"
+          slim="constructiveio/latex-kit@${{ needs.slim.outputs.digest }}"
           hashes() {
             (cd examples/workspace && rm -rf out \
               && node "$cli" build --final $1 && node "$cli" build $1 && node "$cli" build --variant blank $1 \

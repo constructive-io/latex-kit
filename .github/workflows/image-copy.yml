@@ -1,0 +1,47 @@
+name: Copy image to Docker Hub
+
+# Copies an existing multi-arch image to Docker Hub as constructiveio/latex-kit
+# without rebuilding it, so its digest (and every PDF built with it) stays
+# the same. Run by hand: Actions → Copy image to Docker Hub → Run workflow.
+
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Image to copy, by digest (registry/name@sha256:…)
+        required: true
+      tags:
+        description: Tags to give it on Docker Hub, space-separated
+        required: true
+        default: 'tl2026 full latest'
+
+permissions:
+  contents: read
+
+jobs:
+  copy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Copy, keeping the digest
+        env:
+          SOURCE: ${{ inputs.source }}
+          TAGS: ${{ inputs.tags }}
+        run: |
+          case "$SOURCE" in *@sha256:*) ;; *) echo "::error::source must be pinned by digest"; exit 1 ;; esac
+          args=()
+          for t in $TAGS; do args+=(-t "constructiveio/latex-kit:$t"); done
+          docker buildx imagetools create "${args[@]}" "$SOURCE"
+          want="${SOURCE##*@}"
+          for t in $TAGS; do
+            got=$(docker buildx imagetools inspect "constructiveio/latex-kit:$t" --format '{{json .Manifest}}' | jq -r .digest)
+            echo "constructiveio/latex-kit:$t → $got"
+            test "$got" = "$want" || { echo "::error::digest changed ($got, wanted $want)"; exit 1; }
+          done
+          echo "copied \`$SOURCE\` → \`constructiveio/latex-kit@$want\` ($TAGS)" >> "$GITHUB_STEP_SUMMARY"

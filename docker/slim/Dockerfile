@@ -5,7 +5,7 @@
 #
 # Use the full image for PSTricks (the pdfps engine) and for the extra fonts.
 # To update: change the digest to the new full image and rebuild.
-FROM ghcr.io/constructive-io/latex-kit@sha256:e4d5aebb60986780c437ace0c0840c73fa6b0b70c7a60ab3246aee83da483fac AS trimmed
+FROM constructiveio/latex-kit@sha256:e4d5aebb60986780c437ace0c0840c73fa6b0b70c7a60ab3246aee83da483fac AS trimmed
 
 # --no-execute-actions: keep the full image's formats and font maps as they
 # are (rebuilding them would make different files, and could change PDFs).
