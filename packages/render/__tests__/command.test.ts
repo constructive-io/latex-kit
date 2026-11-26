@@ -99,7 +99,7 @@ describe('tool commands', () => {
 
 describe('images', () => {
   it('defaults to the multi-arch GHCR image, native platform', () => {
-    expect(DEFAULT_IMAGE).toMatch(/^ghcr\.io\/constructive-io\/latex-kit@sha256:[0-9a-f]{64}$/);
+    expect(DEFAULT_IMAGE).toMatch(/^constructiveio\/latex-kit@sha256:[0-9a-f]{64}$/);
     expect(DEFAULT_IMAGE_PLATFORM).toBeNull();
   });
   it('keeps the previous image for old PDFs', () => {

@@ -1,12 +1,12 @@
 import { isAbsolute, posix, relative, resolve, sep } from 'path';
 
 /**
- * The default image: ghcr.io/constructive-io/latex-kit (official TeX Live 2026,
+ * The default image: constructiveio/latex-kit on Docker Hub (official TeX Live 2026,
  * full scheme, plus Noto CJK fonts), built from docker/ in this repo for amd64
  * and arm64, pinned by digest so every build uses the same bytes.
  */
 export const DEFAULT_IMAGE =
-  'ghcr.io/constructive-io/latex-kit@sha256:e4d5aebb60986780c437ace0c0840c73fa6b0b70c7a60ab3246aee83da483fac';
+  'constructiveio/latex-kit@sha256:e4d5aebb60986780c437ace0c0840c73fa6b0b70c7a60ab3246aee83da483fac';
 /** Multi-arch: let Docker pick the native platform. */
 export const DEFAULT_IMAGE_PLATFORM: string | null = null;
 

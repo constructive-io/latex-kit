@@ -45,7 +45,7 @@ Options
   -o, --out <dir>              Output directory, relative to --root (default: out)
   -e, --engine <name>          auto (default), lualatex, xelatex, pdflatex or pdfps
       --root <dir>             Directory TeX can see (default: current directory)
-      --image <ref>            Docker image (default: pinned ghcr.io/constructive-io/latex-kit)
+      --image <ref>            Docker image (default: pinned constructiveio/latex-kit)
       --platform <os/arch>     Docker --platform (default: native)
       --local                  Use latexmk on PATH instead of Docker (not pinned)
       --source-date-epoch <s>  Build timestamp in seconds since 1970
@@ -88,7 +88,7 @@ Options
   -e, --engine <name>    auto (default), lualatex, xelatex, pdflatex or pdfps
       --local            Use latexmk on PATH instead of Docker
       --image <ref>      Docker image (default: latex-kit.lock, else the pinned
-                         ghcr.io/constructive-io/latex-kit)
+                         constructiveio/latex-kit on Docker Hub)
       --verify           Build twice and fail unless the PDFs are identical
       --tex-only         Write the .tex without running TeX
       --json             JSON results on stdout
