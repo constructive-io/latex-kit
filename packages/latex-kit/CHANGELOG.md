@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.1](https://github.com/constructive-io/latex-kit/compare/latex-kit@0.5.0...latex-kit@0.5.1) (2026-11-26)
+
+### Features
+
+- latex-kit init --paper starts in the Constructive whitepaper style ([e460d8d](https://github.com/constructive-io/latex-kit/commit/e460d8d77ee209db4eae8bd7db0f9407b70eb9ac))
+- **render:** default image on Docker Hub, constructiveio/latex-kit ([61664ce](https://github.com/constructive-io/latex-kit/commit/61664ce031b20198d32406ec392ec91d9873aa06))
+
 # [0.5.0](https://github.com/constructive-io/latex-kit/compare/latex-kit@0.4.1...latex-kit@0.5.0) (2026-11-26)
 
 ### Features

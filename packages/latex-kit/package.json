@@ -1,6 +1,6 @@
 {
   "name": "latex-kit",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Build typed, reproducible LaTeX documents from the command line",
   "author": "Constructive <developers@constructive.io>",
   "main": "index.js",
