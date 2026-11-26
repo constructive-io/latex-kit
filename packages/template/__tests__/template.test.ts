@@ -364,3 +364,13 @@ it('ships latex-kit.sty', () => {
   expect(LATEX_KIT_STY).toContain('\\ProvidesPackage{latex-kit}');
   expect(LATEX_KIT_STY).toContain('\\newcommand\\field[1]');
 });
+
+describe('wrapDocument blanks', () => {
+  const doc = '\\documentclass{article}\\begin{document}x\\end{document}';
+  it('passes the blank style to latex-kit.sty, and nothing extra by default', () => {
+    expect(wrapDocument(doc, { variant: 'blank' })).toContain('\\PassOptionsToPackage{rendered,blank}{latex-kit}');
+    expect(wrapDocument(doc, { variant: 'blank', blanks: 'labelled' })).toContain('{rendered,blank}{latex-kit}');
+    expect(wrapDocument(doc, { variant: 'blank', blanks: 'lines' })).toContain('{rendered,blank,blanklines}{latex-kit}');
+    expect(wrapDocument(doc, { variant: 'blank', blanks: 'names' })).toContain('{rendered,blank,blanknames}{latex-kit}');
+  });
+});

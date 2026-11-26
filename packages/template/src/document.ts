@@ -2,10 +2,15 @@ import { escapeLatex } from '@latex-kit/escape';
 
 import { Variant } from './evaluate';
 
+export type BlankStyle = 'labelled' | 'lines' | 'names';
+export const BLANK_STYLES: BlankStyle[] = ['labelled', 'lines', 'names'];
+
 export interface WrapOptions {
   variant: Variant;
   /** Short text printed on draft pages, e.g. date and git commit. */
   stamp?: string;
+  /** How blanks print: a small labelled line (default), an empty line, or the field's name in brackets. */
+  blanks?: BlankStyle;
 }
 
 const USES_PACKAGE = /\\(?:usepackage|RequirePackage)\s*(?:\[[^\]]*\])?\s*\{[^}]*\blatex-kit\b[^}]*\}/;
@@ -20,7 +25,8 @@ const USES_PACKAGE = /\\(?:usepackage|RequirePackage)\s*(?:\[[^\]]*\])?\s*\{[^}]
  */
 export function wrapDocument(tex: string, options: WrapOptions): string {
   const stamp = options.stamp ? escapeLatex(options.stamp) : '';
-  const prefix = `\\PassOptionsToPackage{rendered,${options.variant}}{latex-kit}\\def\\lkstamp{${stamp}}`;
+  const blanks = options.blanks === 'lines' ? ',blanklines' : options.blanks === 'names' ? ',blanknames' : '';
+  const prefix = `\\PassOptionsToPackage{rendered,${options.variant}${blanks}}{latex-kit}\\def\\lkstamp{${stamp}}`;
   let body = tex;
   if (!USES_PACKAGE.test(body)) {
     const at = body.indexOf('\\begin{document}');

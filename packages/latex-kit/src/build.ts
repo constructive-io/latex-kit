@@ -1,6 +1,7 @@
 import { detectEngine, Engine, EngineChoice, gitCommitTime, render, RenderError, RenderResult } from '@latex-kit/render';
 import { loadDocument, mintDocId, validate, writeDocId } from '@latex-kit/schema';
 import {
+  BlankStyle,
   diag,
   Diagnostic,
   evaluateTemplate,
@@ -16,6 +17,7 @@ import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync,
 import { homedir } from 'os';
 import { basename, extname, isAbsolute, join, posix, relative, resolve, sep } from 'path';
 
+import { writeFormJson } from './form';
 import { Project, Template } from './project';
 
 export interface BuildOptions {
@@ -38,6 +40,8 @@ export interface BuildOptions {
   platform?: string | null;
   /** Build twice and fail unless the PDFs are byte-identical. */
   verify?: boolean;
+  /** How blanks print in blank builds: `labelled` (default), `lines` to write on, or `names` in brackets. */
+  blanks?: BlankStyle;
   /** Stop after writing the .tex (no TeX run). */
   texOnly?: boolean;
   /** Use this ID when the record has none, instead of minting one (for redlines). */
@@ -56,6 +60,8 @@ export interface BuildResult {
   pdf: string | null;
   sha256: string | null;
   docId: string | null;
+  /** `<document>.form.json`: where the spots to sign or fill in landed, when the template marks any. */
+  form: string | null;
   /** The ID was minted by this build and written to the record. */
   minted: boolean;
   sourceDateEpoch: number;
@@ -188,7 +194,9 @@ async function run(job: Job): Promise<BuildResult> {
   }
 
   const outDir = options.outDir ?? join(project.outDir, job.name);
-  const job_ = variant === 'final' ? job.name : `${job.name}-${variant}`;
+  const blanks: BlankStyle | undefined = variant === 'blank' ? (options.blanks ?? project.config.blanks) : undefined;
+  // the names view is its own file, so it can sit next to the form to fill in
+  const job_ = variant === 'final' ? job.name : blanks === 'names' ? `${job.name}-names` : `${job.name}-${variant}`;
 
   // signed builds: copy signature images next to the .tex for this build only
   const stageDir = join(outDir, 'lk-signatures');
@@ -253,7 +261,7 @@ async function run(job: Job): Promise<BuildResult> {
     mkdirSync(outDir, { recursive: true });
     const texPath = join(outDir, `${job_}.tex`);
     const stamp = `${new Date(finalEpoch.epoch * 1000).toISOString().slice(0, 10)} ${gitShortHead(project.root)}`;
-    const tex = wrapDocument(evaluated.tex, { variant, stamp });
+    const tex = wrapDocument(evaluated.tex, { variant, stamp, blanks });
     writeFileSync(texPath, tex);
     writeFileSync(join(outDir, 'latex-kit.sty'), LATEX_KIT_STY);
 
@@ -271,6 +279,7 @@ async function run(job: Job): Promise<BuildResult> {
       engine: null,
       engineReason: null,
       cached: false,
+      form: null,
       diagnostics,
     };
     if (options.texOnly) return result;
@@ -313,6 +322,7 @@ async function run(job: Job): Promise<BuildResult> {
       JSON.stringify({ v: 1, tex: sha256(tex), sty: sha256(LATEX_KIT_STY), engine, backend, image: backend === 'docker' ? (image ?? 'default') : null, platform: platform ?? null, epoch: finalEpoch.epoch, inputs: keyInputs })
     );
     const manifestPath = join(outDir, `${job_}.manifest.json`);
+    const formBase = join(outDir, job_);
     const pdfPath = join(outDir, `${job_}.pdf`);
     if (!options.force && !options.verify && existsSync(manifestPath) && existsSync(pdfPath)) {
       try {
@@ -322,6 +332,7 @@ async function run(job: Job): Promise<BuildResult> {
           result.pdf = pdfPath;
           result.sha256 = pdfSha;
           result.cached = true;
+          result.form = existsSync(formBase + '.form.json') ? formBase + '.form.json' : null;
           return result;
         }
       } catch {
@@ -329,6 +340,8 @@ async function run(job: Job): Promise<BuildResult> {
       }
     }
 
+    // TeX writes marked spots to <job>.form; a file from an earlier run must not survive
+    rmSync(formBase + '.form', { force: true });
     let rendered: RenderResult;
     try {
       rendered = await render({ ...renderOpts, outDir: relative(project.root, outDir) });
@@ -343,6 +356,7 @@ async function run(job: Job): Promise<BuildResult> {
     }
     result.pdf = rendered.pdf;
     result.sha256 = rendered.sha256;
+    result.form = writeFormJson(formBase);
 
     if (options.verify) {
     // same output path: some tools (Ghostscript) hash the path into the PDF ID

@@ -1,6 +1,6 @@
 import { ENGINES } from '@latex-kit/render';
 import { documentJsonSchema, generateTypes, loadDocument } from '@latex-kit/schema';
-import { Diagnostic, formatDiagnostic, LATEX_KIT_STY, Variant, VARIANTS } from '@latex-kit/template';
+import { BLANK_STYLES, Diagnostic, formatDiagnostic, LATEX_KIT_STY, Variant, VARIANTS } from '@latex-kit/template';
 import { existsSync, mkdirSync, rmSync, watch as fsWatch, writeFileSync } from 'fs';
 import type { ParsedArgs } from 'minimist';
 import { isAbsolute, join, relative } from 'path';
@@ -47,6 +47,8 @@ export async function buildCommand(argv: Partial<ParsedArgs>): Promise<number> {
   if (!VARIANTS.includes(variant)) throw new UsageError(`--variant must be one of ${VARIANTS.join(', ')}`);
   if (argv.engine && argv.engine !== 'auto' && !ENGINES.includes(argv.engine)) throw new UsageError(`--engine must be auto or one of ${ENGINES.join(', ')}`);
   if (argv.signatures !== undefined && variant !== 'signed') throw new UsageError('--signatures only applies to --variant signed');
+  if (argv.blanks !== undefined && !BLANK_STYLES.includes(argv.blanks)) throw new UsageError(`--blanks must be one of ${BLANK_STYLES.join(', ')}`);
+  if (argv.blanks !== undefined && variant !== 'blank') throw new UsageError('--blanks only applies to --variant blank');
   const only = onlyMatcher(argv.only);
   const project = await Project.open(argv.root);
   const options: BuildOptions = {
@@ -61,6 +63,7 @@ export async function buildCommand(argv: Partial<ParsedArgs>): Promise<number> {
     locale: checkLocale(argv.locale),
     force: Boolean(argv.force),
     signatures: argv.signatures,
+    blanks: argv.blanks,
   };
   const json = Boolean(argv.json);
   const log = (s: string) => !json && console.error(s);

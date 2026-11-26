@@ -36,7 +36,8 @@ const text = (v: unknown): string | undefined => (typeof v === 'string' && v.tri
 const SAFE_IMAGE_PATH = /^[A-Za-z0-9_./-]+$/;
 
 /**
- * A signature block for a party: `\lksignature{org}{name}{title}{signature}{date}`.
+ * A signature block for a party: `\lksignature{org}{name}{title}{signature}{date}`,
+ * after `\lksignaturefor{party}` so the block can mark where that party signs.
  *
  * A party with a `signer` (or `kind: organization`) is an organization: its
  * name in bold, then the signer's name and title. Anything else signs for
@@ -46,7 +47,7 @@ const SAFE_IMAGE_PATH = /^[A-Za-z0-9_./-]+$/;
 export function signatureBlock(value: unknown, o: SignatureOptions): string {
   const p = o.path;
   if (o.variant === 'blank') {
-    return `\\lksignature{\\lkblank{${p}.name}}{\\lkblank{${p}.signer.name}}{\\lkblank{${p}.signer.title}}{}{}`;
+    return `\\lksignaturefor{${p}}\\lksignature{\\lkblank{${p}.name}}{\\lkblank{${p}.signer.name}}{\\lkblank{${p}.signer.title}}{}{}`;
   }
   if (value === undefined || value === null) return o.missing(p);
   if (!isObject(value)) throw new SignatureError(`${p} is not a party (expected an object with a name)`);
@@ -76,5 +77,5 @@ export function signatureBlock(value: unknown, o: SignatureOptions): string {
     const signed = text(o.signing?.date);
     if (signed) date = escapeLatex(String(FILTERS.date.apply(signed, 'long', { locale: o.locale }, {})));
   }
-  return `\\lksignature{${org}}{${nameTex}}{${titleTex}}{${sign}}{${date}}`;
+  return `\\lksignaturefor{${p}}\\lksignature{${org}}{${nameTex}}{${titleTex}}{${sign}}{${date}}`;
 }

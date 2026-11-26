@@ -85,6 +85,10 @@ Options
                          comma-separated, * matches anything: --only 'nda-*'
       --locale <tag>     Build in another locale (dates, numbers, bilingual
                          order); writes <document>-<tag>.pdf
+      --blanks <style>   How a blank prints, for --variant blank:
+                         labelled (default) the field's name on a line
+                         lines     an empty line to write on
+                         names     the name in brackets; writes <name>-names.pdf
       --signatures <dir> Signature images for --variant signed
       --strict           Fail on missing values in drafts too
       --force            Rebuild even if the PDF is up to date
@@ -96,6 +100,10 @@ Options
       --tex-only         Write the .tex without running TeX
       --json             JSON results on stdout
       --root <dir>       Project folder (default: current directory)
+
+When a template marks spots to sign or fill in (\\signature blocks do, and
+\\formfield[type=…,who=…]{…} marks your own), the build also writes
+<document>.form.json: each spot's page and position, for signing tools.
 
 A build is skipped ("unchanged") when the last PDF came from exactly the
 same .tex, template folder, engine, image and build date.

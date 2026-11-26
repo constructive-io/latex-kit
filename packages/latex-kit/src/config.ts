@@ -1,5 +1,6 @@
 import type { Backend, EngineChoice } from '@latex-kit/render';
 import { loadModule } from '@latex-kit/schema';
+import type { BlankStyle } from '@latex-kit/template';
 import { existsSync, readFileSync } from 'fs';
 import { join, resolve } from 'path';
 
@@ -29,13 +30,19 @@ export interface LatexKitConfig {
    * override it. A leading ~ is the home folder.
    */
   signatures?: string;
+  /**
+   * How blanks print in blank builds: `labelled` (default, the field's name on
+   * a line), `lines` (an empty line to write on) or `names` (the name in
+   * brackets). `--blanks` overrides it.
+   */
+  blanks?: BlankStyle;
   backend?: Backend;
   image?: string;
   platform?: string | null;
 }
 
 export type ResolvedConfig = Required<Pick<LatexKitConfig, 'templates' | 'snippets' | 'clauses' | 'components' | 'data' | 'documents' | 'out' | 'locale'>> &
-  Pick<LatexKitConfig, 'engine' | 'backend' | 'image' | 'platform' | 'signatures'> & { file: string | null };
+  Pick<LatexKitConfig, 'engine' | 'backend' | 'image' | 'platform' | 'signatures' | 'blanks'> & { file: string | null };
 
 export function defineConfig(config: LatexKitConfig): LatexKitConfig {
   return config;

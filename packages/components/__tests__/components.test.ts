@@ -64,8 +64,8 @@ describe('built-in components', () => {
   it('signatures: two blocks per row', () => {
     const r = run('\\component{signatures}{parties}', { data: { parties } });
     expect(r.tex).toBe(
-      '\\par\\noindent \\lksignature{Example Widgets, Inc.}{Avery Example}{CEO}{}{}\\hfill \\lksignature{}{Sam Sample}{}{}{}\\par' +
-        '\\vspace{2em}\\par\\noindent \\lksignature{Third Co}{Jo Third}{}{}{}\\par'
+      '\\par\\noindent \\lksignaturefor{parties.0}\\lksignature{Example Widgets, Inc.}{Avery Example}{CEO}{}{}\\hfill \\lksignaturefor{parties.1}\\lksignature{}{Sam Sample}{}{}{}\\par' +
+        '\\vspace{2em}\\par\\noindent \\lksignaturefor{parties.2}\\lksignature{Third Co}{Jo Third}{}{}{}\\par'
     );
     expect(run('\\component{signatures}{parties}', { variant: 'signed', data: { parties } }).tex).toContain('{/s/~Sam Sample}');
   });

@@ -10,6 +10,7 @@ export * from './build';
 export * from './check';
 export * from './config';
 export * from './diff';
+export * from './form';
 export * from './import';
 export * from './lock';
 export * from './project';

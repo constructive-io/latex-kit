@@ -12,20 +12,20 @@ const signed = { a: { date: '2026-11-20' }, p: { date: '2026-11-21' } };
 
 describe('\\signature', () => {
   it('prints an organization block: name, signer, title, blank signature and date', () => {
-    expect(render('\\signature{a}', { data: { a: org } }).tex).toBe('\\lksignature{Example Widgets, Inc.}{Avery Example}{CEO}{}{}');
+    expect(render('\\signature{a}', { data: { a: org } }).tex).toBe('\\lksignaturefor{a}\\lksignature{Example Widgets, Inc.}{Avery Example}{CEO}{}{}');
   });
 
   it('prints a person signing for themselves without an organization line', () => {
-    expect(render('\\signature{p}', { data: { p: person } }).tex).toBe('\\lksignature{}{Sam Sample}{}{}{}');
+    expect(render('\\signature{p}', { data: { p: person } }).tex).toBe('\\lksignaturefor{p}\\lksignature{}{Sam Sample}{}{}{}');
   });
 
   it('signs with /s/ and the signed date in the signed variant', () => {
     const r = render('\\signature{a} \\signature{p}', { variant: 'signed', data: { a: org, p: person }, signed });
-    expect(r.tex).toBe('\\lksignature{Example Widgets, Inc.}{Avery Example}{CEO}{/s/~Avery Example}{November 20, 2026} \\lksignature{}{Sam Sample}{}{/s/~Sam Sample}{November 21, 2026}');
+    expect(r.tex).toBe('\\lksignaturefor{a}\\lksignature{Example Widgets, Inc.}{Avery Example}{CEO}{/s/~Avery Example}{November 20, 2026} \\lksignaturefor{p}\\lksignature{}{Sam Sample}{}{/s/~Sam Sample}{November 21, 2026}');
   });
 
   it('prints dates only in signed builds, and warns about signed entries no \\signature uses', () => {
-    expect(render('\\signature{a}', { data: { a: org }, signed }).tex).toBe('\\lksignature{Example Widgets, Inc.}{Avery Example}{CEO}{}{}');
+    expect(render('\\signature{a}', { data: { a: org }, signed }).tex).toBe('\\lksignaturefor{a}\\lksignature{Example Widgets, Inc.}{Avery Example}{CEO}{}{}');
     const r = render('\\signature{a}', { variant: 'signed', data: { a: org }, signed: { a: { date: '2026-11-20' }, nobody: { date: '2026-11-20' } } });
     expect(r.diagnostics.map((d) => d.message)).toEqual(['signed.nobody: the document has no \\signature{nobody}']);
   });
@@ -54,12 +54,12 @@ describe('\\signature', () => {
 
   it('escapes names and formats dates in the record locale', () => {
     const r = render('\\signature{p}', { variant: 'signed', locale: 'ja-JP', data: { p: { name: 'R&D 太郎' } }, signed: { p: { date: '2026-11-21' } } });
-    expect(r.tex).toBe('\\lksignature{}{R\\&D 太郎}{}{/s/~R\\&D 太郎}{2026年11月21日}');
+    expect(r.tex).toBe('\\lksignaturefor{p}\\lksignature{}{R\\&D 太郎}{}{/s/~R\\&D 太郎}{2026年11月21日}');
   });
 
   it('labels every line in a blank build', () => {
     expect(render('\\signature{discloser}', { variant: 'blank' }).tex).toBe(
-      '\\lksignature{\\lkblank{discloser.name}}{\\lkblank{discloser.signer.name}}{\\lkblank{discloser.signer.title}}{}{}'
+      '\\lksignaturefor{discloser}\\lksignature{\\lkblank{discloser.name}}{\\lkblank{discloser.signer.name}}{\\lkblank{discloser.signer.title}}{}{}'
     );
   });
 
@@ -114,7 +114,7 @@ describe('\\component', () => {
   it('gives components the variant, a signature helper and a missing marker', () => {
     const c: Component = (v, ctx) => (v === undefined ? ctx.missing('rows') : new RawLatex(`${ctx.variant}:${ctx.signature(v, 'p').value}`));
     expect(render('\\component{c}{p}', { variant: 'draft', components: { c } }).tex).toBe('\\lkmissing{rows}');
-    expect(render('\\component{c}{p}', { data: { p: { name: 'Sam' } }, components: { c } }).tex).toBe('final:\\lksignature{}{Sam}{}{}{}');
+    expect(render('\\component{c}{p}', { data: { p: { name: 'Sam' } }, components: { c } }).tex).toBe('final:\\lksignaturefor{p}\\lksignature{}{Sam}{}{}{}');
   });
 
   it('is checked by analyze', () => {
