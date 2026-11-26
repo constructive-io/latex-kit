@@ -5,7 +5,10 @@ Usage
 
 Start
   init [dir]          A new project: a letter template, data and a record
-  init [dir] --paper  A paper: main.tex, refs.bib and a GitHub Actions workflow
+  init [dir] --paper  A paper in the Constructive whitepaper style (TikZ,
+                      PSTricks, highlighted TypeScript listings, IEEE
+                      references) with CI and release-on-tag; --preset plain
+                      for a minimal LuaLaTeX paper
   new template <name> A template folder with template.tex and schema.ts
   new document <name> --template <t>
                       A record with every required field, linked to its schema

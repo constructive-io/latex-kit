@@ -2,7 +2,7 @@ import { documentJsonSchema } from '@latex-kit/schema';
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'fs';
 import { dirname, join, relative } from 'path';
 
-import { FileMap, paperFiles, projectFiles, templateFiles } from './boilerplates';
+import { FileMap, paperFiles, PaperPreset, projectFiles, templateFiles } from './boilerplates';
 import { CONFIG_FILES } from './config';
 import { Project } from './project';
 
@@ -29,13 +29,13 @@ export function writeFiles(dir: string, files: FileMap, force = false): WriteRes
 }
 
 /** Scaffold a latex-kit project (or a paper) in `dir`. */
-export function initProject(dir: string, options: { paper?: boolean; force?: boolean; version: string }): WriteResult {
+export function initProject(dir: string, options: { paper?: boolean; preset?: PaperPreset; force?: boolean; version: string }): WriteResult {
   mkdirSync(dir, { recursive: true });
   if (!options.paper && !options.force) {
     const existing = CONFIG_FILES.find((f) => existsSync(join(dir, f)));
     if (existing) throw new Error(`${join(dir, existing)} already exists; use --force to add the starter files anyway`);
   }
-  return writeFiles(dir, options.paper ? paperFiles() : projectFiles(options.version), options.force);
+  return writeFiles(dir, options.paper ? paperFiles(options.preset) : projectFiles(options.version), options.force);
 }
 
 export function newTemplate(project: Project, name: string, force = false): WriteResult {

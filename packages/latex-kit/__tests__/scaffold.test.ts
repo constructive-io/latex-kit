@@ -34,8 +34,31 @@ it('initializes a project that checks clean, and refuses to clobber one', async 
   expect(() => initProject(root, { version: '9.9.9' })).toThrow(/already exists/);
 });
 
-it('initializes a paper', () => {
+it('initializes a paper in the whitepaper style', () => {
   const r = initProject(root, { paper: true, version: '1.0.0' });
+  expect(r.written.map((f) => f.slice(root.length + 1)).sort()).toEqual([
+    '.github/workflows/paper.yml',
+    '.gitignore',
+    'README.md',
+    'paper/headers/colors.tex',
+    'paper/headers/typescript.tex',
+    'paper/main.tex',
+    'paper/references.bib',
+    'paper/sections/conclusion.tex',
+    'paper/sections/design.tex',
+    'paper/sections/introduction.tex',
+  ]);
+  const workflow = readFileSync(join(root, '.github/workflows/paper.yml'), 'utf8');
+  expect(workflow).toContain('uses: constructive-io/latex-kit/action@v1');
+  expect(workflow).toContain('engine: auto');
+  expect(workflow).toContain('GH_TOKEN: ${{ github.token }}');
+  const main = readFileSync(join(root, 'paper/main.tex'), 'utf8');
+  for (const p of ['\\usepackage{pstricks}', '\\usepackage{tikz}', '\\input{headers/typescript.tex}', '\\bibliographystyle{IEEEtran}']) expect(main).toContain(p);
+  expect(readFileSync(join(root, 'paper/headers/typescript.tex'), 'utf8')).toContain('\\lstdefinestyle{typescript}');
+});
+
+it('initializes a plain paper with --preset plain', () => {
+  const r = initProject(root, { paper: true, preset: 'plain', version: '1.0.0' });
   expect(r.written.map((f) => f.slice(root.length + 1)).sort()).toEqual(['.github/workflows/paper.yml', '.gitignore', 'README.md', 'paper/main.tex', 'paper/refs.bib']);
   expect(readFileSync(join(root, '.github/workflows/paper.yml'), 'utf8')).toContain('uses: constructive-io/latex-kit/action@v1');
 });

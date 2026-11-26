@@ -7,6 +7,7 @@ import { isAbsolute, join, relative } from 'path';
 import chalk from 'yanse';
 
 import { UsageError } from './args';
+import { PAPER_PRESETS, PaperPreset } from './boilerplates';
 import { buildBlank, buildDocument, BuildError, BuildOptions, BuildResult } from './build';
 import { checkProject, templateFields } from './check';
 import { version } from './commands';
@@ -258,7 +259,10 @@ export async function lockCommand(argv: Partial<ParsedArgs>): Promise<number> {
 
 export async function initCommand(argv: Partial<ParsedArgs>): Promise<number> {
   const dir = join(process.cwd(), argv._?.[0] ? String(argv._[0]) : '.');
-  const r = initProject(dir, { paper: Boolean(argv.paper), force: Boolean(argv.force), version: version() });
+  const preset = (argv.preset ?? 'whitepaper') as PaperPreset;
+  if (!PAPER_PRESETS.includes(preset)) throw new UsageError(`--preset must be one of ${PAPER_PRESETS.join(', ')}`);
+  if (argv.preset && !argv.paper) throw new UsageError('--preset only applies to init --paper');
+  const r = initProject(dir, { paper: Boolean(argv.paper), preset, force: Boolean(argv.force), version: version() });
   if (!argv.paper && !existsSync(join(dir, LOCK_FILE))) {
     writeLock(dir);
     r.written.push(join(dir, LOCK_FILE));
