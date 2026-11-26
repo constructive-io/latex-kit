@@ -1,6 +1,6 @@
 {
   "name": "@latex-kit/render",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Render LaTeX to PDF with latexmk in a pinned Docker image, reproducibly",
   "author": "Constructive <developers@constructive.io>",
   "main": "index.js",

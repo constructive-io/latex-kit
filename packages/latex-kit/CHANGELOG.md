@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/constructive-io/latex-kit/compare/latex-kit@0.4.1...latex-kit@0.5.0) (2026-11-26)
+
+### Features
+
+- signed builds, components, latex-kit.lock, build cache, --only and --locale ([9a39e4b](https://github.com/constructive-io/latex-kit/commit/9a39e4b7edc718ddbb97a3e38eb696d80c15e5bf))
+
 ## [0.4.1](https://github.com/constructive-io/latex-kit/compare/latex-kit@0.4.0...latex-kit@0.4.1) (2026-11-25)
 
 **Note:** Version bump only for package latex-kit

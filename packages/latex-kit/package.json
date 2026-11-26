@@ -1,6 +1,6 @@
 {
   "name": "latex-kit",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Build typed, reproducible LaTeX documents from the command line",
   "author": "Constructive <developers@constructive.io>",
   "main": "index.js",
@@ -44,12 +44,12 @@
     "latex-kit": "cli.js"
   },
   "dependencies": {
+    "@latex-kit/components": "workspace:*",
     "@latex-kit/render": "workspace:*",
     "@latex-kit/schema": "workspace:*",
     "@latex-kit/template": "workspace:*",
     "inquirerer": "^4.9.5",
     "minimist": "^1.2.8",
-    "yanse": "^0.2.3",
-    "@latex-kit/components": "workspace:*"
+    "yanse": "^0.2.3"
   }
 }

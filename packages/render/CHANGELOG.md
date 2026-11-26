@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/constructive-io/latex-kit/compare/@latex-kit/render@0.4.0...@latex-kit/render@0.5.0) (2026-11-26)
+
+### Features
+
+- **render:** choose the engine from the document (engine auto) ([c814673](https://github.com/constructive-io/latex-kit/commit/c814673cf8604388c29819d0b98bb09d113c918d))
+
 # [0.4.0](https://github.com/constructive-io/latex-kit/compare/@latex-kit/render@0.3.0...@latex-kit/render@0.4.0) (2026-11-25)
 
 ### Features
