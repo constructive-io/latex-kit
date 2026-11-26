@@ -13,14 +13,9 @@ minimumReleaseAge: 2d
 # Transitive dependencies must come from the registry, not git or a URL.
 blockExoticSubdeps: true
 
-# Scopes we own outright, emitted as `@scope/*`.
-scopes:
-  - "@constructive-io"
-  - "@latex-kit"
-
-# Our own packages, from the published Constructive inventory (pinned as a
-# devDependency, so a change to what skips the wait arrives as a reviewable
-# version bump).
+# Our own packages and scopes (@constructive-io, @latex-kit, …), from the
+# published Constructive inventory (pinned as a devDependency, so a change to
+# what skips the wait arrives as a reviewable version bump).
 inventory:
   - "@constructive-io/pnpm-policy/inventory.json"
 
