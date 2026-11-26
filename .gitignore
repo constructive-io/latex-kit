@@ -25,3 +25,6 @@ lerna-debug.log
 /imported/
 /scaffold/
 /paper-scaffold/
+
+# envelopes from latex-kit-sign: never commit them
+.latex-kit-sign/

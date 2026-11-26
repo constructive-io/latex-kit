@@ -1,5 +1,6 @@
 packages:
   - 'packages/*'
+  - 'signing/*'
   - 'examples/*'
 
 # Managed by pnpm-policy — run `pnpm-policy generate` after editing pnpm-policy.yaml.

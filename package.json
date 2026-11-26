@@ -16,12 +16,12 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "pnpm -r --filter './packages/*' run build",
-    "clean": "pnpm -r --filter './packages/*' run clean",
-    "test": "pnpm -r --filter './packages/*' run test",
+    "build": "pnpm -r --filter './packages/*' --filter './signing/*' run build",
+    "clean": "pnpm -r --filter './packages/*' --filter './signing/*' run clean",
+    "test": "pnpm -r --filter './packages/*' --filter './signing/*' run test",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "typecheck": "pnpm -r --filter './packages/*' exec tsc --noEmit -p tsconfig.json",
+    "typecheck": "pnpm -r --filter './packages/*' --filter './signing/*' exec tsc --noEmit -p tsconfig.json",
     "deps": "pnpm up -r -i -L",
     "policy": "pnpm-policy generate",
     "policy:check": "pnpm-policy check"

@@ -101,6 +101,34 @@ latex-kit build --variant signed --signatures ~/signatures   # avery-example.png
 Images are copied next to the `.tex` for the build and deleted after it. The
 manifest lists which signers had one, never the images.
 
+### Forms and signing
+
+`\formfield[hints]{content}` prints its content unchanged in a finished
+document. The hints tell blank forms how to print that spot, and tell signing
+tools where it is:
+
+```latex
+\textbf{\formfield[blank=label,label={Company Name}]{\field{company.name}}}  % a blank shows [Company Name]
+\formfield[type=signature,who=buyer,width=6cm]{}\rule{6cm}{0.4pt}            % a place for the buyer to sign
+```
+
+| Hint | |
+|---|---|
+| `blank=line`, `wide`, `none`, `label` (with `label={…}`) | How a blank prints here |
+| `type=signature`, `date`, `initials`, `text` and `who=<party>` | A spot for someone to fill in |
+| `width=`, `height=`, `raise=` | That spot's box (defaults 7cm, 24pt, 0pt) |
+
+`\signature` blocks mark their own signature and date lines. When a document
+marks any spots, the build writes `<document>.form.json` beside the PDF: each
+spot's page and position in PDF points.
+[`@latex-kit/sign`](signing/sign) takes that file and the PDF and gets it
+signed, or draws a placement guide for another signing app.
+
+Blank builds come three ways: `--blanks labelled` (the default: the field's
+name, small, on a line), `--blanks lines` (an empty line to write on) and
+`--blanks names` (the name in brackets, written to `<name>-names.pdf`). Set a
+project default with `blanks:` in the config.
+
 ### Components and TypeScript
 
 Long prose stays in `.tex`. For computed parts, a template calls a
@@ -135,7 +163,7 @@ last one reuses its PDF (`--force` rebuilds).
 |---|---|
 | `latex-kit init [dir] [--paper]` | A working project (letter template, data, a record) or a paper with a CI workflow |
 | `latex-kit new template <name>` / `new document <name> --template <t>` | Skeletons; new records get every required field and editor autocomplete |
-| `latex-kit build [documents…]` | `--final`, `--variant draft\|blank\|signed`, `--only 'nda-*'`, `--locale ja-JP`, `--template`, `--verify`, `--strict`, `--force`, `--signatures <dir>` |
+| `latex-kit build [documents…]` | `--final`, `--variant draft\|blank\|signed`, `--only 'nda-*'`, `--locale ja-JP`, `--template`, `--verify`, `--strict`, `--force`, `--signatures <dir>`, `--blanks labelled\|lines\|names` |
 | `latex-kit watch [documents…]` | Rebuild drafts whenever a template, snippet, clause or record changes |
 | `latex-kit check` | Unknown fields with `file:line:col`, invalid data, broken references, reused IDs |
 | `latex-kit fields <template>` | Every field a template reads, with its filters |
@@ -170,6 +198,8 @@ In GitHub Actions, for plain `.tex` (papers):
 | [`@latex-kit/schema`](packages/schema) | zod schemas, shared types, `$ref` records, document IDs, typegen |
 | [`@latex-kit/render`](packages/render) | latexmk in a pinned image, engine detection, reproducible dates, log → diagnostics |
 | [`@latex-kit/escape`](packages/escape) | Escape plain text for LaTeX; `tex` tagged template; no dependencies |
+| [`@latex-kit/sign`](signing/sign) | Get a PDF signed: `latex-kit-sign`, the signing server, the sealed audit trail, the placement guide |
+| [`@latex-kit/sign-web`](signing/web) | The pages it serves: signing a PDF, drawing fields on one |
 | [`action/`](action) | Reusable GitHub Action |
 | [`examples/`](examples) | Fictional projects CI checks and builds byte-for-byte |
 

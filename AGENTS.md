@@ -13,6 +13,11 @@ Guidance for AI agents working in `constructive-io/latex-kit`.
 - **Don't commit built PDFs.** They are CI artifacts.
 - The CLI binary is `latex-kit`. Never add a bin called `latex`: it would
   shadow TeX's own command.
+- Signing lives in its own workspace folder, `signing/`: `@latex-kit/sign`
+  (`signing/sign`, the server, CLI `latex-kit-sign`) and `@latex-kit/sign-web`
+  (`signing/web`, the React pages, built with Vite and published as `dist/`).
+  It takes any PDF plus a `.form.json`; it must never import from `packages/`.
+  Envelopes (`.latex-kit-sign/`) hold signers' details: never commit one.
 - `latex-kit` is the CLI package (unscoped). Libraries live under the `@latex-kit` npm scope (`@latex-kit/escape`, `@latex-kit/render`, …), in `packages/<name>`.
 
 ## Conventions
@@ -30,7 +35,9 @@ Guidance for AI agents working in `constructive-io/latex-kit`.
 ## The template language
 
 - Macros: `\field`, `\raw`, `\when`/`\otherwise`, `\each`/`\sep`, `\snippet`,
-  `\docid`, `\clause`/`\clauseref`, `\signature`, `\component`. Never reuse
+  `\docid`, `\clause`/`\clauseref`, `\signature`, `\component`. `\formfield`
+  is different: it is a real LaTeX command in `latex-kit.sty`, not replaced by
+  the engine, so it works in snippets and in hand-written LaTeX too. Never reuse
   LaTeX's own command names (`\partial`, `\ref`, …) for new macros.
 - Components (`@latex-kit/components`) return `tex`-tagged LaTeX; strings are
   escaped. The component types live in `@latex-kit/template` so the engine

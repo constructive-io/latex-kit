@@ -1,0 +1,51 @@
+{
+  "name": "@latex-kit/sign",
+  "version": "0.5.1",
+  "description": "Get a PDF signed: a signing page, an audit trail with a sealed record, and a placement guide for other signing apps",
+  "author": "Constructive <developers@constructive.io>",
+  "main": "index.js",
+  "module": "esm/index.js",
+  "types": "index.d.ts",
+  "homepage": "https://github.com/constructive-io/latex-kit",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "directory": "dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/constructive-io/latex-kit"
+  },
+  "bugs": {
+    "url": "https://github.com/constructive-io/latex-kit/issues"
+  },
+  "scripts": {
+    "copy": "makage assets",
+    "clean": "makage clean",
+    "prepublishOnly": "npm run build",
+    "build": "makage build",
+    "build:dev": "makage build --dev",
+    "lint": "eslint . --fix",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "bin": {
+    "latex-kit-sign": "cli.js"
+  },
+  "dependencies": {
+    "@latex-kit/sign-web": "workspace:*",
+    "minimist": "^1.2.8",
+    "pdf-lib": "^1.17.1"
+  },
+  "devDependencies": {
+    "@types/minimist": "^1.2.5",
+    "makage": "^0.8.0"
+  },
+  "keywords": [
+    "latex-kit",
+    "pdf",
+    "esign",
+    "signature",
+    "audit-trail"
+  ]
+}

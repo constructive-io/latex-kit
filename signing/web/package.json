@@ -1,0 +1,45 @@
+{
+  "name": "@latex-kit/sign-web",
+  "version": "0.5.1",
+  "description": "The pages @latex-kit/sign serves: signing a PDF, and drawing fields on one",
+  "author": "Constructive <developers@constructive.io>",
+  "homepage": "https://github.com/constructive-io/latex-kit",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/constructive-io/latex-kit"
+  },
+  "bugs": {
+    "url": "https://github.com/constructive-io/latex-kit/issues"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build",
+    "build": "vite build",
+    "lint": "eslint . --fix",
+    "test": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "pdfjs-dist": "^4.10.38",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "signature_pad": "^5.0.4",
+    "vite": "^6.0.7"
+  },
+  "keywords": [
+    "latex-kit",
+    "pdf",
+    "esign",
+    "signature"
+  ]
+}
