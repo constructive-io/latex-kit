@@ -9,7 +9,7 @@ packages:
 # Most malicious releases are found and yanked well inside that window.
 minimumReleaseAge: 2880
 
-# Exempt from the wait: 7 scope glob(s), 9 first-party package(s).
+# Exempt from the wait: 7 scope glob(s), 11 first-party package(s).
 # First-party membership comes from the inventory.
 minimumReleaseAgeExclude:
   - "@constructive-db/*"
@@ -19,7 +19,9 @@ minimumReleaseAgeExclude:
   - "@pgpm/*"
   - "@pgpmjs/*"
   - "@pgsql/*"
+  - appstash
   - find-and-require-package-json
+  - genomic
   - inquirerer
   - komoji
   - makage

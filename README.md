@@ -37,6 +37,24 @@ latex-kit build --final          # final PDFs; mints document IDs once
 latex-kit build --variant blank  # every template as an empty form
 ```
 
+### Starter kits
+
+`latex-kit init` on its own writes a small project from files built into the CLI, with no network. For more, start from a starter kit:
+
+```bash
+latex-kit init my-documents --template project      # one folder of documents, with an agreement two parties sign
+latex-kit init my-templates --template workspace    # templates as a package, a project that builds them, bundles, CI
+cd my-templates/packages && latex-kit init invoices --template module   # one more template package
+```
+
+They come from [constructive-io/latex-kit-boilerplates](https://github.com/constructive-io/latex-kit-boilerplates), cloned once and cached under `~/.latex-kit`. The starter asks a few questions (author, npm scope); any of them can be answered with a flag, and `--no-tty` never prompts:
+
+```bash
+latex-kit init my-documents --template project --fullName "Ada Marsh" --no-tty
+```
+
+`--repo <org/repo|folder>` starts from your own template repository instead, and `--from-branch <name>` from a branch of it. These are the same repositories `pgpm init --repo` reads, so one set of starters serves both.
+
 ## A project
 
 ```
@@ -169,6 +187,7 @@ last one reuses its PDF (`--force` rebuilds).
 | Command | |
 |---|---|
 | `latex-kit init [dir] [--paper]` | A working project (letter template, data, a record) or a paper with a CI workflow |
+| `latex-kit init <dir> --template project\|workspace\|module` | Start from a [starter kit](https://github.com/constructive-io/latex-kit-boilerplates); `--repo <org/repo>` uses your own |
 | `latex-kit new template <name>` / `new document <name> --template <t>` | Skeletons; new records get every required field and editor autocomplete |
 | `latex-kit build [documents…]` | `--final`, `--variant draft\|blank\|signed`, `--only 'nda-*'`, `--locale ja-JP`, `--template`, `--verify`, `--strict`, `--force`, `--signatures <dir>`, `--blanks labelled\|lines\|names`, `--highlight`, `--missing blank` |
 | `latex-kit watch [documents…]` | Rebuild drafts whenever a template, snippet, clause or record changes |

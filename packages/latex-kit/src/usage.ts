@@ -9,6 +9,15 @@ Start
                       PSTricks, highlighted TypeScript listings, IEEE
                       references) with CI and release-on-tag; --preset plain
                       for a minimal LuaLaTeX paper
+  init <dir> --template <starter>
+                      Start from a starter kit: project (one folder of
+                      documents, with an agreement two parties sign),
+                      workspace (templates as a package, a project that
+                      builds them, CI) or module (one more template package).
+                      They come from constructive-io/latex-kit-boilerplates;
+                      --repo <org/repo|folder> uses another. Other flags
+                      answer the starter's questions: --fullName "Ada Marsh".
+                      --no-tty never prompts
   new template <name> A template folder with template.tex and schema.ts
   new document <name> --template <t>
                       A record with every required field, linked to its schema

@@ -22,7 +22,7 @@ const app = new CLI(commands, {
   minimistOpts: {
     alias: { h: 'help', v: 'version', o: 'out', e: 'engine' },
     boolean: ['help', 'version', 'local', 'verify', 'json', 'final', 'strict', 'tex-only', 'force', 'schema', 'paper', 'check', 'highlight'],
-    string: ['out', 'engine', 'image', 'root', 'platform', 'source-date-epoch', 'variant', 'template', 'name', 'against', 'only', 'locale', 'signatures', 'preset', 'blanks', 'missing'],
+    string: ['out', 'engine', 'image', 'root', 'platform', 'source-date-epoch', 'variant', 'template', 'name', 'against', 'only', 'locale', 'signatures', 'preset', 'blanks', 'missing', 'repo', 'from-branch'],
     default: { strict: undefined, schema: true },
   },
 });

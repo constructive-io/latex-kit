@@ -26,6 +26,11 @@ Guidance for AI agents working in `constructive-io/latex-kit`.
   lerna independent versions, conventional commits (`constructive-pnpm`
   skill in `constructive-io/constructive`).
 - CLIs use `inquirerer` and `yanse`, not commander/yargs/chalk.
+- `latex-kit init --template` scaffolds with `genomic` (cache through
+  `appstash`, questions through `inquirerer`) from
+  `constructive-io/latex-kit-boilerplates`, the same shape of repository
+  `pgpm init --repo` reads. Starters live there, not in this repo; only the
+  small offline `init` and `init --paper` are built into the CLI.
 - Supply-chain policy lives in `pnpm-policy.yaml`. After changing it or
   adding a first-party dependency, run `pnpm run policy`; CI runs
   `pnpm run policy:check`.

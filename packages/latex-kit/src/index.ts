@@ -15,6 +15,7 @@ export * from './import';
 export * from './lock';
 export * from './project';
 export * from './scaffold';
+export * from './starter';
 // named, not `export *`: two CommonJS star re-exports clash under jiti
 export type { Cell, ClauseDefinition, Column, Component, ComponentContext, Exhibit, TableOptions } from '@latex-kit/components';
 export {

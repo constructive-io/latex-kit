@@ -3,7 +3,7 @@ import { documentJsonSchema, generateTypes, loadDocument } from '@latex-kit/sche
 import { BLANK_STYLES, Diagnostic, formatDiagnostic, LATEX_KIT_STY, Variant, VARIANTS } from '@latex-kit/template';
 import { existsSync, mkdirSync, rmSync, watch as fsWatch, writeFileSync } from 'fs';
 import type { ParsedArgs } from 'minimist';
-import { isAbsolute, join, relative } from 'path';
+import { dirname, isAbsolute, join, relative } from 'path';
 import chalk from 'yanse';
 
 import { UsageError } from './args';
@@ -16,6 +16,7 @@ import { importDocument } from './import';
 import { currentPins, LOCK_FILE, writeLock } from './lock';
 import { Project } from './project';
 import { initProject, newDocument, newTemplate } from './scaffold';
+import { findPnpmWorkspace, scaffoldStarter, STARTER_REPO, STARTERS } from './starter';
 
 function printDiagnostics(ds: Diagnostic[], json: boolean) {
   if (json) return;
@@ -264,7 +265,36 @@ export async function lockCommand(argv: Partial<ParsedArgs>): Promise<number> {
   return 0;
 }
 
+/** Flags that belong to latex-kit, not to a starter's questions. */
+const INIT_FLAGS = new Set(['_', 'template', 'repo', 'from-branch', 'tty', 'force', 'paper', 'preset', 'help', 'h', 'version', 'v', 'root', 'strict', 'schema']);
+
+/** `latex-kit init <dir> --template <starter>`: start from a template repository. */
+async function initFromStarter(argv: Partial<ParsedArgs>): Promise<number> {
+  const target = argv._?.[0];
+  if (!target) throw new UsageError(`usage: latex-kit init <dir> --template <${Object.keys(STARTERS).join('|')}> [--repo <org/repo>]`);
+  if (argv.paper) throw new UsageError('--paper and --template are two different ways to start; pick one');
+  const template = String(argv.template);
+  const dir = join(process.cwd(), String(target));
+  if (template === 'module' && !findPnpmWorkspace(dirname(dir))) {
+    throw new UsageError('a module goes inside a pnpm workspace. Start one first: latex-kit init <dir> --template workspace');
+  }
+  // any other flag answers a question the starter asks: --fullName "Ada Marsh"
+  const answers: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(argv)) if (!INIT_FLAGS.has(key) && typeof value !== 'boolean') answers[key] = value;
+  const noTty = argv.tty === false || !process.stdin.isTTY || process.env.CI === 'true';
+  let result;
+  try {
+    result = await scaffoldStarter({ dir, template, repo: argv.repo, branch: argv['from-branch'], answers, noTty });
+  } catch (e) {
+    throw new UsageError(`could not start from ${argv.repo ?? STARTER_REPO} (${template}): ${(e as Error).message}`);
+  }
+  console.log(`${chalk.green('+')} ${rel(result.dir)}  ${chalk.dim(`from ${argv.repo ?? STARTER_REPO}, ${template}`)}`);
+  console.log(result.motd ?? chalk.dim(`\nnext: cd ${rel(result.dir)} && pnpm install && pnpm check`));
+  return 0;
+}
+
 export async function initCommand(argv: Partial<ParsedArgs>): Promise<number> {
+  if (argv.template !== undefined || argv.repo !== undefined) return initFromStarter({ ...argv, template: argv.template ?? 'project' });
   const dir = join(process.cwd(), argv._?.[0] ? String(argv._[0]) : '.');
   const preset = (argv.preset ?? 'whitepaper') as PaperPreset;
   if (!PAPER_PRESETS.includes(preset)) throw new UsageError(`--preset must be one of ${PAPER_PRESETS.join(', ')}`);
