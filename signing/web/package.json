@@ -6,7 +6,9 @@
   "homepage": "https://github.com/constructive-io/latex-kit",
   "license": "MIT",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "directory": "dist/npm",
+    "linkDirectory": false
   },
   "repository": {
     "type": "git",
@@ -21,10 +23,10 @@
   "scripts": {
     "dev": "vite",
     "clean": "rm -rf dist",
-    "prepublishOnly": "npm run build",
+    "prepack": "vite build --outDir dist/npm/dist && pnpm exec makage copy ../../LICENSE package.json README.md dist/npm --flat --footer",
     "build": "vite build",
     "lint": "eslint . --fix",
-    "test": "tsc --noEmit -p tsconfig.json"
+    "test": "tsc --noEmit -p tsconfig.json && npm run prepack && node --test __tests__/package.test.mjs"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
