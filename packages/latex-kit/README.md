@@ -18,11 +18,23 @@
 
 <p align="center">Build typed, reproducible LaTeX documents from the command line.</p>
 
+latex-kit comes from the people who made [LaTeX2JS](https://github.com/Mathapedia/LaTeX2JS) and [Mathapedia](https://github.com/Mathapedia), which brought LaTeX, TikZ-style diagrams, and PSTricks to the browser. This is the other half: a command-line toolkit for parsing, templating, and programmatically generating LaTeX documents.
+
 ## Installation
 
 ```bash
 npm install -g latex-kit
 ```
+
+## Agent skills
+
+```bash
+npx skills add constructive-io/latex-kit
+```
+
+Eight skills teach a coding agent the template language, the commands, signing
+and the starter kits. They are listed in the
+[repository README](https://github.com/constructive-io/latex-kit#agent-skills).
 
 ## Usage
 

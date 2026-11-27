@@ -18,6 +18,8 @@
 
 <p align="center">Typed, reproducible LaTeX documents: real <code>.tex</code> templates, checked data, pinned builds, the same PDF bytes every time.</p>
 
+<p align="center"><sub>From the creators of <a href="https://github.com/Mathapedia/LaTeX2JS">LaTeX2JS</a> and <a href="https://github.com/Mathapedia">Mathapedia</a>.</sub></p>
+
 `latex-kit` turns LaTeX into a build you can trust. Templates are real
 `.tex` files with a few fill-in macros. Data is typed and checked before TeX
 runs. Every value is escaped, so a stray `&` or `%` can't break or change a
@@ -35,6 +37,13 @@ latex-kit check                  # templates, schemas, records: no TeX needed
 latex-kit build                  # drafts: watermark, missing values in red
 latex-kit build --final          # final PDFs; mints document IDs once
 latex-kit build --variant blank  # every template as an empty form
+```
+
+Working with a coding agent? Give it the skills, so it knows the template
+language, the commands and the starters before it writes anything:
+
+```bash
+npx skills add constructive-io/latex-kit
 ```
 
 ### Starter kits
@@ -231,16 +240,22 @@ In GitHub Actions, for plain `.tex` (papers):
 
 ## Agent skills
 
-Three skills for coding agents live in [`.agents/skills`](.agents/skills). The starter kits install them into what they scaffold; add them anywhere else with:
+Eight skills for coding agents live in [`.agents/skills`](.agents/skills). The starter kits install them into what they scaffold. Anywhere else:
 
 ```bash
-npx skills add https://github.com/constructive-io/latex-kit --skill latex-kit
+npx skills add constructive-io/latex-kit                      # all of them
+npx skills add constructive-io/latex-kit --skill latex-kit    # or one
 ```
 
 | Skill | Use it to |
 |---|---|
-| [`latex-kit`](.agents/skills/latex-kit/SKILL.md) | Write templates, schemas and records; build, review and print blank forms |
+| [`latex-kit`](.agents/skills/latex-kit/SKILL.md) | Write templates, schemas and records; build, and print blank forms |
+| [`latex-kit-components`](.agents/skills/latex-kit-components/SKILL.md) | Compute tables, totals and exhibits in TypeScript; versioned clauses; typed records |
+| [`latex-kit-review`](.agents/skills/latex-kit-review/SKILL.md) | Redline against an earlier version, see what the record filled in, build another language or the signed copy |
+| [`latex-kit-import`](.agents/skills/latex-kit-import/SKILL.md) | Turn a Word, Markdown, HTML or older LaTeX document into a template |
 | [`latex-kit-sign`](.agents/skills/latex-kit-sign/SKILL.md) | Get a PDF signed, or place its fields in another signing app without guessing |
+| [`latex-kit-reproducible-builds`](.agents/skills/latex-kit-reproducible-builds/SKILL.md) | Pin the image, prove a PDF is byte-identical, build in CI, fix a build that will not run |
+| [`latex-kit-papers`](.agents/skills/latex-kit-papers/SKILL.md) | Papers and plain `.tex` files, with CI and a release on every tag |
 | [`latex-kit-starter-kits`](.agents/skills/latex-kit-starter-kits/SKILL.md) | Start from [latex-kit-boilerplates](https://github.com/constructive-io/latex-kit-boilerplates), and write your own starters |
 
 ## Roadmap
@@ -272,6 +287,8 @@ Dependencies follow the workspace supply-chain policy in
 before they can be installed. After editing it, run `pnpm run policy`.
 
 ## Credits
+
+latex-kit comes from the people who made [LaTeX2JS](https://github.com/Mathapedia/LaTeX2JS) and [Mathapedia](https://github.com/Mathapedia), which brought LaTeX, TikZ-style diagrams, and PSTricks to the browser. This is the other half: a command-line toolkit for parsing, templating, and programmatically generating LaTeX documents.
 
 **🛠 Built by the [Constructive](https://constructive.io) team — creators of modular Postgres tooling for secure, composable backends. If you like our work, contribute on [GitHub](https://github.com/constructive-io).**
 
