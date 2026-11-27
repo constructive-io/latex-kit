@@ -20,6 +20,11 @@
 
 <p align="center"><sub>From the creators of <a href="https://github.com/Mathapedia/LaTeX2JS">LaTeX2JS</a> and <a href="https://github.com/Mathapedia">Mathapedia</a>.</sub></p>
 
+<p align="center">
+  <b>Working with a coding agent?</b> Give it the skills first:<br/>
+  <code>npx skills add constructive-io/latex-kit</code>
+</p>
+
 `latex-kit` turns LaTeX into a build you can trust. Templates are real
 `.tex` files with a few fill-in macros. Data is typed and checked before TeX
 runs. Every value is escaped, so a stray `&` or `%` can't break or change a
@@ -37,13 +42,6 @@ latex-kit check                  # templates, schemas, records: no TeX needed
 latex-kit build                  # drafts: watermark, missing values in red
 latex-kit build --final          # final PDFs; mints document IDs once
 latex-kit build --variant blank  # every template as an empty form
-```
-
-Working with a coding agent? Give it the skills, so it knows the template
-language, the commands and the starters before it writes anything:
-
-```bash
-npx skills add constructive-io/latex-kit
 ```
 
 ### Starter kits
