@@ -46,6 +46,8 @@ latex-kit builds the document's `.tex` at that commit in a temporary git worktre
 - Commit, or at least save, before comparing: the new side is the working tree.
 - A change that restructures a table or a list can confuse `latexdiff`. When the redline fails to build, compare `out/diff/<name>/old.tex` and `new.tex` by hand; both are kept.
 
+Drafts carry a DRAFT watermark unless the project sets `watermark: false` or the build passes `--no-watermark`.
+
 ## What to look for
 
 Open each PDF. Then check, in this order:

@@ -92,6 +92,8 @@ Variants
 
 Options
       --template <name>  Only documents that use this template
+      --no-watermark     Drafts: no DRAFT watermark and no stamp in the corner
+                         (or watermark: false in the config)
       --only <names>     Only these documents (or templates, for blanks);
                          comma-separated, * matches anything: --only 'nda-*'
       --locale <tag>     Build in another locale (dates, numbers, bilingual

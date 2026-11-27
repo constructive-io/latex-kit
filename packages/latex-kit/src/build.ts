@@ -42,6 +42,8 @@ export interface BuildOptions {
   verify?: boolean;
   /** How blanks print in blank builds: `labelled` (default), `lines` to write on, or `names` in brackets. */
   blanks?: BlankStyle;
+  /** Draft builds: the DRAFT watermark and corner stamp. Default: the config's `watermark`, else true. */
+  watermark?: boolean;
   /**
    * Draft builds: print every filled-in value in red, to review what came from
    * the record. Writes `<document>-highlight.pdf`.
@@ -272,7 +274,7 @@ async function run(job: Job): Promise<BuildResult> {
     mkdirSync(outDir, { recursive: true });
     const texPath = join(outDir, `${job_}.tex`);
     const stamp = `${new Date(finalEpoch.epoch * 1000).toISOString().slice(0, 10)} ${gitShortHead(project.root)}`;
-    const tex = wrapDocument(evaluated.tex, { variant, stamp, blanks, missing: missingAs });
+    const tex = wrapDocument(evaluated.tex, { variant, stamp, blanks, missing: missingAs, watermark: options.watermark ?? project.config.watermark });
     writeFileSync(texPath, tex);
     writeFileSync(join(outDir, 'latex-kit.sty'), LATEX_KIT_STY);
 

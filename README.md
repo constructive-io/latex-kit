@@ -36,7 +36,7 @@ comes from git, so the same commit always produces the same PDF bytes.
 * 📄 **Real LaTeX templates** — plain `.tex` files with a few macros: `\field`, `\when`, `\each`, `\clause`, `\signature`
 * 🛡️ **Typed, checked data** — zod schemas catch a missing or misspelled field before TeX runs, with `file:line:col`
 * ♻️ **Byte-identical PDFs** — a TeX image pinned by digest and build dates from git: same commit, same bytes
-* 📝 **Drafts, blanks, finals** — watermarked drafts, empty forms to write on, final copies with a document ID minted once
+* 📝 **Drafts, blanks, finals** — drafts while you work, empty forms to write on, final copies with a document ID minted once
 * 🔍 **Review copies and redlines** — filled-in values in red, missing ones as blanks, a redline against any commit
 * ✍️ **Signing built in** — every build maps where each party signs; `@latex-kit/sign` collects signatures with a sealed audit trail
 * 📥 **Import what you have** — Word, Markdown, HTML or older LaTeX becomes a template
@@ -164,6 +164,17 @@ Blank builds come three ways: `--blanks labelled` (the default: the field's
 name, small, on a line), `--blanks lines` (an empty line to write on) and
 `--blanks names` (the name in brackets, written to `<name>-names.pdf`). Set a
 project default with `blanks:` in the config.
+
+A draft carries a DRAFT watermark and a small stamp (date and commit) in the
+corner, so it is never mistaken for the copy that was sent. Finals carry
+neither. To build drafts without them, pass `--no-watermark`, or set it for
+the project:
+
+```ts
+export default defineConfig({ watermark: false });
+```
+
+Nothing else is ever added to a page: what prints is what the template says.
 
 Two review copies of a filled document, both drafts:
 

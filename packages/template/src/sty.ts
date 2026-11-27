@@ -29,6 +29,9 @@ export const LATEX_KIT_STY = `% latex-kit.sty: support for latex-kit templates.
 % draft builds: print a missing value as a blank instead of a red marker
 \\newif\\iflk@missingblank
 \\DeclareOption{missingblank}{\\lk@missingblanktrue}
+% draft builds: leave out the DRAFT watermark and the stamp in the corner
+\\newif\\iflk@nowatermark
+\\DeclareOption{nowatermark}{\\lk@nowatermarktrue}
 \\ProcessOptions\\relax
 
 \\RequirePackage{xcolor}
@@ -47,7 +50,12 @@ export const LATEX_KIT_STY = `% latex-kit.sty: support for latex-kit templates.
 %   names     the field's name in brackets, no line (option blanknames)
 % and per field, through \\formfield[blank=…]: wide, none, label.
 \\newcommand\\lkblanklabelled[1]{\\leavevmode\\underline{\\makebox[\\lkblankwidth][l]{\\color{lkmeta}\\tiny\\ttfamily\\detokenize{#1}}}}
-\\newcommand\\lkblankline[1]{\\leavevmode\\underline{\\hspace{\\lkblankwidth}}}
+% In a form to write on, the document ID prints nothing (there is none yet),
+% and the lines of a signature block say what goes on them.
+\\def\\lk@siglabel{}
+\\def\\lk@docidname{docid}
+\\newcommand\\lkblankline[1]{\\def\\lk@tmp{#1}\\ifx\\lk@tmp\\lk@docidname\\else\\leavevmode
+  \\ifx\\lk@siglabel\\@empty\\underline{\\hspace{\\lkblankwidth}}\\else{\\normalfont\\lk@siglabel:}~\\hrulefill\\fi\\fi}
 \\newcommand\\lkblankwide[1]{\\leavevmode\\underline{\\hspace{2\\lkblankwidth}}}
 \\newcommand\\lkblanknone[1]{}
 \\newcommand\\lkblanklabel[1]{\\mbox{[\\ifx\\lkf@label\\@empty\\detokenize{#1}\\else\\lkf@label\\fi]}}
@@ -137,11 +145,11 @@ export const LATEX_KIT_STY = `% latex-kit.sty: support for latex-kit templates.
 \\providecommand\\lksignatureimage[1]{\\includegraphics[height=\\lksignatureheight,keepaspectratio]{#1}}
 \\providecommand\\lksignature[5]{%
   \\begin{minipage}[t]{\\lksignaturewidth}\\raggedright\\setlength\\parindent{0pt}%
-  \\ifx\\relax#1\\relax\\else\\textbf{#1}\\par\\fi
+  \\ifx\\relax#1\\relax\\else\\textbf{\\def\\lk@siglabel{Company}#1}\\par\\fi
   \\vspace{\\dimexpr\\lksignatureheight+0.4em\\relax}%
   \\lk@sigmark{signature}{\\linewidth}{\\lksignatureheight}\\rlap{\\smash{\\raisebox{1pt}{#4}}}\\rule{\\linewidth}{0.4pt}\\par
-  #2\\par
-  \\ifx\\relax#3\\relax\\else#3\\par\\fi
+  {\\def\\lk@siglabel{Name}#2}\\par
+  \\ifx\\relax#3\\relax\\else{\\def\\lk@siglabel{Title}#3}\\par\\fi
   \\vspace{0.5em}%
   Date:~\\ifx\\relax#5\\relax\\lk@sigmark{date}{0.55\\linewidth}{1.2em}\\rule{0.55\\linewidth}{0.4pt}\\else#5\\fi
   \\end{minipage}\\gdef\\lk@sigwho{}}
@@ -160,6 +168,7 @@ export const LATEX_KIT_STY = `% latex-kit.sty: support for latex-kit templates.
 % reviewer can see what came from the record. Redefine it to change the look.
 \\providecommand\\lkvalue[1]{{\\color{red}#1}}
 
+\\iflk@nowatermark\\lk@draftfalse\\fi
 \\iflk@draft
   \\RequirePackage{draftwatermark}
   \\SetWatermarkText{DRAFT}

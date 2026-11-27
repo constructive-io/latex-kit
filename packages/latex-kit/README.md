@@ -30,7 +30,7 @@ latex-kit comes from the people who made [LaTeX2JS](https://github.com/Mathapedi
 * 📄 **Real LaTeX templates** — plain `.tex` files with a few macros: `\field`, `\when`, `\each`, `\clause`, `\signature`
 * 🛡️ **Typed, checked data** — zod schemas catch a missing or misspelled field before TeX runs, with `file:line:col`
 * ♻️ **Byte-identical PDFs** — a TeX image pinned by digest and build dates from git: same commit, same bytes
-* 📝 **Drafts, blanks, finals** — watermarked drafts, empty forms to write on, final copies with a document ID minted once
+* 📝 **Drafts, blanks, finals** — drafts while you work, empty forms to write on, final copies with a document ID minted once
 * 🔍 **Review copies and redlines** — filled-in values in red, missing ones as blanks, a redline against any commit
 * ✍️ **Signing built in** — every build maps where each party signs; `@latex-kit/sign` collects signatures with a sealed audit trail
 * 📥 **Import what you have** — Word, Markdown, HTML or older LaTeX becomes a template

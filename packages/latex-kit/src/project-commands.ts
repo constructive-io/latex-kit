@@ -67,6 +67,7 @@ export async function buildCommand(argv: Partial<ParsedArgs>): Promise<number> {
     force: Boolean(argv.force),
     signatures: argv.signatures,
     blanks: argv.blanks,
+    watermark: argv.watermark === false ? false : undefined,
     highlight: Boolean(argv.highlight),
     missing: argv.missing,
   };

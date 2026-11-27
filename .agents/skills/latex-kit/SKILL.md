@@ -105,6 +105,8 @@ pnpm names      # the template with every field's name in brackets
 pnpm review     # a draft with filled-in values in red and missing ones as blanks
 ```
 
+**Nothing is added to a page except in drafts**, which carry a DRAFT watermark and a small date-and-commit stamp in the corner. Finals, blanks and signed copies print exactly what the template says. To drop the draft marks too: `latex-kit build --no-watermark`, or `watermark: false` in `latex-kit.config.ts`. Do not add watermarks, notices, headers or footers to a template that the person did not ask for.
+
 Open the PDF before saying it is right. A check cannot see a heading stranded at the foot of a page, a long name wrapping badly in a signature block, or a table running off the edge. `pnpm review` is the quickest way to see what came from the record.
 
 Never edit a `docId` or reuse one.

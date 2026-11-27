@@ -134,7 +134,7 @@ Dates, numbers and money follow the record's locale (`ja-JP`, `de-DE`, …).
 
 | Variant | Fields | Marks |
 |---|---|---|
-| `draft` | filled; a missing value prints a red `missing: path` box | DRAFT watermark, date and git commit |
+| `draft` | filled; a missing value prints a red `missing: path` box | DRAFT watermark, date and git commit (`watermark: false` leaves them out) |
 | `blank` | every field is a labelled line | none |
 | `final` | filled; a missing value is an error | none |
 | `signed` | like `final`; `\signature` blocks are signed | none |

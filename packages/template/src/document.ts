@@ -13,6 +13,8 @@ export interface WrapOptions {
   blanks?: BlankStyle;
   /** Draft builds: print a missing value as a red marker (default) or as a blank. */
   missing?: 'marker' | 'blank';
+  /** Draft builds: the DRAFT watermark and corner stamp. Default true. */
+  watermark?: boolean;
 }
 
 const USES_PACKAGE = /\\(?:usepackage|RequirePackage)\s*(?:\[[^\]]*\])?\s*\{[^}]*\blatex-kit\b[^}]*\}/;
@@ -29,7 +31,8 @@ export function wrapDocument(tex: string, options: WrapOptions): string {
   const stamp = options.stamp ? escapeLatex(options.stamp) : '';
   const blanks = options.blanks === 'lines' ? ',blanklines' : options.blanks === 'names' ? ',blanknames' : '';
   const missing = options.missing === 'blank' ? ',missingblank' : '';
-  const prefix = `\\PassOptionsToPackage{rendered,${options.variant}${blanks}${missing}}{latex-kit}\\def\\lkstamp{${stamp}}`;
+  const watermark = options.watermark === false ? ',nowatermark' : '';
+  const prefix = `\\PassOptionsToPackage{rendered,${options.variant}${blanks}${missing}${watermark}}{latex-kit}\\def\\lkstamp{${stamp}}`;
   let body = tex;
   if (!USES_PACKAGE.test(body)) {
     const at = body.indexOf('\\begin{document}');

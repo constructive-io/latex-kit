@@ -36,13 +36,18 @@ export interface LatexKitConfig {
    * brackets). `--blanks` overrides it.
    */
   blanks?: BlankStyle;
+  /**
+   * Draft builds print a DRAFT watermark and a small stamp (date and commit)
+   * in the corner. `false` leaves both out. `--no-watermark` overrides it.
+   */
+  watermark?: boolean;
   backend?: Backend;
   image?: string;
   platform?: string | null;
 }
 
 export type ResolvedConfig = Required<Pick<LatexKitConfig, 'templates' | 'snippets' | 'clauses' | 'components' | 'data' | 'documents' | 'out' | 'locale'>> &
-  Pick<LatexKitConfig, 'engine' | 'backend' | 'image' | 'platform' | 'signatures' | 'blanks'> & { file: string | null };
+  Pick<LatexKitConfig, 'engine' | 'backend' | 'image' | 'platform' | 'signatures' | 'blanks' | 'watermark'> & { file: string | null };
 
 export function defineConfig(config: LatexKitConfig): LatexKitConfig {
   return config;

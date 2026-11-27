@@ -388,6 +388,8 @@ describe('review copies', () => {
   it('tells latex-kit.sty to print missing values as blanks', () => {
     const doc = '\\documentclass{article}\\begin{document}x\\end{document}';
     expect(wrapDocument(doc, { variant: 'draft', missing: 'blank' })).toContain('{rendered,draft,missingblank}{latex-kit}');
+    expect(wrapDocument(doc, { variant: 'draft', watermark: false })).toContain('{rendered,draft,nowatermark}{latex-kit}');
+    expect(wrapDocument(doc, { variant: 'draft' })).not.toContain('nowatermark');
     expect(wrapDocument(doc, { variant: 'draft', missing: 'marker' })).toContain('{rendered,draft}{latex-kit}');
   });
 });
