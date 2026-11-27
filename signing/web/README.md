@@ -31,7 +31,7 @@ You do not use this package directly. [`@latex-kit/sign`](https://www.npmjs.com/
 ```sh
 latex-kit-sign serve                           # the API, on 8787
 pnpm --filter @latex-kit/sign-web dev          # the pages, on 5173, passing /api to 8787
-pnpm --filter @latex-kit/sign-web build        # build the pages for the local server
+pnpm --filter @latex-kit/sign-web build        # build the local pages and stage the npm package
 ```
 
 React, built with Vite. `pnpm test` checks types and the staged npm package; the behaviour is tested through the API in `@latex-kit/sign`.

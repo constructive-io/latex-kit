@@ -24,9 +24,9 @@
     "dev": "vite",
     "clean": "rm -rf dist",
     "prepack": "vite build --outDir dist/npm/dist && pnpm exec makage copy ../../LICENSE package.json README.md dist/npm --flat --footer",
-    "build": "vite build",
+    "build": "vite build && npm run prepack",
     "lint": "eslint . --fix",
-    "test": "tsc --noEmit -p tsconfig.json && npm run prepack && node --test __tests__/package.test.mjs"
+    "test": "tsc --noEmit -p tsconfig.json && npm run build && node --test __tests__/package.test.mjs"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
