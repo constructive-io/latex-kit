@@ -1,65 +1,31 @@
-## Education and Tutorials
+## LaTeX Kit ecosystem
 
- 1. 🚀 [Quickstart: Getting Up and Running](https://constructive.io/learn/quickstart)
-Get started with modular databases in minutes. Install prerequisites and deploy your first module.
+LaTeX Kit turns real LaTeX templates and typed records into PDFs you can build, review, and sign.
 
- 2. 📦 [Modular PostgreSQL Development with Database Packages](https://constructive.io/learn/modular-postgres)
-Learn to organize PostgreSQL projects with pgpm workspaces and reusable database modules.
+| Package | What it does |
+| --- | --- |
+| [`latex-kit` on npm](https://www.npmjs.com/package/latex-kit) · [source](https://github.com/constructive-io/latex-kit/tree/main/packages/latex-kit) | Scaffold projects, check records, and build documents from the command line. |
+| [`@latex-kit/template` on npm](https://www.npmjs.com/package/@latex-kit/template) · [source](https://github.com/constructive-io/latex-kit/tree/main/packages/template) | Fill and check real `.tex` templates with fields, conditions, loops, and clauses. |
+| [`@latex-kit/components` on npm](https://www.npmjs.com/package/@latex-kit/components) · [source](https://github.com/constructive-io/latex-kit/tree/main/packages/components) | Compose tables, signature blocks, exhibits, and other reusable pieces in TypeScript. |
+| [`@latex-kit/schema` on npm](https://www.npmjs.com/package/@latex-kit/schema) · [source](https://github.com/constructive-io/latex-kit/tree/main/packages/schema) | Validate records with Zod, resolve references, and generate JSON Schema and TypeScript types. |
+| [`@latex-kit/render` on npm](https://www.npmjs.com/package/@latex-kit/render) · [source](https://github.com/constructive-io/latex-kit/tree/main/packages/render) | Run `latexmk` in a pinned TeX image with reproducible dates and compiler diagnostics. |
+| [`@latex-kit/escape` on npm](https://www.npmjs.com/package/@latex-kit/escape) · [source](https://github.com/constructive-io/latex-kit/tree/main/packages/escape) | Escape text for LaTeX and interpolate it safely with the `tex` tag. |
+| [`@latex-kit/sign` on npm](https://www.npmjs.com/package/@latex-kit/sign) · [source](https://github.com/constructive-io/latex-kit/tree/main/signing/sign) | Run a PDF signing server and keep a sealed audit trail. |
+| [`@latex-kit/sign-web` on npm](https://www.npmjs.com/package/@latex-kit/sign-web) · [source](https://github.com/constructive-io/latex-kit/tree/main/signing/web) | Use the React pages for placing fields on a PDF and signing it. |
 
- 3. ✏️ [Authoring Database Changes](https://constructive.io/learn/authoring-database-changes)
-Master the workflow for adding, organizing, and managing database changes with pgpm.
+### What you can do
 
- 4. 🧪 [End-to-End PostgreSQL Testing with TypeScript](https://constructive.io/learn/e2e-postgres-testing)
-Master end-to-end PostgreSQL testing with ephemeral databases, RLS testing, and CI/CD automation.
+- Check typed records before TeX runs, escape interpolated values, and reuse snippets and components.
+- Build reproducible PDFs with pinned TeX images, generate drafts and blank forms, and produce final copies with stable document IDs.
+- Review highlighted values, compare redlines against a previous commit, and add signature fields and signed copies.
+- Import Word, Markdown, HTML, or existing LaTeX documents as templates.
 
- 5. ⚡ [Supabase Testing](https://constructive.io/learn/supabase)
-Use TypeScript-first tools to test Supabase projects with realistic RLS, policies, and auth contexts.
+### Start building
 
- 6. 💧 [Drizzle ORM Testing](https://constructive.io/learn/drizzle-testing)
-Run full-stack tests with Drizzle ORM, including database setup, teardown, and RLS enforcement.
-
- 7. 🔧 [Troubleshooting](https://constructive.io/learn/troubleshooting)
-Common issues and solutions for pgpm, PostgreSQL, and testing.
-
-## Related Constructive Tooling
-
-### 📦 Package Management
-
-* [pgpm](https://github.com/constructive-io/constructive/tree/main/pgpm/pgpm): **🖥️ PostgreSQL Package Manager** for modular Postgres development. Works with database workspaces, scaffolding, migrations, seeding, and installing database packages.
-
-### 🧪 Testing
-
-* [pgsql-test](https://github.com/constructive-io/constructive/tree/main/postgres/pgsql-test): **📊 Isolated testing environments** with per-test transaction rollbacks—ideal for integration tests, complex migrations, and RLS simulation.
-* [pglite-test](https://github.com/constructive-io/constructive/tree/main/postgres/pglite-test): **🪶 Drop-in pgsql-test replacement backed by PGlite** — in-process Postgres, no server required, instance-per-suite isolation.
-* [pgsql-seed](https://github.com/constructive-io/constructive/tree/main/postgres/pgsql-seed): **🌱 PostgreSQL seeding utilities** for CSV, JSON, SQL data loading, and pgpm deployment.
-* [supabase-test](https://github.com/constructive-io/constructive/tree/main/postgres/supabase-test): **🧪 Supabase-native test harness** preconfigured for the local Supabase stack—per-test rollbacks, JWT/role context helpers, and CI/GitHub Actions ready.
-* [graphile-test](https://github.com/constructive-io/constructive/tree/main/graphile/graphile-test): **🔐 Authentication mocking** for Graphile-focused test helpers and emulating row-level security contexts.
-* [pg-query-context](https://github.com/constructive-io/constructive/tree/main/postgres/pg-query-context): **🔒 Session context injection** to add session-local context (e.g., `SET LOCAL`) into queries—ideal for setting `role`, `jwt.claims`, and other session settings.
-
-### 🧠 Parsing & AST
-
-* [pgsql-parser](https://www.npmjs.com/package/pgsql-parser): **🔄 SQL conversion engine** that interprets and converts PostgreSQL syntax.
-* [libpg-query-node](https://www.npmjs.com/package/libpg-query): **🌉 Node.js bindings** for `libpg_query`, converting SQL into parse trees.
-* [pg-proto-parser](https://www.npmjs.com/package/pg-proto-parser): **📦 Protobuf parser** for parsing PostgreSQL Protocol Buffers definitions to generate TypeScript interfaces, utility functions, and JSON mappings for enums.
-* [@pgsql/enums](https://www.npmjs.com/package/@pgsql/enums): **🏷️ TypeScript enums** for PostgreSQL AST for safe and ergonomic parsing logic.
-* [@pgsql/types](https://www.npmjs.com/package/@pgsql/types): **📝 Type definitions** for PostgreSQL AST nodes in TypeScript.
-* [@pgsql/utils](https://www.npmjs.com/package/@pgsql/utils): **🛠️ AST utilities** for constructing and transforming PostgreSQL syntax trees.
-
-### 📚 Documentation & Skills
-
-* [constructive-skills](https://github.com/constructive-io/constructive-skills): **📖 Platform documentation and AI agent skills** — feature catalog, blueprint reference, SDK guides (i18n, billing, limits, events, uploads, security, entities, search, AI), and deployment guides.
-
-Install skills for AI coding agents:
-
-```bash
-# All platform skills (security, blueprints, codegen, billing, etc.)
-npx skills add constructive-io/constructive-skills
-
-# Individual repo skills (pgpm, safegres, testing, CLI, search, etc.)
-npx skills add constructive-io/constructive --skill pgpm
-npx skills add constructive-io/constructive --skill safegres
-npx skills add constructive-io/constructive --skill constructive-testing
-```
+- [Starter kits](https://github.com/constructive-io/latex-kit-boilerplates): scaffold a project, workspace, or template module with `latex-kit init --template`.
+- [Document templates](https://github.com/constructive-io/latex-kit-templates): start with a letter, invoice, services agreement, or NDA.
+- [GitHub Action](https://github.com/constructive-io/latex-kit/tree/main/action): build and verify PDFs in CI.
+- [Agent skills](https://github.com/constructive-io/latex-kit#agent-skills): guides for templates, TypeScript components, review, import, signing, reproducible builds, papers, and starter kits. Install them with `npx skills add constructive-io/latex-kit`.
 
 ## Credits
 
