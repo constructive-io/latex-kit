@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.6.0](https://github.com/constructive-io/latex-kit/compare/@latex-kit/template@0.5.2...@latex-kit/template@0.6.0) (2026-11-27)
+
+### Features
+
+- --no-watermark and watermark: false; labelled lines in blank signature blocks ([20d1719](https://github.com/constructive-io/latex-kit/commit/20d17196568cdacb2cae56e89fbeff8ac2b0986a))
+
 ## [0.5.2](https://github.com/constructive-io/latex-kit/compare/@latex-kit/template@0.5.1...@latex-kit/template@0.5.2) (2026-11-27)
 
 **Note:** Version bump only for package @latex-kit/template

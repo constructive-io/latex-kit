@@ -1,6 +1,6 @@
 {
   "name": "@latex-kit/sign-web",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "The pages @latex-kit/sign serves: signing a PDF, and drawing fields on one",
   "author": "Constructive <developers@constructive.io>",
   "homepage": "https://github.com/constructive-io/latex-kit",
