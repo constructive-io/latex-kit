@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/constructive-io/latex-kit/compare/@latex-kit/template@0.4.1...@latex-kit/template@0.5.0) (2026-11-27)
+
+### Features
+
+- form hints, blank styles and form positions ([7bdba7d](https://github.com/constructive-io/latex-kit/commit/7bdba7df2fbf0f2c95e59da8d75b07be67abd78e))
+- review copies, labels for text spots, and CI checks for forms ([73c08bb](https://github.com/constructive-io/latex-kit/commit/73c08bbffc924ff3be677472f212882c644654ca))
+
 ## [0.4.1](https://github.com/constructive-io/latex-kit/compare/@latex-kit/template@0.4.0...@latex-kit/template@0.4.1) (2026-11-26)
 
 **Note:** Version bump only for package @latex-kit/template
