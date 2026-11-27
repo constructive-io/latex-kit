@@ -59,6 +59,16 @@ Guidance for AI agents working in `constructive-io/latex-kit`.
 - Packages that load project files (`schema`, `latex-kit`) run Jest with
   `--experimental-vm-modules`, because jiti imports TypeScript dynamically.
 
+## Skills
+
+`.agents/skills/` holds the skills other people's agents install: `latex-kit`,
+`latex-kit-sign` and `latex-kit-starter-kits`. They are documentation that
+gets executed. When a command, flag, macro or starter changes, change the
+skill in the same commit, and keep each one pointing at
+`constructive-io/latex-kit-boilerplates` as the way to start. The starters'
+`.boilerplate.json` files install them by name, so do not rename one without
+changing those too.
+
 ## Releases
 
 Dan publishes (`pnpm lerna publish`); agents never do. Never push a tag that

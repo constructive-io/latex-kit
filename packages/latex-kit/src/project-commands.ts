@@ -266,7 +266,7 @@ export async function lockCommand(argv: Partial<ParsedArgs>): Promise<number> {
 }
 
 /** Flags that belong to latex-kit, not to a starter's questions. */
-const INIT_FLAGS = new Set(['_', 'template', 'repo', 'from-branch', 'tty', 'force', 'paper', 'preset', 'help', 'h', 'version', 'v', 'root', 'strict', 'schema']);
+const INIT_FLAGS = new Set(['_', 'template', 'repo', 'from-branch', 'tty', 'skills', 'force', 'paper', 'preset', 'help', 'h', 'version', 'v', 'root', 'strict', 'schema']);
 
 /** `latex-kit init <dir> --template <starter>`: start from a template repository. */
 async function initFromStarter(argv: Partial<ParsedArgs>): Promise<number> {
@@ -284,11 +284,13 @@ async function initFromStarter(argv: Partial<ParsedArgs>): Promise<number> {
   const noTty = argv.tty === false || !process.stdin.isTTY || process.env.CI === 'true';
   let result;
   try {
-    result = await scaffoldStarter({ dir, template, repo: argv.repo, branch: argv['from-branch'], answers, noTty });
+    result = await scaffoldStarter({ dir, template, repo: argv.repo, branch: argv['from-branch'], answers, noTty, noSkills: argv.skills === false });
   } catch (e) {
     throw new UsageError(`could not start from ${argv.repo ?? STARTER_REPO} (${template}): ${(e as Error).message}`);
   }
   console.log(`${chalk.green('+')} ${rel(result.dir)}  ${chalk.dim(`from ${argv.repo ?? STARTER_REPO}, ${template}`)}`);
+  for (const name of result.skills.installed) console.log(`${chalk.green('+')} .agents/skills/${name}  ${chalk.dim('(agent skill)')}`);
+  for (const f of result.skills.failed) console.log(chalk.yellow(`  could not fetch a skill; add it with: npx skills add https://github.com/${f.source} --skill ${f.skill}`));
   console.log(result.motd ?? chalk.dim(`\nnext: cd ${rel(result.dir)} && pnpm install && pnpm check`));
   return 0;
 }

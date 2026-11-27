@@ -18,6 +18,8 @@ Start
                       --repo <org/repo|folder> uses another. Other flags
                       answer the starter's questions: --fullName "Ada Marsh".
                       --no-tty never prompts
+                      A starter's agent skills are copied into
+                      .agents/skills/ (--no-skills to skip)
   new template <name> A template folder with template.tex and schema.ts
   new document <name> --template <t>
                       A record with every required field, linked to its schema

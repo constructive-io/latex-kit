@@ -229,6 +229,20 @@ In GitHub Actions, for plain `.tex` (papers):
 | [`action/`](action) | Reusable GitHub Action |
 | [`examples/`](examples) | Fictional projects CI checks and builds byte-for-byte |
 
+## Agent skills
+
+Three skills for coding agents live in [`.agents/skills`](.agents/skills). The starter kits install them into what they scaffold; add them anywhere else with:
+
+```bash
+npx skills add https://github.com/constructive-io/latex-kit --skill latex-kit
+```
+
+| Skill | Use it to |
+|---|---|
+| [`latex-kit`](.agents/skills/latex-kit/SKILL.md) | Write templates, schemas and records; build, review and print blank forms |
+| [`latex-kit-sign`](.agents/skills/latex-kit-sign/SKILL.md) | Get a PDF signed, or place its fields in another signing app without guessing |
+| [`latex-kit-starter-kits`](.agents/skills/latex-kit-starter-kits/SKILL.md) | Start from [latex-kit-boilerplates](https://github.com/constructive-io/latex-kit-boilerplates), and write your own starters |
+
 ## Roadmap
 
 - **HTML preview** of templates in the browser (a vendored LaTeX2JS slice).

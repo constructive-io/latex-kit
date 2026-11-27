@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, readFileSync, rmSync } from 'fs';
-import { TemplateScaffolder } from 'genomic';
+import { BoilerplateSkill, SkillInstaller, TemplateScaffolder } from 'genomic';
 import { registerDefaultResolver } from 'inquirerer';
 import { homedir } from 'os';
 import { basename, dirname, isAbsolute, join, resolve } from 'path';
@@ -26,12 +26,16 @@ export interface StarterOptions {
   answers?: Record<string, unknown>;
   /** Never prompt: every question needs an answer or a default. */
   noTty?: boolean;
+  /** Skip copying the starter's agent skills into `.agents/skills/`. */
+  noSkills?: boolean;
 }
 
 export interface StarterResult {
   dir: string;
   /** The starter's own "what to do next" text, when it has one. */
   motd: string | null;
+  /** Agent skills copied into `.agents/skills/`, and any that could not be fetched. */
+  skills: { installed: string[]; failed: { source: string; skill: string }[] };
 }
 
 /** The nearest folder at or above `from` that holds a pnpm workspace. */
@@ -69,10 +73,33 @@ export async function scaffoldStarter(options: StarterOptions): Promise<StarterR
     noTty: options.noTty,
   });
 
+  // a starter may name agent skills that belong with what it makes
+  const skills: StarterResult['skills'] = { installed: [], failed: [] };
+  if (!options.noSkills && !process.env.LATEX_KIT_SKIP_SKILL_INSTALL) {
+    const wanted = starterSkills(join(dir, '.boilerplate.json')) ?? (local ? starterSkills(join(template, options.template, '.boilerplate.json')) : null) ?? [];
+    if (wanted.length) {
+      // inside a workspace, skills belong at its root, where agents look
+      const result = new SkillInstaller({ toolName: 'latex-kit' }).install(wanted, findPnpmWorkspace(dirname(dir)) ?? dir);
+      skills.installed.push(...result.installed);
+      skills.failed.push(...result.failed.map((f) => ({ source: f.source, skill: f.skill })));
+    }
+  }
+
   // the starter's own files, not the new folder's
   rmSync(join(dir, '.boilerplate.json'), { force: true });
   const motdFile = join(dir, '.motd');
   const motd = existsSync(motdFile) ? readFileSync(motdFile, 'utf8') : null;
   rmSync(motdFile, { force: true });
-  return { dir, motd };
+  return { dir, motd, skills };
+}
+
+/** The `skills` a starter's `.boilerplate.json` asks for, or null when the file is not there. */
+function starterSkills(file: string): BoilerplateSkill[] | null {
+  if (!existsSync(file)) return null;
+  try {
+    const skills = (JSON.parse(readFileSync(file, 'utf8')) as { skills?: BoilerplateSkill[] }).skills;
+    return Array.isArray(skills) ? skills : [];
+  } catch {
+    return [];
+  }
 }
