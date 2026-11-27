@@ -169,7 +169,7 @@ importers:
     dependencies:
       '@latex-kit/sign-web':
         specifier: workspace:*
-        version: link:../web
+        version: link:../web/dist/npm
       minimist:
         specifier: ^1.2.8
         version: 1.2.8

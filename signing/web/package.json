@@ -7,8 +7,7 @@
   "license": "MIT",
   "publishConfig": {
     "access": "public",
-    "directory": "dist/npm",
-    "linkDirectory": false
+    "directory": "dist/npm"
   },
   "repository": {
     "type": "git",
