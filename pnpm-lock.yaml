@@ -108,8 +108,8 @@ importers:
         specifier: ^5.6.8
         version: 5.6.8
       inquirerer:
-        specifier: ^4.9.5
-        version: 4.9.5
+        specifier: ^4.9.7
+        version: 4.9.7
       minimist:
         specifier: ^1.2.8
         version: 1.2.8
@@ -2365,9 +2365,6 @@ packages:
   filelist@1.0.6:
     resolution: {integrity: sha512-5giy2PkLYY1cP39p17Ech+2xlpTRL9HLspOfEgm0L6CwBXBTgsK5ou0JtzYuepxkaQ/tvhCFIJ5uXo0OrM2DxA==}
 
-  find-and-require-package-json@0.9.2:
-    resolution: {integrity: sha512-kyemcd9MX0JAILK0g3FHVMqRx+/4Ck5qg3SZiCLkOlbSrit/oiHTEVQtP5QPzBAopH4BmmpuyQNTUie4y/E8+g==}
-
   find-and-require-package-json@0.9.3:
     resolution: {integrity: sha512-KPYJL0iWu6ERDRDVZERWMt02WdCZzgSAS9+3hvIhl8ckWRn9AznVWigUjP56nOHTxd426C+9ALv9cHIISY6RlQ==}
 
@@ -2667,11 +2664,11 @@ packages:
     resolution: {integrity: sha512-UjOaSel/iddGZJ5xP/Eixh6dY1XghiBw4XK13rCCIJcJfyhhoul/7KhLLUGtebEj6GDYM6Vnx/mVsjx2L/mFIA==}
     engines: {node: '>=12.0.0'}
 
-  inquirerer@4.9.5:
-    resolution: {integrity: sha512-brfqvi2/xvHX3pW0gwqLD8hEdrLCp0Y+/+oasyO2l5/Azytr1NxbeLA9IgDP43RSLr1bBFXV+46RKDPNtHmWcg==}
-
   inquirerer@4.9.6:
     resolution: {integrity: sha512-kzavG8lX4a+wVpslnmfKpOclHHu6Ml89fKz+UueeuJ0JX88e2NAcB9hIR7tf2J32WX0BuUIesfBIuQrc3BHNAA==}
+
+  inquirerer@4.9.7:
+    resolution: {integrity: sha512-3PgTWhyKjt42C45JlVKlDhM9NRgHEciZM40fqZUGIK5aAFKu3gR/4JnJN7n5nnOK3Cs/Xu0Y8nOWdEDGxy53rA==}
 
   ip-address@10.7.6:
     resolution: {integrity: sha512-00LYkM6byILa9eQIx6qoaXCM40xTLd56AZ4vyaPW3YTyb49VZYPo5xsiAq4tuQ54GH4R7gVdYScJ1B7B77PuTg==}
@@ -6634,8 +6631,6 @@ snapshots:
     dependencies:
       minimatch: 5.1.9
 
-  find-and-require-package-json@0.9.2: {}
-
   find-and-require-package-json@0.9.3: {}
 
   find-up@2.1.0:
@@ -6952,14 +6947,14 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  inquirerer@4.9.5:
+  inquirerer@4.9.6:
     dependencies:
       deepmerge: 4.3.1
-      find-and-require-package-json: 0.9.2
+      find-and-require-package-json: 0.9.3
       minimist: 1.2.8
-      yanse: 0.2.3
+      yanse: 0.2.4
 
-  inquirerer@4.9.6:
+  inquirerer@4.9.7:
     dependencies:
       deepmerge: 4.3.1
       find-and-require-package-json: 0.9.3
