@@ -20,10 +20,9 @@
 
 <p align="center"><sub>From the creators of <a href="https://github.com/Mathapedia/LaTeX2JS">LaTeX2JS</a> and <a href="https://github.com/Mathapedia">Mathapedia</a>.</sub></p>
 
-<p align="center">
-  <b>Working with a coding agent?</b> Give it the skills first:<br/>
-  <code>npx skills add constructive-io/latex-kit</code>
-</p>
+```bash
+npx skills add constructive-io/latex-kit
+```
 
 `latex-kit` turns LaTeX into a build you can trust. Templates are real
 `.tex` files with a few fill-in macros. Data is typed and checked before TeX
