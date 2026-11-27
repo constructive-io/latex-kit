@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.6.2](https://github.com/constructive-io/latex-kit/compare/latex-kit@0.6.1...latex-kit@0.6.2) (2026-11-27)
+
+### Bug Fixes
+
+- **deps:** bump inquirerer to 4.9.7 ([#1](https://github.com/constructive-io/latex-kit/issues/1)) ([be4b8e2](https://github.com/constructive-io/latex-kit/commit/be4b8e28dec544ea65b20c07b64d39aec69cb050))
+- init --template installs a starter's skills from a remote repository too ([2d9f4fc](https://github.com/constructive-io/latex-kit/commit/2d9f4fcbcb7d1de0617e18b625da71ac029bf502))
+
+### Features
+
+- agent skills, and init installs the ones a starter names ([2e174a3](https://github.com/constructive-io/latex-kit/commit/2e174a3185e79f9e8d88a5e9c651b08638e62170))
+- five more agent skills; init and other commands accept absolute paths ([f8b85e4](https://github.com/constructive-io/latex-kit/commit/f8b85e40aecd0ec99fc3f115ec0d8ba35ebce449))
+- latex-kit init --template starts from a starter kit ([7ae9e41](https://github.com/constructive-io/latex-kit/commit/7ae9e4123bb1f27ffebdd93e867ff789e3c9adb7))
+
 ## [0.6.1](https://github.com/constructive-io/latex-kit/compare/latex-kit@0.6.0...latex-kit@0.6.1) (2026-11-27)
 
 **Note:** Version bump only for package latex-kit
