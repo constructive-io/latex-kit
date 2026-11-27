@@ -18,9 +18,6 @@
 
 <p align="center">Build typed, reproducible LaTeX documents from the command line.</p>
 
-The command-line front end for the `@latex-kit/*` packages. The binary is
-`latex-kit`, not `latex`, so it never shadows TeX's own `latex`.
-
 ## Installation
 
 ```bash
