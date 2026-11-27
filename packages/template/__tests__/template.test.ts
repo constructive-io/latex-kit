@@ -374,3 +374,20 @@ describe('wrapDocument blanks', () => {
     expect(wrapDocument(doc, { variant: 'blank', blanks: 'names' })).toContain('{rendered,blank,blanknames}{latex-kit}');
   });
 });
+
+describe('review copies', () => {
+  it('wraps filled-in values in \\lkvalue when asked, but not \\raw ones, missing ones or blanks', () => {
+    const src = '\\field{name} owes \\field{amount|money:USD}. \\raw{tex} \\field{gone}';
+    const data = { name: 'R&D Co', amount: 1200, tex: '\\emph{x}' };
+    const r = render(src, { variant: 'draft', data, markValues: true });
+    expect(r.tex).toBe('\\lkvalue{R\\&D Co} owes \\lkvalue{\\$1,200.00}. \\emph{x} \\lkmissing{gone}');
+    expect(render(src, { variant: 'draft', data }).tex).toBe('R\\&D Co owes \\$1,200.00. \\emph{x} \\lkmissing{gone}');
+    expect(render('\\field{name}', { variant: 'blank', markValues: true }).tex).toBe('\\lkblank{name}');
+  });
+
+  it('tells latex-kit.sty to print missing values as blanks', () => {
+    const doc = '\\documentclass{article}\\begin{document}x\\end{document}';
+    expect(wrapDocument(doc, { variant: 'draft', missing: 'blank' })).toContain('{rendered,draft,missingblank}{latex-kit}');
+    expect(wrapDocument(doc, { variant: 'draft', missing: 'marker' })).toContain('{rendered,draft}{latex-kit}');
+  });
+});

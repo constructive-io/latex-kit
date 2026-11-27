@@ -24,6 +24,12 @@ export interface EvaluateOptions {
    * for `draft`; `final` and `signed` always fail on a missing value.
    */
   allowMissing?: boolean;
+  /**
+   * Wrap every value a `\field` fills in with `\lkvalue{…}`, which prints it
+   * in red: a review copy that shows what came from the record. Not for
+   * `\raw` fields, whose LaTeX may not survive being an argument.
+   */
+  markValues?: boolean;
   /** Resolve \snippet{name} from the file that uses it. */
   loadSnippet?: (name: string, from: string) => CompiledTemplate | null;
   /** Resolve \clause{id} from the clause library. */
@@ -222,7 +228,11 @@ export function evaluateTemplate(template: CompiledTemplate, options: EvaluateOp
         }
         const isGone = !result.defaulted && isMissing(result.value);
         fields.push({ path, ...node.loc, missing: isGone });
-        out += isGone ? missing(path, node.loc) : toTex(result.value, node.raw, result.newlines, path, node.loc);
+        if (isGone) out += missing(path, node.loc);
+        else {
+          const tex = toTex(result.value, node.raw, result.newlines, path, node.loc);
+          out += options.markValues && tex && !node.raw ? `\\lkvalue{${tex}}` : tex;
+        }
         break;
       }
       case 'docid':

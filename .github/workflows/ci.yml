@@ -99,6 +99,17 @@ jobs:
           node ../../packages/latex-kit/dist/cli.js build
           node ../../packages/latex-kit/dist/cli.js build --variant blank
 
+      - name: Blank styles, review copies, and the positions of the spots to sign
+        working-directory: examples/workspace
+        run: |
+          node ../../packages/latex-kit/dist/cli.js build --variant blank --blanks names
+          node ../../packages/latex-kit/dist/cli.js build --variant blank --blanks lines
+          node ../../packages/latex-kit/dist/cli.js build --highlight --missing blank
+          test -f out/nda/nda-names.pdf
+          test -f out/nda-placeholder-labs/nda-placeholder-labs-highlight.pdf
+          # the NDA's two \signature blocks mark a signature and a date each
+          node -e "const f=require('./out/nda-placeholder-labs/nda-placeholder-labs.form.json'); const got=f.map(x=>x.type+':'+x.who).sort().join(); const want='date:discloser,date:recipient,signature:discloser,signature:recipient'; if(got!==want){console.error('got',got);process.exit(1)}"
+
       - name: An unchanged build reuses its PDF
         working-directory: examples/workspace
         run: |

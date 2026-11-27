@@ -13,6 +13,11 @@ describe('form fields', () => {
     expect(parseFormFile(`${line}\n`)).toEqual([{ type: 'signature', who: 'company', page: 8, x: 72, y: 513, width: 198, height: 18 }]);
   });
 
+  it('keeps the label of a text spot, spaces and all', () => {
+    const [field] = parseFormFile(`text buyer 2 0 0 65536 65536 0 Printed name\n`);
+    expect(field).toEqual({ type: 'text', who: 'buyer', label: 'Printed name', page: 2, x: 0, y: 0, width: 1, height: 1 });
+  });
+
   it('skips anything that is not a spot, and reads "-" as no party', () => {
     const fields = parseFormFile(['', 'not a line', 'date - 1 0 0 65536 65536 0', 'date x 0 0 0 1 1 0', 'date x 1 a 0 1 1 0'].join('\n'));
     expect(fields).toEqual([{ type: 'date', who: '', page: 1, x: 0, y: 0, width: 1, height: 1 }]);

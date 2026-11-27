@@ -129,6 +129,13 @@ name, small, on a line), `--blanks lines` (an empty line to write on) and
 `--blanks names` (the name in brackets, written to `<name>-names.pdf`). Set a
 project default with `blanks:` in the config.
 
+Two review copies of a filled document, both drafts:
+
+```bash
+latex-kit build --highlight                   # every filled-in value in red: <name>-highlight.pdf
+latex-kit build --highlight --missing blank   # and missing values as blanks, not red markers
+```
+
 ### Components and TypeScript
 
 Long prose stays in `.tex`. For computed parts, a template calls a
@@ -163,7 +170,7 @@ last one reuses its PDF (`--force` rebuilds).
 |---|---|
 | `latex-kit init [dir] [--paper]` | A working project (letter template, data, a record) or a paper with a CI workflow |
 | `latex-kit new template <name>` / `new document <name> --template <t>` | Skeletons; new records get every required field and editor autocomplete |
-| `latex-kit build [documents…]` | `--final`, `--variant draft\|blank\|signed`, `--only 'nda-*'`, `--locale ja-JP`, `--template`, `--verify`, `--strict`, `--force`, `--signatures <dir>`, `--blanks labelled\|lines\|names` |
+| `latex-kit build [documents…]` | `--final`, `--variant draft\|blank\|signed`, `--only 'nda-*'`, `--locale ja-JP`, `--template`, `--verify`, `--strict`, `--force`, `--signatures <dir>`, `--blanks labelled\|lines\|names`, `--highlight`, `--missing blank` |
 | `latex-kit watch [documents…]` | Rebuild drafts whenever a template, snippet, clause or record changes |
 | `latex-kit check` | Unknown fields with `file:line:col`, invalid data, broken references, reused IDs |
 | `latex-kit fields <template>` | Every field a template reads, with its filters |

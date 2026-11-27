@@ -89,6 +89,10 @@ Options
                          labelled (default) the field's name on a line
                          lines     an empty line to write on
                          names     the name in brackets; writes <name>-names.pdf
+      --highlight        Drafts: print every filled-in value in red, to review
+                         what came from the record; writes <name>-highlight.pdf
+      --missing <how>    Drafts: a missing value prints as a red marker
+                         (default) or as a blank to fill in: --missing blank
       --signatures <dir> Signature images for --variant signed
       --strict           Fail on missing values in drafts too
       --force            Rebuild even if the PDF is up to date

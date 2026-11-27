@@ -11,6 +11,8 @@ export interface WrapOptions {
   stamp?: string;
   /** How blanks print: a small labelled line (default), an empty line, or the field's name in brackets. */
   blanks?: BlankStyle;
+  /** Draft builds: print a missing value as a red marker (default) or as a blank. */
+  missing?: 'marker' | 'blank';
 }
 
 const USES_PACKAGE = /\\(?:usepackage|RequirePackage)\s*(?:\[[^\]]*\])?\s*\{[^}]*\blatex-kit\b[^}]*\}/;
@@ -26,7 +28,8 @@ const USES_PACKAGE = /\\(?:usepackage|RequirePackage)\s*(?:\[[^\]]*\])?\s*\{[^}]
 export function wrapDocument(tex: string, options: WrapOptions): string {
   const stamp = options.stamp ? escapeLatex(options.stamp) : '';
   const blanks = options.blanks === 'lines' ? ',blanklines' : options.blanks === 'names' ? ',blanknames' : '';
-  const prefix = `\\PassOptionsToPackage{rendered,${options.variant}${blanks}}{latex-kit}\\def\\lkstamp{${stamp}}`;
+  const missing = options.missing === 'blank' ? ',missingblank' : '';
+  const prefix = `\\PassOptionsToPackage{rendered,${options.variant}${blanks}${missing}}{latex-kit}\\def\\lkstamp{${stamp}}`;
   let body = tex;
   if (!USES_PACKAGE.test(body)) {
     const at = body.indexOf('\\begin{document}');

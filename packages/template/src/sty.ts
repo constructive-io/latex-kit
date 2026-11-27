@@ -26,6 +26,9 @@ export const LATEX_KIT_STY = `% latex-kit.sty: support for latex-kit templates.
 \\newif\\iflk@blanknames
 \\DeclareOption{blanklines}{\\lk@blanklinestrue}
 \\DeclareOption{blanknames}{\\lk@blanknamestrue}
+% draft builds: print a missing value as a blank instead of a red marker
+\\newif\\iflk@missingblank
+\\DeclareOption{missingblank}{\\lk@missingblanktrue}
 \\ProcessOptions\\relax
 
 \\RequirePackage{xcolor}
@@ -66,6 +69,8 @@ export const LATEX_KIT_STY = `% latex-kit.sty: support for latex-kit templates.
 %                                a spot for someone to fill in. Its page and
 %                                position are written to <document>.form, which
 %                                latex-kit turns into <document>.form.json
+%                                label={Printed name} also says what to type
+%                                in a type=text spot
 %   width=, height=, raise=      the box for that spot: its bottom-left corner
 %                                is where the content starts, moved up by raise
 %                                (defaults 7cm, 24pt, 0pt)
@@ -85,7 +90,7 @@ export const LATEX_KIT_STY = `% latex-kit.sty: support for latex-kit templates.
   \\setkeys{lkf}{#1}\\lkf@mark #2}}
 
 % Where a marked spot landed. One line per spot in <document>.form:
-%   type who page x y width height raise
+%   type who page x y width height raise [label]
 % lengths in scaled points; x and y from the bottom-left corner of the page.
 % Needs an engine that can report positions (LuaTeX, pdfTeX, XeTeX).
 \\newwrite\\lkf@out
@@ -105,7 +110,8 @@ export const LATEX_KIT_STY = `% latex-kit.sty: support for latex-kit templates.
     \\leavevmode\\lkf@savepos
     \\edef\\lkf@next{\\write\\lkf@out{\\lkf@type\\space\\ifx\\lkf@who\\@empty -\\else\\lkf@who\\fi\\space
       \\noexpand\\the\\noexpand\\ReadonlyShipoutCounter\\space\\noexpand\\lkf@x\\space\\noexpand\\lkf@y\\space
-      \\number\\lkf@width\\space\\number\\lkf@height\\space\\number\\lkf@raise}}%
+      \\number\\lkf@width\\space\\number\\lkf@height\\space\\number\\lkf@raise
+      \\ifx\\lkf@label\\@empty\\else\\space\\expandafter\\detokenize\\expandafter{\\lkf@label}\\fi}}%
     \\lkf@next
   \\fi\\fi}
 % \\signature blocks mark their own signature and date lines for the party
@@ -148,7 +154,11 @@ export const LATEX_KIT_STY = `% latex-kit.sty: support for latex-kit templates.
   \\begin{center}{\\large\\bfseries Exhibit \\thelkexhibit}\\ifx\\relax#1\\relax\\else\\\\[0.3em]{\\bfseries #1}\\fi\\end{center}\\par}
 
 % A value the data does not have yet (draft builds only).
-\\newcommand\\lkmissing[1]{\\leavevmode{\\color{red}\\fbox{\\scriptsize\\ttfamily missing: \\detokenize{#1}}}}
+\\newcommand\\lkmissing[1]{\\iflk@missingblank\\lkblank{#1}\\else\\leavevmode{\\color{red}\\fbox{\\scriptsize\\ttfamily missing: \\detokenize{#1}}}\\fi}
+
+% A filled-in value, in builds that highlight them (build --highlight), so a
+% reviewer can see what came from the record. Redefine it to change the look.
+\\providecommand\\lkvalue[1]{{\\color{red}#1}}
 
 \\iflk@draft
   \\RequirePackage{draftwatermark}

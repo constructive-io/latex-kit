@@ -10,6 +10,8 @@ export interface FormField {
   type: string;
   /** The party that fills it in, as the template named it. */
   who: string;
+  /** What to type here, when the template said (`label={Printed name}`). */
+  label?: string;
   /** From 1. */
   page: number;
   x: number;
@@ -23,19 +25,20 @@ const bp = (sp: number): number => Math.round((sp / 65536) * (72 / 72.27) * 100)
 
 /**
  * Read what `\formfield` and `\signature` wrote while TeX ran: one line per
- * spot, `type who page x y width height raise`, lengths in scaled points.
+ * spot, `type who page x y width height raise [label]`, lengths in scaled points.
  * Lines that are not that shape are skipped.
  */
 export function parseFormFile(text: string): FormField[] {
   const fields: FormField[] = [];
   for (const line of text.split('\n')) {
     const parts = line.trim().split(/\s+/);
-    if (parts.length !== 8) continue;
+    if (parts.length < 8) continue;
     const [type, who, ...rest] = parts;
-    const n = rest.map(Number);
+    const n = rest.slice(0, 6).map(Number);
+    const label = rest.slice(6).join(' ');
     if (!n.every(Number.isFinite) || n[0] < 1) continue;
     const [page, x, y, width, height, raise] = n;
-    fields.push({ type, who: who === '-' ? '' : who, page, x: bp(x), y: bp(y + raise), width: bp(width), height: bp(height) });
+    fields.push({ type, who: who === '-' ? '' : who, ...(label ? { label } : {}), page, x: bp(x), y: bp(y + raise), width: bp(width), height: bp(height) });
   }
   return fields;
 }

@@ -42,6 +42,13 @@ export interface BuildOptions {
   verify?: boolean;
   /** How blanks print in blank builds: `labelled` (default), `lines` to write on, or `names` in brackets. */
   blanks?: BlankStyle;
+  /**
+   * Draft builds: print every filled-in value in red, to review what came from
+   * the record. Writes `<document>-highlight.pdf`.
+   */
+  highlight?: boolean;
+  /** Draft builds: print a missing value as a red marker (default) or as a blank to fill in. */
+  missing?: 'marker' | 'blank';
   /** Stop after writing the .tex (no TeX run). */
   texOnly?: boolean;
   /** Use this ID when the record has none, instead of minting one (for redlines). */
@@ -182,7 +189,8 @@ async function run(job: Job): Promise<BuildResult> {
     if (s) snippets.add(resolve(s.file));
     return s;
   };
-  const strict = options.strict ?? isCI();
+  // asking for blanks where values are missing means missing values are expected
+  const strict = options.strict ?? (options.missing === 'blank' ? false : isCI());
   const files = [...job.inputs, template.texFile, ...(template.schemaFile ? [template.schemaFile] : [])];
   const { epoch, reproducible } = buildEpoch(files);
 
@@ -196,7 +204,9 @@ async function run(job: Job): Promise<BuildResult> {
   const outDir = options.outDir ?? join(project.outDir, job.name);
   const blanks: BlankStyle | undefined = variant === 'blank' ? (options.blanks ?? project.config.blanks) : undefined;
   // the names view is its own file, so it can sit next to the form to fill in
-  const job_ = variant === 'final' ? job.name : blanks === 'names' ? `${job.name}-names` : `${job.name}-${variant}`;
+  const highlight = variant === 'draft' && Boolean(options.highlight);
+  const missingAs = variant === 'draft' ? options.missing : undefined;
+  const job_ = variant === 'final' ? job.name : blanks === 'names' ? `${job.name}-names` : highlight ? `${job.name}-highlight` : `${job.name}-${variant}`;
 
   // signed builds: copy signature images next to the .tex for this build only
   const stageDir = join(outDir, 'lk-signatures');
@@ -242,6 +252,7 @@ async function run(job: Job): Promise<BuildResult> {
       docId,
       template: template.name,
       allowMissing: variant === 'draft' ? !strict : undefined,
+      markValues: highlight,
       loadSnippet,
       loadClause: project.loadClause,
       components: project.components,
@@ -261,7 +272,7 @@ async function run(job: Job): Promise<BuildResult> {
     mkdirSync(outDir, { recursive: true });
     const texPath = join(outDir, `${job_}.tex`);
     const stamp = `${new Date(finalEpoch.epoch * 1000).toISOString().slice(0, 10)} ${gitShortHead(project.root)}`;
-    const tex = wrapDocument(evaluated.tex, { variant, stamp, blanks });
+    const tex = wrapDocument(evaluated.tex, { variant, stamp, blanks, missing: missingAs });
     writeFileSync(texPath, tex);
     writeFileSync(join(outDir, 'latex-kit.sty'), LATEX_KIT_STY);
 

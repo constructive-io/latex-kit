@@ -49,6 +49,8 @@ export async function buildCommand(argv: Partial<ParsedArgs>): Promise<number> {
   if (argv.signatures !== undefined && variant !== 'signed') throw new UsageError('--signatures only applies to --variant signed');
   if (argv.blanks !== undefined && !BLANK_STYLES.includes(argv.blanks)) throw new UsageError(`--blanks must be one of ${BLANK_STYLES.join(', ')}`);
   if (argv.blanks !== undefined && variant !== 'blank') throw new UsageError('--blanks only applies to --variant blank');
+  if (argv.missing !== undefined && !['marker', 'blank'].includes(argv.missing)) throw new UsageError('--missing must be marker or blank');
+  if ((argv.highlight || argv.missing !== undefined) && variant !== 'draft') throw new UsageError('--highlight and --missing only apply to drafts');
   const only = onlyMatcher(argv.only);
   const project = await Project.open(argv.root);
   const options: BuildOptions = {
@@ -64,6 +66,8 @@ export async function buildCommand(argv: Partial<ParsedArgs>): Promise<number> {
     force: Boolean(argv.force),
     signatures: argv.signatures,
     blanks: argv.blanks,
+    highlight: Boolean(argv.highlight),
+    missing: argv.missing,
   };
   const json = Boolean(argv.json);
   const log = (s: string) => !json && console.error(s);
