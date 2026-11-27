@@ -31,17 +31,7 @@ You do not use this package directly. [`@latex-kit/sign`](https://www.npmjs.com/
 ```sh
 latex-kit-sign serve                           # the API, on 8787
 pnpm --filter @latex-kit/sign-web dev          # the pages, on 5173, passing /api to 8787
-pnpm --filter @latex-kit/sign-web build        # what gets published: dist/
+pnpm --filter @latex-kit/sign-web build        # build the local pages and stage the npm package
 ```
 
-React, built with Vite. `pnpm test` here is a type check; the behaviour is tested through the API in `@latex-kit/sign`.
-
-## Credits
-
-**🛠 Built by the [Constructive](https://constructive.io) team — creators of modular Postgres tooling for secure, composable backends. If you like our work, contribute on [GitHub](https://github.com/constructive-io).**
-
-## Disclaimer
-
-AS DESCRIBED IN THE LICENSES, THE SOFTWARE IS PROVIDED "AS IS", AT YOUR OWN RISK, AND WITHOUT WARRANTIES OF ANY KIND.
-
-No developer or entity involved in creating this software will be liable for any claims or damages whatsoever associated with your use, inability to use, or your interaction with other users of the code, including any direct, indirect, incidental, special, exemplary, punitive or consequential damages, or loss of profits, cryptocurrencies, tokens, or anything else of value.
+React, built with Vite. `pnpm test` checks types and the staged npm package; the behaviour is tested through the API in `@latex-kit/sign`.

@@ -34,8 +34,9 @@ Guidance for AI agents working in `constructive-io/latex-kit`.
 - Supply-chain policy lives in `pnpm-policy.yaml`. After changing it or
   adding a first-party dependency, run `pnpm run policy`; CI runs
   `pnpm run policy:check`.
-- Every package README starts with the Constructive outline-logo header and
-  ends with the standard Credits and Disclaimer.
+- Every package README starts with the Constructive outline-logo header.
+  Keep the standard Credits and Disclaimer in the root `FOOTER.md` only;
+  the packaging step appends it to each published README.
 
 ## The template language
 
