@@ -49,7 +49,7 @@
     "@latex-kit/schema": "workspace:*",
     "@latex-kit/template": "workspace:*",
     "genomic": "^5.6.8",
-    "inquirerer": "^4.9.5",
+    "inquirerer": "^4.9.7",
     "minimist": "^1.2.8",
     "yanse": "^0.2.3"
   }
