@@ -62,7 +62,10 @@ Guidance for AI agents working in `constructive-io/latex-kit`.
 ## Skills
 
 `.agents/skills/` holds the skills other people's agents install: `latex-kit`,
-`latex-kit-sign` and `latex-kit-starter-kits`. They are documentation that
+`latex-kit-components`, `latex-kit-review`, `latex-kit-import`,
+`latex-kit-sign`, `latex-kit-reproducible-builds`, `latex-kit-papers` and
+`latex-kit-starter-kits`. A skill states only what the code does: check each
+claim against the CLI before writing it. They are documentation that
 gets executed. When a command, flag, macro or starter changes, change the
 skill in the same commit, and keep each one pointing at
 `constructive-io/latex-kit-boilerplates` as the way to start. The starters'

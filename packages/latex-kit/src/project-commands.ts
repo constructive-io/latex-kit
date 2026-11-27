@@ -3,7 +3,7 @@ import { documentJsonSchema, generateTypes, loadDocument } from '@latex-kit/sche
 import { BLANK_STYLES, Diagnostic, formatDiagnostic, LATEX_KIT_STY, Variant, VARIANTS } from '@latex-kit/template';
 import { existsSync, mkdirSync, rmSync, watch as fsWatch, writeFileSync } from 'fs';
 import type { ParsedArgs } from 'minimist';
-import { dirname, isAbsolute, join, relative } from 'path';
+import { dirname, isAbsolute, join, relative, resolve } from 'path';
 import chalk from 'yanse';
 
 import { UsageError } from './args';
@@ -81,7 +81,7 @@ export async function buildCommand(argv: Partial<ParsedArgs>): Promise<number> {
     const names = (argv.template ? [String(argv.template)] : project.templateNames()).filter((n) => !only || only(n));
     for (const n of names) targets.push({ label: `template ${n}`, run: () => buildBlank(project, n, options) });
   } else {
-    let docs = files.length ? files.map((f) => join(process.cwd(), f)) : project.documentFiles();
+    let docs = files.length ? files.map((f) => resolve(process.cwd(), f)) : project.documentFiles();
     for (const f of docs) if (!existsSync(f)) throw new UsageError(`no such document: ${rel(f)}`);
     if (argv.template) {
       const wanted = String(argv.template);
@@ -187,7 +187,7 @@ export async function typegenCommand(argv: Partial<ParsedArgs>): Promise<number>
 
 export async function styCommand(argv: Partial<ParsedArgs>): Promise<number> {
   const project = await Project.open(argv.root);
-  const dir = argv._?.[0] ? join(process.cwd(), String(argv._[0])) : project.templatesDir;
+  const dir = argv._?.[0] ? resolve(process.cwd(), String(argv._[0])) : project.templatesDir;
   mkdirSync(dir, { recursive: true });
   const file = join(dir, 'latex-kit.sty');
   writeFileSync(file, LATEX_KIT_STY);
@@ -220,7 +220,7 @@ export async function diffCommand(argv: Partial<ParsedArgs>): Promise<number> {
   if (!VARIANTS.includes(variant)) throw new UsageError(`--variant must be one of ${VARIANTS.join(', ')}`);
   const project = await Project.open(argv.root);
   const options = { variant, engine: argv.engine, backend: argv.local ? ('local' as const) : undefined, image: argv.image, platform: argv.platform };
-  const abs = (p: string) => join(process.cwd(), p);
+  const abs = (p: string) => resolve(process.cwd(), p);
   let result;
   try {
     if (args.length === 2 && !argv.against) {
@@ -274,7 +274,7 @@ async function initFromStarter(argv: Partial<ParsedArgs>): Promise<number> {
   if (!target) throw new UsageError(`usage: latex-kit init <dir> --template <${Object.keys(STARTERS).join('|')}> [--repo <org/repo>]`);
   if (argv.paper) throw new UsageError('--paper and --template are two different ways to start; pick one');
   const template = String(argv.template);
-  const dir = join(process.cwd(), String(target));
+  const dir = resolve(process.cwd(), String(target));
   if (template === 'module' && !findPnpmWorkspace(dirname(dir))) {
     throw new UsageError('a module goes inside a pnpm workspace. Start one first: latex-kit init <dir> --template workspace');
   }
@@ -297,7 +297,7 @@ async function initFromStarter(argv: Partial<ParsedArgs>): Promise<number> {
 
 export async function initCommand(argv: Partial<ParsedArgs>): Promise<number> {
   if (argv.template !== undefined || argv.repo !== undefined) return initFromStarter({ ...argv, template: argv.template ?? 'project' });
-  const dir = join(process.cwd(), argv._?.[0] ? String(argv._[0]) : '.');
+  const dir = resolve(process.cwd(), argv._?.[0] ? String(argv._[0]) : '.');
   const preset = (argv.preset ?? 'whitepaper') as PaperPreset;
   if (!PAPER_PRESETS.includes(preset)) throw new UsageError(`--preset must be one of ${PAPER_PRESETS.join(', ')}`);
   if (argv.preset && !argv.paper) throw new UsageError('--preset only applies to init --paper');

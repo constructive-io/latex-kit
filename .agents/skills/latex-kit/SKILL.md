@@ -138,5 +138,10 @@ Never edit a `docId` or reuse one.
 
 ## Related skills
 
+- `latex-kit-components`: tables, totals, exhibits, versioned clauses and typed records in TypeScript.
+- `latex-kit-review`: redlines, review copies, other languages, the signed copy.
+- `latex-kit-import`: turn a Word, Markdown, HTML or older LaTeX document into a template.
 - `latex-kit-sign`: get a built PDF signed, or place its fields in another signing app.
+- `latex-kit-reproducible-builds`: pins, engines, CI, and what to do when a build fails.
+- `latex-kit-papers`: papers and plain `.tex` files.
 - `latex-kit-starter-kits`: start a project or a workspace, and write your own starters.
