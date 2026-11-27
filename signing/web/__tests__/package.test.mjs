@@ -10,4 +10,8 @@ test('stages the README with one shared footer and the pages under dist/', () =>
   assert.ok(!source.includes(footer));
   assert.equal(read('../dist/npm/README.md'), `${source}\n\n---\n\n${footer}\n`);
   assert.match(read('../dist/npm/dist/index.html'), /<html[\s>]/);
+  assert.deepEqual(JSON.parse(read('../dist/npm/package.json')).publishConfig, {
+    access: 'public',
+    directory: 'dist/npm',
+  });
 });
