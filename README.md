@@ -31,6 +31,17 @@ runs. Every value is escaped, so a stray `&` or `%` can't break or change a
 document. Builds run in a Docker image pinned by digest, and the build date
 comes from git, so the same commit always produces the same PDF bytes.
 
+## Features
+
+* 📄 **Real LaTeX templates** — plain `.tex` files with a few macros: `\field`, `\when`, `\each`, `\clause`, `\signature`
+* 🛡️ **Typed, checked data** — zod schemas catch a missing or misspelled field before TeX runs, with `file:line:col`
+* ♻️ **Byte-identical PDFs** — a TeX image pinned by digest and build dates from git: same commit, same bytes
+* 📝 **Drafts, blanks, finals** — watermarked drafts, empty forms to write on, final copies with a document ID minted once
+* 🔍 **Review copies and redlines** — filled-in values in red, missing ones as blanks, a redline against any commit
+* ✍️ **Signing built in** — every build maps where each party signs; `@latex-kit/sign` collects signatures with a sealed audit trail
+* 📥 **Import what you have** — Word, Markdown, HTML or older LaTeX becomes a template
+* 🚀 **Starter kits** — `latex-kit init --template` scaffolds a project or a whole workspace, CI included
+
 ## Quick start
 
 ```bash
