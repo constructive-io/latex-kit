@@ -44,6 +44,7 @@ Write real LaTeX. Put a macro wherever something changes between documents:
 | Macro | |
 |---|---|
 | `\field{client.name}` | A value. Filters: `\|date:long`, `\|money`, `\|paragraphs`, `\|upper`, `\|default:"…"` |
+| `\raw{notes}` | A value inserted as LaTeX, **not** escaped. `latex-kit check` warns on every use |
 | `\when{x}{…}\otherwise{…}` | Only when a value is there, or true |
 | `\each{items}{item}{… \field{item.name} …}` | Once per entry in a list |
 | `\snippet{letterhead}` | A shared piece from `snippets/` |
@@ -54,6 +55,7 @@ Rules that save trouble:
 
 - **Never type data into a template.** A name, a date or an amount in `template.tex` will be in every document. If it changes between documents, it is a `\field`.
 - **Values are escaped for you.** `R&D 100%` in a record prints correctly. Do not escape in the data.
+- **Escaping only touches data.** The template, snippets and clauses are ordinary LaTeX and are kept byte for byte. When a value is itself LaTeX (a formula, a pre-formatted block), use `\raw{path}` for that one value. A `\raw` value runs as TeX, so never use it for text that someone outside the project typed.
 - **A party is an object:** `{ name, address, signer: { name, title, email } }` for an organization; a person has no `signer` and signs for themselves.
 
 Turning an existing document into a template: `latex-kit import file.docx` (or `.md`, `.html`, `.tex`) makes a first pass; `{{x}}` becomes `\field{x}`. Then read it against the original.

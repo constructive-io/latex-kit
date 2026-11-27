@@ -55,7 +55,7 @@ export default defineComponent((data: any, ctx) =>
 \component{line-items}{order}   % or the value at a path
 ```
 
-- **Return `tex`-tagged LaTeX or a plain string.** In a `tex` template the interpolated values are escaped and the literal LaTeX around them is not: ``tex`\textbf{${name}}` ``. A plain string is escaped whole. Never build LaTeX by joining strings with data in them.
+- **Return `tex`-tagged LaTeX or a plain string.** In a `tex` template the interpolated values are escaped and the literal LaTeX around them is not: ``tex`\textbf{${name}}` ``. A plain string is escaped whole. Never build LaTeX by joining strings with data in them. For a value that is already LaTeX and must pass through untouched, wrap it in `raw(value)`.
 - `ctx` has the variant, locale, document ID and whole record, plus `ctx.format(value, 'money:USD')` (the template filters), `ctx.signature(party)` and `ctx.missing('path')`.
 - **A blank build calls a component with no value.** The helpers print labelled blanks; a component of your own must cope with `undefined`. Run `pnpm blank` after writing one.
 
