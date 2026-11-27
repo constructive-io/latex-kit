@@ -63,7 +63,7 @@ export async function scaffoldStarter(options: StarterOptions): Promise<StarterR
   registerDefaultResolver('workspace.dirname', () => name);
 
   const scaffolder = new TemplateScaffolder({ toolName: 'latex-kit', defaultRepo: STARTER_REPO, ttlMs: 24 * 60 * 60 * 1000 });
-  await scaffolder.scaffold({
+  const scaffolded = await scaffolder.scaffold({
     template,
     branch: options.branch,
     fromPath: options.template,
@@ -76,7 +76,8 @@ export async function scaffoldStarter(options: StarterOptions): Promise<StarterR
   // a starter may name agent skills that belong with what it makes
   const skills: StarterResult['skills'] = { installed: [], failed: [] };
   if (!options.noSkills && !process.env.LATEX_KIT_SKIP_SKILL_INSTALL) {
-    const wanted = starterSkills(join(dir, '.boilerplate.json')) ?? (local ? starterSkills(join(template, options.template, '.boilerplate.json')) : null) ?? [];
+    // the starter's config is read from where it was cloned to; it is not copied into the new folder
+    const wanted = starterSkills(join(scaffolded.templateDir, scaffolded.fromPath ?? options.template, '.boilerplate.json')) ?? starterSkills(join(dir, '.boilerplate.json')) ?? [];
     if (wanted.length) {
       // inside a workspace, skills belong at its root, where agents look
       const result = new SkillInstaller({ toolName: 'latex-kit' }).install(wanted, findPnpmWorkspace(dirname(dir)) ?? dir);

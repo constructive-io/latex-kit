@@ -1,3 +1,4 @@
+import { execFileSync } from 'child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
@@ -30,6 +31,31 @@ describe('starters', () => {
     expect(r.motd).toContain('next: read harbour-docs');
     expect(existsSync(join(dir, '.motd'))).toBe(false);
     expect(existsSync(join(dir, '.boilerplate.json'))).toBe(false);
+  });
+
+  it('copies the agent skills a starter names into the new folder', async () => {
+    // a repository that holds a skill, and a starter that asks for it
+    const skills = mkdtempSync(join(tmpdir(), 'lk-skills-'));
+    mkdirSync(join(skills, '.agents', 'skills', 'how-to'), { recursive: true });
+    writeFileSync(join(skills, '.agents', 'skills', 'how-to', 'SKILL.md'), '# how to\n');
+    // skills are cloned with git, so the folder is given a commit
+    const git = (...args: string[]) => execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@example.test', '-c', 'commit.gpgsign=false', ...args], { cwd: skills, stdio: 'ignore' });
+    git('init', '--quiet');
+    git('add', '--all');
+    git('commit', '--quiet', '--message', 'a skill');
+    const repo = starterRepo();
+    const config = join(repo, 'kit', '.boilerplate.json');
+    writeFileSync(config, JSON.stringify({ ...JSON.parse(readFileSync(config, 'utf8')), skills: [{ source: skills, skills: ['how-to', 'not-there'] }] }));
+    const dir = join(mkdtempSync(join(tmpdir(), 'lk-made-')), 'with-skills');
+    const r = await scaffoldStarter({ dir, template: 'kit', repo, answers: { fullName: 'Ada Marsh' }, noTty: true });
+    expect(r.skills.installed).toEqual(['how-to']);
+    expect(r.skills.failed.map((f) => f.skill)).toEqual(['not-there']);
+    expect(readFileSync(join(dir, '.agents', 'skills', 'how-to', 'SKILL.md'), 'utf8')).toBe('# how to\n');
+
+    const plain = join(mkdtempSync(join(tmpdir(), 'lk-made-')), 'without');
+    const none = await scaffoldStarter({ dir: plain, template: 'kit', repo, answers: { fullName: 'Ada Marsh' }, noTty: true, noSkills: true });
+    expect(none.skills.installed).toEqual([]);
+    expect(existsSync(join(plain, '.agents'))).toBe(false);
   });
 
   it('refuses a folder that already has something in it', async () => {
