@@ -1,6 +1,6 @@
 {
   "name": "@latex-kit/sign",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Get a PDF signed: a signing page, an audit trail with a sealed record, and a placement guide for other signing apps",
   "author": "Constructive <developers@constructive.io>",
   "main": "index.js",
